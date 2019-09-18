@@ -50,6 +50,8 @@ relay_image="${project}_relay"
 node_port=8080
 nats_port=4222
 
+win_home="//c/dev/workspace/indra"
+
 ####################
 # Deploy according to above configuration
 
@@ -126,7 +128,7 @@ services:
     networks:
       - $project
     volumes:
-      - `pwd`:/root
+      - $win_home:/root
     working_dir: /root/modules/daicard
 
   relay:
@@ -162,7 +164,7 @@ services:
     secrets:
       - ${project}_database_dev
     volumes:
-      - `pwd`:/root
+      - $win_home:/root
 
   ethprovider:
     image: $ethprovider_image

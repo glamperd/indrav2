@@ -12,6 +12,7 @@ version=$(shell cat package.json | grep '"version":' | awk -F '"' '{print $$4}')
 
 # Get absolute paths to important dirs
 cwd=$(shell pwd)
+wincwd="C:\dev\workspace\indra"
 bot=$(cwd)/modules/payment-bot
 contracts=$(cwd)/modules/contracts
 daicard=$(cwd)/modules/daicard
@@ -26,7 +27,7 @@ types=$(cwd)/modules/types
 # On Mac, the docker-VM takes care of this for us so pass root's id (ie noop)
 my_id=$(shell id -u):$(shell id -g)
 id=$(shell if [[ "`uname`" == "Darwin" ]]; then echo 0:0; else echo $(my_id); fi)
-docker_run=docker run --name=$(project)_builder --tty --rm --volume=$(cwd):/root $(project)_builder $(id)
+docker_run=docker run --name=$(project)_builder --tty --rm --volume=$(wincwd):/root $(project)_builder $(id)
 
 log_start=@echo "=============";echo "[Makefile] => Start building $@"; date "+%s" > $(flags)/.timestamp
 log_finish=@echo "[Makefile] => Finished building $@ in $$((`date "+%s"` - `cat $(flags)/.timestamp`)) seconds";echo "=============";echo
