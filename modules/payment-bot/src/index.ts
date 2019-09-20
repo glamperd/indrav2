@@ -253,6 +253,7 @@ async function getOrCreateChannel(assetId?: string): Promise<void> {
       assetId: makeChecksum(assetId),
       minimumMaintainedCollateral: parseEther("5").toString(),
     });
+    console.log('added token payment profile')
   }
   registerClientListeners();
 }

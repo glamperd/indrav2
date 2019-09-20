@@ -238,6 +238,9 @@
     },
     "Token": {
       "address": "0x0d8cc4b8d15D4c3eF1d70af0071376fb26B5669b"
+    },
+    "Token2": {
+      "address": "0x98d9f9e8DEbd4A632682ba207670d2a5ACD3c489"
     }
   }
 }

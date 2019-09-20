@@ -22,7 +22,7 @@ docker swarm init 2> /dev/null || true
 ## Setup env vars
 
 project="indra"
-cwd="`pwd`"
+cwd="//C/dev/workspace/indra"
 args="$@"
 identifier=1
 while [ "$1" != "" ]; do
@@ -68,7 +68,7 @@ docker run \
   --rm \
   --tty \
   --user="`id -u`:`id -g`" \
-  --volume="`pwd`:/root" \
+  --volume="//c/dev/workspace/indra:/root" \
   --workdir="/root" \
   ${project}_builder -c '
     set -e
@@ -76,4 +76,4 @@ docker run \
     mkdir -p ${DB_FILENAME%/*}
     touch $DB_FILENAME
     ./node_modules/.bin/ts-node src/index.ts '"$args"'
-  '
+'

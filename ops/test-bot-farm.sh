@@ -9,6 +9,7 @@ docker swarm init 2> /dev/null || true
 
 project="indra"
 tokenAddress="`cat address-book.json | jq '.["4447"].Token.address' | tr -d '"'`"
+token2Address="`cat address-book.json | jq '.["4447"].Token2.address' | tr -d '"'`"
 numBots=${NUMBER_BOTS:-3};
 botsFile="bots.json"
 numLinks=${NUMBER_LINKS:-2}
