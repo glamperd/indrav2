@@ -213,7 +213,7 @@ async function run(): Promise<void> {
 }
 
 async function getOrCreateChannel(assetId?: string): Promise<void> {
-  const connextOpts = {
+  const connextOpts: connext.ClientOptions = {
     ethProviderUrl: config.ethProviderUrl,
     logLevel: config.logLevel,
     mnemonic: config.mnemonic,
@@ -253,7 +253,6 @@ async function getOrCreateChannel(assetId?: string): Promise<void> {
       assetId: makeChecksum(assetId),
       minimumMaintainedCollateral: parseEther("5").toString(),
     });
-    console.log('added token payment profile')
   }
   registerClientListeners();
 }
