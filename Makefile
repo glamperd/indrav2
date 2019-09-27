@@ -14,14 +14,15 @@ version=$(shell cat package.json | grep '"version":' | awk -F '"' '{print $$4}')
 cwd=$(shell pwd)
 wincwd="C:\dev\workspace\indra"
 bot=$(cwd)/modules/payment-bot
+client=$(cwd)/modules/client
 contracts=$(cwd)/modules/contracts
 daicard=$(cwd)/modules/daicard
-client=$(cwd)/modules/client
+database=$(cwd)/modules/database
 messaging=$(cwd)/modules/messaging
 node=$(cwd)/modules/node
+proxy-lock=$(cwd)/modules/proxy-lock
 proxy=$(cwd)/modules/proxy
 redis-lock=$(cwd)/modules/redis-lock
-proxy-lock=$(cwd)/modules/proxy-lock
 types=$(cwd)/modules/types
 
 # Setup docker run time
@@ -43,8 +44,8 @@ $(shell mkdir -p .makeflags $(node)/dist)
 
 default: dev
 all: dev prod
-dev: node types client payment-bot proxy ws-tcp-relay
-prod: node-prod proxy-prod ws-tcp-relay
+dev: database node types client payment-bot proxy ws-tcp-relay
+prod: database node-prod proxy-prod ws-tcp-relay
 
 start: dev
 	bash ops/start-dev.sh ganache
@@ -82,10 +83,10 @@ reset: stop
 	rm -rf $(flags)/deployed-contracts
 
 push-latest: prod
-	bash ops/push-images.sh latest node proxy relay
+	bash ops/push-images.sh latest database node proxy relay
 
 push-prod: prod
-	bash ops/push-images.sh $(version) node proxy relay
+	bash ops/push-images.sh $(version) database node proxy relay
 
 deployed-contracts: contracts
 	bash ops/deploy-contracts.sh ganache
@@ -147,6 +148,11 @@ contracts: node-modules $(shell find $(contracts)/contracts $(find_options))
 daicard-prod: node-modules client $(shell find $(daicard)/src $(find_options))
 	$(log_start)
 	$(docker_run) "cd modules/daicard && npm run build"
+	$(log_finish) && touch $(flags)/$@
+
+database: node-modules $(shell find $(database) $(find_options))
+	$(log_start)
+	docker build --file $(database)/db.dockerfile --tag $(project)_database:latest $(database)
 	$(log_finish) && touch $(flags)/$@
 
 messaging: node-modules $(shell find $(messaging)/src $(find_options))
