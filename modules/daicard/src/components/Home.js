@@ -14,7 +14,7 @@ const styles = {};
 class Home extends React.Component {
   state = {
     scanModal: false,
-    onrampModal: false,
+    //onrampModal: false,
     history: [],
   };
 
@@ -26,7 +26,7 @@ class Home extends React.Component {
 
   constructor(props) {
     super(props);
-    this.onrampRef = React.createRef();
+    //this.onrampRef = React.createRef();
   }
 
   componentDidMount () {
@@ -164,7 +164,7 @@ class Home extends React.Component {
               Cash Out
             </Button>
           </Grid>
-          <Grid item xs={12}>
+      /*    <Grid item xs={12}>
             <Button
               style={{ marginBottom: "20%" }}
               fullWidth
@@ -176,7 +176,7 @@ class Home extends React.Component {
             >
               On Ramp Deposit
             </Button>
-          </Grid>
+          </Grid>  */
         </Grid>
       </>
     );
