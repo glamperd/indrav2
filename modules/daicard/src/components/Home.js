@@ -14,7 +14,7 @@ const styles = {};
 class Home extends React.Component {
   state = {
     scanModal: false,
-    //onrampModal: false,
+    onrampModal: false,
     history: [],
   };
 
@@ -81,26 +81,6 @@ class Home extends React.Component {
                 history={this.state.history}
               />
             </Modal>
-            /*<Modal
-              id="onramp"
-              open={this.state.onrampModal}
-              onClose={() => this.setState({ onrampModal: false })}
-              style={{
-                justifyContent: "center",
-                alignItems: "center",
-                textAlign: "center",
-                position: "absolute",
-                top: "10%",
-                width: "375px",
-                marginLeft: "auto",
-                marginRight: "auto",
-                left: "0",
-                right: "0"
-              }}
-            >
-              <p>Hi!</p>
-              /*<div ref={this.onrampRef} />;
-            </Modal>*/
           </Grid>
         </Grid>
         <Grid
@@ -164,19 +144,42 @@ class Home extends React.Component {
               Cash Out
             </Button>
           </Grid>
-      /*    <Grid item xs={12}>
+          <Grid item xs={12}>
             <Button
               style={{ marginBottom: "20%" }}
               fullWidth
               color="primary"
               variant="outlined"
               size="large"
-              component={Link}
               onClick={() => this.setState({ onrampModal: true })}
             >
               On Ramp Deposit
             </Button>
-          </Grid>  */
+            <Modal
+              id="onramp"
+              open={this.state.onrampModal}
+              onClose={() => this.setState({ onrampModal: false })}
+              style={{
+                justifyContent: "center",
+                alignItems: "center",
+                textAlign: "center",
+                position: "absolute",
+                top: "10%",
+                width: "375px",
+                marginLeft: "auto",
+                marginRight: "auto",
+                left: "0",
+                right: "0"
+              }}
+            >
+              <div>
+                <p id="simple-modal-description">
+                  Duis mollis, est non commodo luctus, nisi erat porttitor ligula.
+                </p>
+              </div>
+              {/*<div ref={this.onrampRef} />;*/}
+            </Modal>
+          </Grid>
         </Grid>
       </>
     );
