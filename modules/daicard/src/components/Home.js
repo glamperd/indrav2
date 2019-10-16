@@ -40,6 +40,7 @@ class Home extends React.Component {
 */  }
 
   render() {
+    const { address } = this.props;
     return (
       <>
         <Grid container direction="row" style={{ marginBottom: "-7.5%" }}>
@@ -173,11 +174,15 @@ class Home extends React.Component {
               }}
             >
               <div>
-                <p id="simple-modal-description">
-                  Duis mollis, est non commodo luctus, nisi erat porttitor ligula.
-                </p>
+                <iframe
+                  title="onrampwyre"
+                  src={"https://pay.sendwyre.com/purchase?destCurrency=DAI&sourceAmount=10&dest=" + address + "&paymentMethod=apple-pay"}
+                  frameBorder="0"
+                  allowFullScreen
+                  height="800">
+                </iframe>
               </div>
-              {/*<div ref={this.onrampRef} />;*/}
+              {/*<div ref={this.onrampRef} />; */}
             </Modal>
           </Grid>
         </Grid>
