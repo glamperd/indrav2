@@ -31,7 +31,11 @@ types=$(cwd)/modules/types
 my_id=$(shell id -u):$(shell id -g)
 id=$(shell if [[ "`uname`" == "Darwin" ]]; then echo 0:0; else echo $(my_id); fi)
 is_win=$(shell if [[ "`uname -a`" =~ .*Microsoft.* ]]; then echo true; else echo false; fi)
-volcwd=$(shell if [ $is_win == true ]; then echo ${wincwd}; else echo ${cwd}; fi)
+ifeq ($(is_win), true)
+  volcwd=$(wincwd)
+else
+  volcwd=$(cwd)
+endif
 docker_run=docker run --name=$(project)_builder --tty --rm --volume=$(volcwd):/root $(project)_builder $(id)
 
 log_start=@echo "=============";echo "[Makefile] => Start building $@"; date "+%s" > $(flags)/.timestamp
