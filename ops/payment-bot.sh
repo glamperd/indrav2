@@ -22,7 +22,10 @@ docker swarm init 2> /dev/null || true
 ## Setup env vars
 
 project="indra"
-cwd="//C/dev/workspace/indra"
+if [[ "`pwd`" =~ /mnt/c/.* ]]
+then cwd="//C/dev/workspace/indra"
+else cwd="`pwd`"
+fi
 args="$@"
 identifier=1
 while [ "$1" != "" ]; do
@@ -70,7 +73,7 @@ docker run \
   --rm \
   --tty \
   --user="`id -u`:`id -g`" \
-  --volume="//c/dev/workspace/indra:/root" \
+  --volume="$cwd:/root" \
   --workdir="/root" \
   ${project}_builder -c '
     set -e

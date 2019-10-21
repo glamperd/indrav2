@@ -30,7 +30,9 @@ types=$(cwd)/modules/types
 # On Mac, the docker-VM takes care of this for us so pass root's id (ie noop)
 my_id=$(shell id -u):$(shell id -g)
 id=$(shell if [[ "`uname`" == "Darwin" ]]; then echo 0:0; else echo $(my_id); fi)
-docker_run=docker run --name=$(project)_builder --tty --rm --volume=$(wincwd):/root $(project)_builder $(id)
+is_win=$(shell if [[ "`uname -a`" =~ .*Microsoft.* ]]; then echo true; else echo false; fi)
+volcwd=$(if [ $is_win ]; then echo $wincwd; else echo $cwd; fi)
+docker_run=docker run --name=$(project)_builder --tty --rm --volume=$(volcwd):/root $(project)_builder $(id)
 
 log_start=@echo "=============";echo "[Makefile] => Start building $@"; date "+%s" > $(flags)/.timestamp
 log_finish=@echo "[Makefile] => Finished building $@ in $$((`date "+%s"` - `cat $(flags)/.timestamp`)) seconds";echo "=============";echo
