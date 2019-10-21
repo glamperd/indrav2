@@ -154,7 +154,7 @@ class Home extends React.Component {
               size="large"
               onClick={() => this.setState({ onrampModal: true })}
             >
-              On Ramp Deposit
+              Buy Credits
             </Button>
             <Modal
               id="onramp"
