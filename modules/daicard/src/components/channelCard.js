@@ -50,8 +50,8 @@ export const ChannelCard = withStyles(styles)(props => {
             <Typography style={{display: 'inline-block'}} variant="h3" className={classes.row}>
               <span>{split(balance.channel.token.toDAI()).part}</span>
             </Typography>
-            <Typography style={{display: 'inline-block'}} variant="h5" className={classes.row}>
-              {" CREDITS"}
+            <Typography style={{display: 'inline-block'}} variant="h7" className={classes.row}>
+              {"   CREDITS"}
             </Typography>
           </span>
           {/* <span style={{fontSize: 64}}>&nbsp;&nbsp;&nbsp;</span> */}
