@@ -52,7 +52,10 @@ redis_url="redis://redis:6379"
 node_port=8080
 nats_port=4222
 
-win_home="//c/dev/workspace/indra"
+if [[ "`pwd`" =~ /mnt/c/(.*) ]]
+then home_dir=//c/${BASH_REMATCH[1]}
+else home_dir="`pwd`"
+fi
 
 ####################
 # Deploy according to above configuration
@@ -130,7 +133,7 @@ services:
     networks:
       - $project
     volumes:
-      - $win_home:/root
+      - $home_dir:/root
     working_dir: /root/modules/daicard
 
   relay:
@@ -167,7 +170,7 @@ services:
     secrets:
       - ${project}_database_dev
     volumes:
-      - $win_home:/root
+      - $home_dir:/root
 
   ethprovider:
     image: $ethprovider_image
