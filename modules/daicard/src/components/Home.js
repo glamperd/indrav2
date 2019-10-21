@@ -14,6 +14,7 @@ const styles = {};
 class Home extends React.Component {
   state = {
     scanModal: false,
+    onrampModal: false,
     history: [],
   };
 
@@ -23,7 +24,23 @@ class Home extends React.Component {
     this.props.history.push(path)
   };
 
+  constructor(props) {
+    super(props);
+    //this.onrampRef = React.createRef();
+  }
+
+  componentDidMount () {
+/*    const script = document.createElement("script");
+
+    script.src = "https://verify.sendwyre.com/js/widget-loader.js";
+    script.async = true;
+    script.innerHTML = 'var widget = new Wyre.Widget({ env: "test", auth: {"type": "secretKey", "secretKey": "aaaa"}, operation: {"type":"onramp", "destCurrency": "DAI"} });';
+
+    this.onrampRef.current.appendChild(script);
+*/  }
+
   render() {
+    const { address } = this.props;
     return (
       <>
         <Grid container direction="row" style={{ marginBottom: "-7.5%" }}>
@@ -127,6 +144,46 @@ class Home extends React.Component {
             >
               Cash Out
             </Button>
+          </Grid>
+          <Grid item xs={12}>
+            <Button
+              style={{ marginBottom: "20%" }}
+              fullWidth
+              color="primary"
+              variant="outlined"
+              size="large"
+              onClick={() => this.setState({ onrampModal: true })}
+            >
+              On Ramp Deposit
+            </Button>
+            <Modal
+              id="onramp"
+              open={this.state.onrampModal}
+              onClose={() => this.setState({ onrampModal: false })}
+              style={{
+                justifyContent: "center",
+                alignItems: "center",
+                textAlign: "center",
+                position: "absolute",
+                top: "10%",
+                width: "375px",
+                marginLeft: "auto",
+                marginRight: "auto",
+                left: "0",
+                right: "0"
+              }}
+            >
+              <div>
+                <iframe
+                  title="onrampwyre"
+                  src={"https://pay.sendwyre.com/purchase?destCurrency=DAI&sourceAmount=10&dest=" + address + "&paymentMethod=apple-pay"}
+                  frameBorder="0"
+                  allowFullScreen
+                  height="800">
+                </iframe>
+              </div>
+              {/*<div ref={this.onrampRef} />; */}
+            </Modal>
           </Grid>
         </Grid>
       </>

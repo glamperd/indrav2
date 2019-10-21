@@ -469,6 +469,7 @@ class App extends React.Component {
                     {...props}
                     balance={balance}
                     scanQRCode={this.scanQRCode}
+                    address={address}
                   />
                   <SetupCard
                     {...props}

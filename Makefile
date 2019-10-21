@@ -12,15 +12,17 @@ version=$(shell cat package.json | grep '"version":' | awk -F '"' '{print $$4}')
 
 # Get absolute paths to important dirs
 cwd=$(shell pwd)
+wincwd="C:\dev\workspace\indra"
 bot=$(cwd)/modules/payment-bot
+client=$(cwd)/modules/client
 contracts=$(cwd)/modules/contracts
 daicard=$(cwd)/modules/daicard
-client=$(cwd)/modules/client
+database=$(cwd)/modules/database
 messaging=$(cwd)/modules/messaging
 node=$(cwd)/modules/node
+proxy-lock=$(cwd)/modules/proxy-lock
 proxy=$(cwd)/modules/proxy
 redis-lock=$(cwd)/modules/redis-lock
-proxy-lock=$(cwd)/modules/proxy-lock
 types=$(cwd)/modules/types
 
 # Setup docker run time
@@ -28,7 +30,7 @@ types=$(cwd)/modules/types
 # On Mac, the docker-VM takes care of this for us so pass root's id (ie noop)
 my_id=$(shell id -u):$(shell id -g)
 id=$(shell if [[ "`uname`" == "Darwin" ]]; then echo 0:0; else echo $(my_id); fi)
-docker_run=docker run --name=$(project)_builder --tty --rm --volume=$(cwd):/root $(project)_builder $(id)
+docker_run=docker run --name=$(project)_builder --tty --rm --volume=$(wincwd):/root $(project)_builder $(id)
 
 log_start=@echo "=============";echo "[Makefile] => Start building $@"; date "+%s" > $(flags)/.timestamp
 log_finish=@echo "[Makefile] => Finished building $@ in $$((`date "+%s"` - `cat $(flags)/.timestamp`)) seconds";echo "=============";echo
@@ -42,8 +44,8 @@ $(shell mkdir -p .makeflags $(node)/dist)
 
 default: dev
 all: dev prod
-dev: node types client payment-bot proxy ws-tcp-relay
-prod: node-prod proxy-prod ws-tcp-relay
+dev: database node types client payment-bot proxy ws-tcp-relay
+prod: database node-prod proxy-prod ws-tcp-relay
 
 start: dev
 	bash ops/start-dev.sh ganache
@@ -81,10 +83,10 @@ reset: stop
 	rm -rf $(flags)/deployed-contracts
 
 push-latest: prod
-	bash ops/push-images.sh latest node proxy relay
+	bash ops/push-images.sh latest database node proxy relay
 
 push-prod: prod
-	bash ops/push-images.sh $(version) node proxy relay
+	bash ops/push-images.sh $(version) database node proxy relay
 
 deployed-contracts: contracts
 	bash ops/deploy-contracts.sh ganache
@@ -117,7 +119,7 @@ test-bot-farm:
 	bash ops/test-bot-farm.sh
 
 test-contracts: contracts
-	bash ops/test-contracts.sh
+		bash ops/test-contracts.sh
 
 test-node: node
 	bash ops/test-node.sh --runInBand --forceExit
@@ -146,6 +148,11 @@ contracts: node-modules $(shell find $(contracts)/contracts $(find_options))
 daicard-prod: node-modules client $(shell find $(daicard)/src $(find_options))
 	$(log_start)
 	$(docker_run) "cd modules/daicard && npm run build"
+	$(log_finish) && touch $(flags)/$@
+
+database: node-modules $(shell find $(database) $(find_options))
+	$(log_start)
+	docker build --file $(database)/db.dockerfile --tag $(project)_database:latest $(database)
 	$(log_finish) && touch $(flags)/$@
 
 messaging: node-modules $(shell find $(messaging)/src $(find_options))
