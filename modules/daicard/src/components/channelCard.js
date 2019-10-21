@@ -25,7 +25,7 @@ export const ChannelCard = withStyles(styles)(props => {
   }
   return (
       <Grid>
-        <Grid 
+        <Grid
           container
           spacing={2}
           direction="column"
@@ -44,14 +44,14 @@ export const ChannelCard = withStyles(styles)(props => {
         <Grid item xs={12}>
           {/* <Typography style={{ color: 'white' }}> Channel </Typography> */}
           <span id="balance-channel-token">
-            <Typography style={{display: 'inline-block'}} variant="h3" className={classes.row}>
-              {"$ "}
-            </Typography>
             <Typography style={{display: 'inline-block'}} variant="h1" className={classes.row}>
               <span>{split(balance.channel.token.toDAI()).whole}</span>
             </Typography>
             <Typography style={{display: 'inline-block'}} variant="h3" className={classes.row}>
               <span>{split(balance.channel.token.toDAI()).part}</span>
+            </Typography>
+            <Typography style={{display: 'inline-block'}} variant="h5" className={classes.row}>
+              {" CREDITS"}
             </Typography>
           </span>
           {/* <span style={{fontSize: 64}}>&nbsp;&nbsp;&nbsp;</span> */}

@@ -134,7 +134,7 @@ class Home extends React.Component {
           </Grid>
           <Grid item xs={12}>
             <Button
-              style={{ marginBottom: "20%" }}
+              style={{ marginBottom: "5%" }}
               fullWidth
               color="primary"
               variant="outlined"
@@ -147,7 +147,7 @@ class Home extends React.Component {
           </Grid>
           <Grid item xs={12}>
             <Button
-              style={{ marginBottom: "20%" }}
+              style={{ marginBottom: "5%" }}
               fullWidth
               color="primary"
               variant="outlined"
@@ -184,6 +184,18 @@ class Home extends React.Component {
               </div>
               {/*<div ref={this.onrampRef} />; */}
             </Modal>
+          </Grid>
+          <Grid item xs={12}>
+            <Button
+              style={{ marginBottom: "5%" }}
+              fullWidth
+              color="primary"
+              variant="outlined"
+              size="large"
+              onClick={() => this.setState({ buyTipTokens: true })}
+            >
+              Buy Tipping Tokens
+            </Button>
           </Grid>
         </Grid>
       </>
