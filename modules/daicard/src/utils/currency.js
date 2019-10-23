@@ -14,6 +14,8 @@ export class Currency {
   static ETH = (amount, daiRate) => new Currency('ETH', amount, daiRate)
   static FIN = (amount, daiRate) => new Currency('FIN', amount, daiRate)
   static WEI = (amount, daiRate) => new Currency('WEI', amount, daiRate)
+  static TIP = (amount, daiRate) => new Currency('TIP', amount, daiRate)
+  static TEI = (amount, daiRate) => new Currency('TEI', amount, daiRate)
 
   typeToSymbol = {
     'DAI': '$',
@@ -21,6 +23,8 @@ export class Currency {
     'ETH': eth.constants.EtherSymbol,
     'FIN': 'FIN ',
     'WEI': 'WEI ',
+    'TIP': 'TIP ',
+    'TEI': 'TEI ',
   }
 
   defaultOptions = {
@@ -29,6 +33,8 @@ export class Currency {
     'ETH': { commas: false, decimals: 3, symbol: true },
     'FIN': { commas: false, decimals: 3, symbol: false },
     'WEI': { commas: false, decimals: 0, symbol: false },
+    'TIP': { commas: false, decimals: 0, symbol: false },
+    'TEI': { commas: false, decimals: 0, symbol: false },
   }
 
   ////////////////////////////////////////
@@ -84,7 +90,7 @@ export class Currency {
   }
 
   isTokenType(type) {
-    return ['DAI', 'DEI'].includes(type || this.type)
+    return ['DAI', 'DEI', 'TIP', 'TEI'].includes(type || this.type)
   }
 
   toBN() {
@@ -154,6 +160,7 @@ export class Currency {
   toETH = (daiRate) => this._convert('ETH', daiRate)
   toFIN = (daiRate) => this._convert('FIN', daiRate)
   toWEI = (daiRate) => this._convert('WEI', daiRate)
+  toTEI = (daiRate) => this._convert('TEI', daiRate)
 
   ////////////////////////////////////////
   // Private Methods

@@ -89,11 +89,13 @@ class App extends React.Component {
           ether: Currency.ETH("0", swapRate),
           token: Currency.DAI("0", swapRate),
           total: Currency.ETH("0", swapRate),
+          tipToken: Currency.TIP("0", 1000),
         },
         onChain: {
           ether: Currency.ETH("0", swapRate),
           token: Currency.DAI("0", swapRate),
           total: Currency.ETH("0", swapRate),
+          tipToken: Currency.TIP("0", 1000),
         },
       },
       ethprovider: null,
@@ -105,6 +107,7 @@ class App extends React.Component {
       sendScanArgs: { amount: null, recipient: null },
       swapRate,
       token: null,
+      tipToken: null,
       xpub: "",
       tokenProfile: null,
     };
@@ -233,7 +236,7 @@ class App extends React.Component {
   }
 
   refreshBalances = async () => {
-    const { freeBalanceAddress, swapRate, token } = this.state;
+    const { freeBalanceAddress, swapRate, token, tipToken } = this.state;
     const { address, balance, channel, ethprovider } = this.state;
     if (!channel) { return; }
     const getTotal = (ether, token) => Currency.WEI(ether.wad.add(token.toETH().wad), swapRate);
@@ -245,6 +248,7 @@ class App extends React.Component {
     balance.channel.ether = Currency.WEI(freeEtherBalance[freeBalanceAddress], swapRate).toETH();
     balance.channel.token = Currency.DEI(freeTokenBalance[freeBalanceAddress], swapRate).toDAI();
     balance.channel.total = getTotal(balance.channel.ether, balance.channel.token).toETH();
+    balance.channel.tipToken = Currency.TIP(freeTokenBalance[freeBalanceAddress], 1000);
     this.setState({ balance });
   }
 
@@ -448,6 +452,7 @@ class App extends React.Component {
       pending,
       sendScanArgs,
       token,
+      tipToken,
       tokenProfile,
       xpub,
     } = this.state;
@@ -524,6 +529,7 @@ class App extends React.Component {
                   channel={channel}
                   scanArgs={sendScanArgs}
                   token={token}
+                  tipToken={tipToken}
                 />
               )}
             />
