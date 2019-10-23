@@ -192,9 +192,10 @@ class Home extends React.Component {
               color="primary"
               variant="outlined"
               size="large"
-              onClick={() => this.setState({ buyTipTokens: true })}
+              component={Link}
+              to="/swaptips"
             >
-              Buy Tipping Tokens
+              Buy/Sell Tipping Tokens
             </Button>
           </Grid>
         </Grid>

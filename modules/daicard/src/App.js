@@ -20,6 +20,7 @@ import MySnackbar from "./components/snackBar";
 import RequestCard from "./components/requestCard";
 import RedeemCard from "./components/redeemCard";
 import SendCard from "./components/sendCard";
+import BuyTipsCard from "./components/buyTipsCard";
 import SettingsCard from "./components/settingsCard";
 import SetupCard from "./components/setupCard";
 import SupportCard from "./components/supportCard";
@@ -155,6 +156,7 @@ class App extends React.Component {
     const freeBalanceAddress = channel.freeBalanceAddress || channel.myFreeBalanceAddress;
     const connextConfig = await channel.config();
     const token = new Contract(connextConfig.contractAddresses.Token, tokenArtifacts.abi, cfWallet);
+    const tipToken = new Contract(connextConfig.contractAddresses.Token2, tokenArtifacts.abi, cfWallet);
     const swapRate = await channel.getLatestSwapRate(AddressZero, token.address);
     const invSwapRate = inverse(swapRate)
 
@@ -164,6 +166,7 @@ class App extends React.Component {
     console.log(` - CF Account address: ${cfWallet.address}`);
     console.log(` - Free balance address: ${freeBalanceAddress}`);
     console.log(` - Token address: ${token.address}`);
+    console.log(` - TipToken address: ${tipToken.address}`);
     console.log(` - Swap rate: ${swapRate} or ${invSwapRate}`)
 
     channel.subscribeToSwapRates(AddressZero, token.address, (res) => {
@@ -180,6 +183,7 @@ class App extends React.Component {
       loadingConnext: false,
       swapRate,
       token,
+      tipToken,
       wallet: cfWallet,
       xpub: channel.publicIdentifier,
     });
@@ -503,6 +507,18 @@ class App extends React.Component {
               path="/send"
               render={props => (
                 <SendCard
+                  {...props}
+                  balance={balance}
+                  channel={channel}
+                  scanArgs={sendScanArgs}
+                  token={token}
+                />
+              )}
+            />
+            <Route
+              path="/swaptips"
+              render={props => (
+                <BuyTipsCard
                   {...props}
                   balance={balance}
                   channel={channel}
