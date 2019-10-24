@@ -72,7 +72,7 @@ export const AppBarComponent = props => (
               </Button>
             </Grid>
             <Grid item xs={2}>
-              <a href="uniview://action?key=ReturnToUnity" >
+              <a href="uniwebview://action?key=ReturnToUnity" >
                 <Button
                   size="small"
                   variant="outlined"
