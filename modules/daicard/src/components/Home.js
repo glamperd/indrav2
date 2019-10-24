@@ -200,7 +200,6 @@ class Home extends React.Component {
             </Button>
           </Grid>
         </Grid>
-        <div id="getaddr" ref={function getAddress() {return address;}} />
       </>
     );
   }
