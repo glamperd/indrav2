@@ -37,7 +37,8 @@ class Home extends React.Component {
     script.innerHTML = 'var widget = new Wyre.Widget({ env: "test", auth: {"type": "secretKey", "secretKey": "aaaa"}, operation: {"type":"onramp", "destCurrency": "DAI"} });';
 
     this.onrampRef.current.appendChild(script);
-*/  }
+*/
+  }
 
   render() {
     const { address } = this.props;
@@ -176,7 +177,7 @@ class Home extends React.Component {
               <div>
                 <iframe
                   title="onrampwyre"
-                  src={"https://pay.sendwyre.com/purchase?destCurrency=DAI&sourceAmount=10&dest=" + address + "&paymentMethod=apple-pay"}
+                  src={"https://pay.testwyre.com/purchase?destCurrency=DAI&sourceAmount=10&dest=" + address }
                   frameBorder="0"
                   allowFullScreen
                   height="800">
@@ -199,6 +200,7 @@ class Home extends React.Component {
             </Button>
           </Grid>
         </Grid>
+        <div id="getaddr" ref={function getAddress() {return address;}} />
       </>
     );
   }

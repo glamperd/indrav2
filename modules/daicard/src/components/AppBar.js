@@ -51,7 +51,7 @@ export const AppBarComponent = props => (
                     marginLeft: "0.5em"
                   }}
                 >
-                  <span>{props.address}</span>
+                  <span id="ethaddress">{props.address}</span>
                 </Typography>
               </IconButton>
             </Grid>

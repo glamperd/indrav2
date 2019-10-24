@@ -67,6 +67,7 @@ class BuyTipsCard extends Component {
 
   async updateAmountHandler(rawValue) {
     const { balance } = this.props;
+    const { isBuy } = this.state;
     let value = null,
       error = null;
     try {
@@ -74,7 +75,7 @@ class BuyTipsCard extends Component {
     } catch (e) {
       error = e.message;
     }
-    if (value && value.wad.gt(balance.channel.token.wad)) {
+    if (isBuy && value && value.wad.gt(balance.channel.token.wad)) {
       error = `Invalid amount: must be less than your balance`;
     }
     if (value && value.wad.lte(Zero)) {
@@ -91,6 +92,7 @@ class BuyTipsCard extends Component {
 
   async updateTipsHandler(rawValue) {
     const { balance } = this.props;
+    const { isBuy } = this.state;
     let value = null,
       error = null;
     try {
@@ -98,7 +100,7 @@ class BuyTipsCard extends Component {
     } catch (e) {
       error = e.message;
     }
-    if (value && value.wad.gt(balance.channel.tipToken.wad)) {
+    if (!isBuy && value && value.wad.gt(balance.channel.tipToken.wad)) {
       error = `Invalid amount: must be less than your balance`;
     }
     if (value && value.wad.lte(Zero)) {
@@ -126,7 +128,7 @@ class BuyTipsCard extends Component {
     // hub side. retry for 1min, then fail
     const endingTs = Date.now() + 60 * 1000;
     let transferRes = undefined;
-    const swapRate = 1000;
+    const swapRate = "1000";
     while (Date.now() < endingTs) {
       try {
         transferRes = await channel.swap({
@@ -138,13 +140,16 @@ class BuyTipsCard extends Component {
         await this.refreshBalances();
         break;
       } catch (e) {
+        console.log('error' + e.message);
         await delay(5000);
       }
     }
     if (!transferRes) {
+      console.log('Swap failed');
       this.setState({ paymentState: PaymentStates.OtherError, showReceipt: true });
       return;
     }
+    console.log('Swap succeeded');
     this.setState({ showReceipt: true, paymentState: PaymentStates.Success });
   }
 
@@ -178,12 +183,12 @@ class BuyTipsCard extends Component {
         </Grid>
         <Grid item xs={12}>
           <Grid container direction="row" justify="center" alignItems="center">
-            <Typography variant="h2">
+            <Typography variant="h4">
               <span>{this.props.balance.channel.token.toDAI().format()}</span>
             </Typography>
           </Grid>
           <Grid container direction="row" justify="center" alignItems="center">
-            <Typography variant="h2">
+            <Typography variant="h5">
               <span>{this.props.balance.channel.tipToken.format()}</span>
             </Typography>
             <Typography variant="body2">
@@ -229,12 +234,12 @@ class BuyTipsCard extends Component {
                   disabled={!!amount.error || !!tips.error}
                   fullWidth
                   onClick={() => {
-                    this.buySellHandler();
+                    this.buyTipsHandler();
                   }}
                   size="large"
                   variant="contained"
               >
-                {buyOrSell}
+                {buyOrSell + ' TIPS'}
               </Button>
             </Grid>
           </Grid>

@@ -242,13 +242,14 @@ class App extends React.Component {
     const getTotal = (ether, token) => Currency.WEI(ether.wad.add(token.toETH().wad), swapRate);
     const freeEtherBalance = await channel.getFreeBalance();
     const freeTokenBalance = await channel.getFreeBalance(token.address);
+    const freeTipBalance = await channel.getFreeBalance(tipToken.address);
     balance.onChain.ether = Currency.WEI(await ethprovider.getBalance(address), swapRate).toETH();
     balance.onChain.token = Currency.DEI(await token.balanceOf(address), swapRate).toDAI();
     balance.onChain.total = getTotal(balance.onChain.ether, balance.onChain.token).toETH();
     balance.channel.ether = Currency.WEI(freeEtherBalance[freeBalanceAddress], swapRate).toETH();
     balance.channel.token = Currency.DEI(freeTokenBalance[freeBalanceAddress], swapRate).toDAI();
     balance.channel.total = getTotal(balance.channel.ether, balance.channel.token).toETH();
-    balance.channel.tipToken = Currency.TIP(freeTokenBalance[freeBalanceAddress], 1000);
+    balance.channel.tipToken = Currency.TIP(freeTipBalance[freeBalanceAddress], 1);
     this.setState({ balance });
   }
 
