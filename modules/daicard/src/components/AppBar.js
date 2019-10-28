@@ -51,27 +51,11 @@ export const AppBarComponent = props => (
                     marginLeft: "0.5em"
                   }}
                 >
-                  <span id="ethaddress"></span>
+                  <span id="ethaddress">{props.address}</span>
                 </Typography>
               </IconButton>
             </Grid>
-            <Grid item xs={3}>
-              <Button
-                size="small"
-                variant="outlined"
-                style={{
-                  color: "#c1c6ce",
-                  borderColor: "#c1c6ce",
-                  fontSize: "small"
-                }}
-                component={Link}
-                to="/settings"
-              >
-                {localStorage.getItem("rpc-prod")}
-                <SettingIcon style={{ marginLeft: "3px" }} />
-              </Button>
-            </Grid>
-            <Grid item xs={2}>
+            <Grid item xs={4} direction='column'>
               <a href="uniwebview://action?key=ReturnToUnity" >
                 <Button
                   size="small"
@@ -86,6 +70,20 @@ export const AppBarComponent = props => (
                   <ExitToAppIcon style={{ marginLeft: "3px" }} />
                 </Button>
               </a>
+              <Button
+                size="small"
+                variant="outlined"
+                style={{
+                  color: "#c1c6ce",
+                  borderColor: "#c1c6ce",
+                  fontSize: "small"
+                }}
+                component={Link}
+                to="/settings"
+              >
+                {localStorage.getItem("rpc-prod")}
+                <SettingIcon style={{ marginLeft: "3px" }} />
+              </Button>
             </Grid>
           </Grid>
         </Toolbar>
