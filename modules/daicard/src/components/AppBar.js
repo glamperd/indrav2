@@ -51,7 +51,7 @@ export const AppBarComponent = props => (
                     marginLeft: "0.5em"
                   }}
                 >
-                  <span id="ethaddress">{props.address}</span>
+                  <span id="ethaddress">{function setAddress(addr) {console.log('setting address to ' + addr);}}</span>
                 </Typography>
               </IconButton>
             </Grid>
