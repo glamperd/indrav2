@@ -1,4 +1,6 @@
-import { Button, Fab, Grid, Modal, withStyles } from "@material-ui/core";
+import { Button, Fab, Grid, Modal, withStyles,
+  TextField
+ } from "@material-ui/core";
 import { SaveAlt as ReceiveIcon, Send as SendIcon } from "@material-ui/icons";
 import QRIcon from "mdi-material-ui/QrcodeScan";
 import React from "react";
@@ -23,6 +25,15 @@ class Home extends React.Component {
     this.setState({ scanModal: false })
     this.props.history.push(path)
   };
+
+  handleSubmit = (e) => {
+    e.preventDefault();
+    console.log('submit' + e.target.children[0].value);
+  }
+
+  setAddress = (addr) => {
+    console.log('new address: ' + addr);
+  }
 
   constructor(props) {
     super(props);
@@ -117,6 +128,7 @@ class Home extends React.Component {
               </Grid>
               <Grid item xs={12} sm={6}>
                 <Button
+                  id='sendbtn'
                   fullWidth
                   style={{
                     color: "#FFF",
@@ -198,6 +210,10 @@ class Home extends React.Component {
             >
               Buy/Sell Tipping Tokens
             </Button>
+            <form id="addressform" onSubmit={this.handleSubmit} hidden >
+              <input id="setaddress" type="hidden" onChange={this.setAddress}/>
+              <input id="submitaddress" type='submit' value='Submit' />
+            </form>
           </Grid>
         </Grid>
       </>
