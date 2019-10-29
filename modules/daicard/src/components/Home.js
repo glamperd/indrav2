@@ -10,8 +10,13 @@ import "../App.css";
 
 import { ChannelCard } from "./channelCard";
 import { QRScan } from "./qrCode";
+import { store } from '../utils';
 
 const styles = {};
+
+function setAddressScript() {
+  return {__html: '<script>function setAddr(addr) {assert(addr);}</script>'}
+}
 
 class Home extends React.Component {
   state = {
@@ -28,11 +33,14 @@ class Home extends React.Component {
 
   handleSubmit = (e) => {
     e.preventDefault();
-    console.log('submit' + e.target.children[0].value);
+    const address = e.target.children[0].value;
+    console.log('submit' + address);
+    store.set([ {path: 'ethAddress', value: address }]);
   }
 
   setAddress = (addr) => {
     console.log('new address: ' + addr);
+    store.set([ {path: 'ethAddress', value: addr }]);
   }
 
   constructor(props) {
@@ -53,6 +61,7 @@ class Home extends React.Component {
 
   render() {
     const { address } = this.props;
+    const ethAddress = store.get('ethAddress');
     return (
       <>
         <Grid container direction="row" style={{ marginBottom: "-7.5%" }}>
@@ -189,7 +198,7 @@ class Home extends React.Component {
               <div>
                 <iframe
                   title="onrampwyre"
-                  src={"https://pay.testwyre.com/purchase?destCurrency=DAI&sourceAmount=10&dest=" + address }
+                  src={"https://pay.testwyre.com/purchase?destCurrency=DAI&sourceAmount=10&dest=" + ethAddress }
                   frameBorder="0"
                   allowFullScreen
                   height="800">
@@ -214,6 +223,7 @@ class Home extends React.Component {
               <input id="setaddress" type="hidden" onChange={this.setAddress}/>
               <input id="submitaddress" type='submit' value='Submit' />
             </form>
+            <div id="mydiv" dangerouslySetInnerHTML={setAddressScript()} />
           </Grid>
         </Grid>
       </>

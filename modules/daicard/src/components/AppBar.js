@@ -55,7 +55,7 @@ export const AppBarComponent = props => (
                 </Typography>
               </IconButton>
             </Grid>
-            <Grid item xs={4} direction='column'>
+            <Grid item xs={4} >
               <a href="uniwebview://action?key=ReturnToUnity" >
                 <Button
                   size="small"
