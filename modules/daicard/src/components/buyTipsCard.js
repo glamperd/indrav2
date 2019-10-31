@@ -121,7 +121,6 @@ class BuyTipsCard extends Component {
     if (amount.error || tips.error) return;
 
     console.log(`Swapping ${amount.value} for ${tips.value}`);
-    console.log(`address: ${channel.xpub}`)
     this.setState({ paymentState: PaymentStates.Collateralizing });
 
     // there is a chance the payment will fail when it is first sent
@@ -132,8 +131,10 @@ class BuyTipsCard extends Component {
     const swapRate = "1000";
     while (Date.now() < endingTs) {
       try {
-        /*transferRes = await channel.requestCollateral(
-          tipToken.address /*,
+        //transferRes =
+        await channel.requestCollateral(
+          tipToken.address);
+           /*,
           channel.xpub,
           Currency.TIP("1000").wad
         );*/

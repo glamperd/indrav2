@@ -71,6 +71,14 @@ export const ChannelCard = withStyles(styles)(props => {
         <br/>
 
         <Grid item xs={12}>
+          <span id="balance-channel-tips">
+            <Typography style={{display: 'inline-block'}} variant="h4" className={classes.row}>
+              <span>{split(balance.channel.tipToken.toTIP()).whole}</span>
+            </Typography>
+            <Typography style={{display: 'inline-block'}} variant="h5" className={classes.row}>
+              {" TIPS"}
+            </Typography>
+          </span>
           {/* <Typography style={{ color: 'white' }}> On-Chain </Typography>
           <span id="balance-onchain-token">
             <Typography style={{display: 'inline-block'}} variant="h5" className={classes.row}>

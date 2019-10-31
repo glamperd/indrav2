@@ -141,7 +141,8 @@ export class Currency {
       ETH: this.toRay('1'),
       FIN: this.toRay(parseUnits('1', 3).toString()),
       WEI: this.toRay(parseUnits('1', 18).toString()),
-      TIP: this.toRay(parseUnits(this.daiRate, 3).toString()),
+      TEI: this.toRay(parseUnits(this.daiRate, 18).toString()).mul('1000'),
+      TIP: this.toRay(this.daiRate).mul('1000'),
     }
     if (
       (this.isEthType() && this.isEthType(currency)) ||

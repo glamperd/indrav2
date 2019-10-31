@@ -266,7 +266,7 @@ class App extends React.Component {
     balance.channel.total = getTotal(balance.channel.ether, balance.channel.token).toETH();
     balance.channel.tipToken = Currency.TEI(freeTipBalance[freeBalanceAddress], "1").toTIP();
     console.log('freeTipBalance=' + balance.channel.tipToken);
-    console.log('freeTipBalance collateral=' + freeTipBalance[hubFBAddress]);
+    console.log('freeTipBalance collateral=' + Currency.TEI(freeTipBalance[hubFBAddress], "1").toTIP());
     this.setState({ balance });
   }
 
