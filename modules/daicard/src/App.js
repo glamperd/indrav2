@@ -49,6 +49,8 @@ const MAX_CHANNEL_VALUE = Currency.DAI("30");
 // needed for autoswap
 const DEFAULT_COLLATERAL_MINIMUM = Currency.DAI("5");
 const DEFAULT_AMOUNT_TO_COLLATERALIZE = Currency.DAI("10");
+const DEFAULT_COLLATERAL_MINIMUM_TIP = Currency.TIP("100");
+const DEFAULT_TIP_AMOUNT_TO_COLLATERALIZE = Currency.TIP("1000");
 
 const styles = theme => ({
   paper: {
@@ -89,13 +91,13 @@ class App extends React.Component {
           ether: Currency.ETH("0", swapRate),
           token: Currency.DAI("0", swapRate),
           total: Currency.ETH("0", swapRate),
-          tipToken: Currency.TIP("0", 1000),
+          tipToken: Currency.TIP("0", "1000"),
         },
         onChain: {
           ether: Currency.ETH("0", swapRate),
           token: Currency.DAI("0", swapRate),
           total: Currency.ETH("0", swapRate),
-          tipToken: Currency.TIP("0", 1000),
+          tipToken: Currency.TIP("0", "1000"),
         },
       },
       ethprovider: null,
@@ -215,7 +217,7 @@ class App extends React.Component {
   addDefaultPaymentProfile = async () => {
     // add the payment profile for tokens only
     // then request collateral of this type
-    const { token, channel } = this.state;
+    const { token, tipToken, channel } = this.state;
 
     // TODO: set default eth profile
     // await channel.addPaymentProfile({
@@ -232,13 +234,26 @@ class App extends React.Component {
       assetId: token.address,
     });
     this.setState({ tokenProfile })
+
+
+    if (!tipToken) {
+      console.log("No tip token found, not setting tip token payment profile")
+      return;
+    }
+    const tipTokenProfile = await channel.addPaymentProfile({
+      amountToCollateralize: DEFAULT_TIP_AMOUNT_TO_COLLATERALIZE.wad.toString(),
+      minimumMaintainedCollateral: DEFAULT_COLLATERAL_MINIMUM.wad.toString(),
+      assetId: tipToken.address,
+    });
+    this.setState({ tipTokenProfile })
     return;
   }
 
   refreshBalances = async () => {
     const { freeBalanceAddress, swapRate, token, tipToken } = this.state;
-    const { address, balance, channel, ethprovider } = this.state;
+    const { address, balance, channel, ethprovider, wallet } = this.state;
     if (!channel) { return; }
+    const hubFBAddress = connext.utils.freeBalanceAddressFromXpub(channel.nodePublicIdentifier)
     const getTotal = (ether, token) => Currency.WEI(ether.wad.add(token.toETH().wad), swapRate);
     const freeEtherBalance = await channel.getFreeBalance();
     const freeTokenBalance = await channel.getFreeBalance(token.address);
@@ -249,7 +264,9 @@ class App extends React.Component {
     balance.channel.ether = Currency.WEI(freeEtherBalance[freeBalanceAddress], swapRate).toETH();
     balance.channel.token = Currency.DEI(freeTokenBalance[freeBalanceAddress], swapRate).toDAI();
     balance.channel.total = getTotal(balance.channel.ether, balance.channel.token).toETH();
-    balance.channel.tipToken = Currency.TIP(freeTipBalance[freeBalanceAddress], 1);
+    balance.channel.tipToken = Currency.TEI(freeTipBalance[freeBalanceAddress], "1").toTIP();
+    console.log('freeTipBalance=' + balance.channel.tipToken);
+    console.log('freeTipBalance collateral=' + freeTipBalance[hubFBAddress]);
     this.setState({ balance });
   }
 

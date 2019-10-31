@@ -117,10 +117,11 @@ class BuyTipsCard extends Component {
 
   async buyTipsHandler() {
     const { channel, token, tipToken } = this.props;
-    const { amount, tips } = this.state;
+    const { amount, tips, address } = this.state;
     if (amount.error || tips.error) return;
 
     console.log(`Swapping ${amount.value} for ${tips.value}`);
+    console.log(`address: ${channel.xpub}`)
     this.setState({ paymentState: PaymentStates.Collateralizing });
 
     // there is a chance the payment will fail when it is first sent
@@ -131,13 +132,20 @@ class BuyTipsCard extends Component {
     const swapRate = "1000";
     while (Date.now() < endingTs) {
       try {
+        /*transferRes = await channel.requestCollateral(
+          tipToken.address /*,
+          channel.xpub,
+          Currency.TIP("1000").wad
+        );*/
+
         transferRes = await channel.swap({
           amount: amount.value.wad.toString(),
           fromAssetId: token.address,
           toAssetId: tipToken.address,
           swapRate,
         });
-        await this.refreshBalances();
+
+        //await this.refreshBalances();
         break;
       } catch (e) {
         console.log('error' + e.message);
@@ -189,7 +197,7 @@ class BuyTipsCard extends Component {
           </Grid>
           <Grid container direction="row" justify="center" alignItems="center">
             <Typography variant="h5">
-              <span>{this.props.balance.channel.tipToken.format()}</span>
+              <span>{this.props.balance.channel.tipToken.toTIP().format()}</span>
             </Typography>
             <Typography variant="body2">
               TIP

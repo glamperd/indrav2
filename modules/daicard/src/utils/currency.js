@@ -141,6 +141,7 @@ export class Currency {
       ETH: this.toRay('1'),
       FIN: this.toRay(parseUnits('1', 3).toString()),
       WEI: this.toRay(parseUnits('1', 18).toString()),
+      TIP: this.toRay(parseUnits(this.daiRate, 3).toString()),
     }
     if (
       (this.isEthType() && this.isEthType(currency)) ||
@@ -161,6 +162,7 @@ export class Currency {
   toFIN = (daiRate) => this._convert('FIN', daiRate)
   toWEI = (daiRate) => this._convert('WEI', daiRate)
   toTEI = (daiRate) => this._convert('TEI', daiRate)
+  toTIP = (daiRate) => this._convert('TIP', daiRate)
 
   ////////////////////////////////////////
   // Private Methods
