@@ -9,7 +9,8 @@ export default {
   output: [
     {
       file: 'bundle/client-bundle.js',
-      format: 'esm',
+      format: 'iife',
+      name: 'Connext',
     },
   ],
 /*  external: [
@@ -28,7 +29,7 @@ export default {
     builtins(),
     commonjs({
         include: [
-          'node_modules',
+          'node_modules/**',
           'node_modules/@counterfactual/node',
           'node_modules/ethers/**',
           'node_modules/ethers/utils/**',
@@ -40,6 +41,8 @@ export default {
         ],
         exclude: [
             'node_modules/elliptic/**',
+            'node_modules/ts-nats/**',
+            'node_modules/nats/**',
         ],
         namedExports: {
             'ethers': [ 'utils', 'Contract', 'providers' ],
