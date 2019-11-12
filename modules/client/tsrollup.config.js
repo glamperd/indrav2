@@ -30,7 +30,6 @@ export default {
     commonjs({
         include: [
           'node_modules/**',
-          'node_modules/@counterfactual/node',
           'node_modules/ethers/**',
           'node_modules/ethers/utils/**',
           'node_modules/ethers/constants.js',
