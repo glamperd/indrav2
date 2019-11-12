@@ -18,8 +18,11 @@ module.exports = {
   output: {
     filename: './wp-bundle.js',
     path: path.resolve(__dirname, 'bundle'),
+    libraryTarget: 'var',
+    library: 'ConnextClient',
   },
   externals: [  ],
   target: 'web',
-  node: { fs: 'empty', net: 'empty', tls: 'empty', child_process: 'empty' },
+  node: { fs: 'empty', net: 'empty', tls: 'empty', child_process: 'empty', XMLHttpRequest: 'empty' },
+  optimization: { minimize: false },
 };
