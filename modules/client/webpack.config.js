@@ -13,6 +13,10 @@ module.exports = {
         exclude: /node_modules/,
       },
       {
+        test: /\.js?$/,
+        exclude: /node_modules\/ethers\/dist\/ethers\/ethers.min.js$/,
+      },
+      {
         test: /\.(js|jsx)$/,
         exclude: /(node_modules|bower_components)/,
         loader: 'babel-loader',
@@ -34,6 +38,6 @@ module.exports = {
   },
   externals: [  ],
   target: 'web',
-  node: { fs: 'empty', net: 'empty', tls: 'empty', child_process: 'empty', XMLHttpRequest: 'empty' },
+  node: { fs: 'empty', net: 'empty', tls: 'empty', child_process: 'empty', XMLHttpRequest: 'empty', ethers: 'empty' },
   optimization: { minimize: false },
 };
