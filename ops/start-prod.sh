@@ -14,8 +14,9 @@ INDRA_AWS_SECRET_ACCESS_KEY="${INDRA_AWS_SECRET_ACCESS_KEY:-}"
 INDRA_DOMAINNAME="${INDRA_DOMAINNAME:-localhost}"
 INDRA_EMAIL="${INDRA_EMAIL:-noreply@gmail.com}" # for notifications when ssl certs expire
 INDRA_ETH_PROVIDER="${INDRA_ETH_PROVIDER}"
-INDRA_MODE="${INDRA_MODE:-staging}" # set to "prod" to use versioned docker images
 INDRA_LOGDNA_KEY="${INDRA_LOGDNA_KEY:-abc123}"
+INDRA_MODE="${INDRA_MODE:-staging}" # set to "prod" to use versioned docker images
+INDRA_ADMIN_TOKEN="${INDRA_ADMIN_TOKEN:-cxt1234}" # pass this in through CI
 
 ####################
 # Internal Config
@@ -24,7 +25,7 @@ ganache_chain_id="4447"
 log_level="3" # set to 5 for all logs or to 0 for none
 nats_port="4222"
 node_port="8080"
-number_of_services="6" # NOTE: Gotta update this manually when adding/removing services :(
+number_of_services="7" # NOTE: Gotta update this manually when adding/removing services :(
 project="indra"
 
 ####################
@@ -69,11 +70,11 @@ else
 fi
 
 # database connection settings
-postgres_db="$project"
-postgres_host="database"
-postgres_password_file="/run/secrets/$db_secret"
-postgres_port="5432"
-postgres_user="$project"
+pg_db="$project"
+pg_host="database"
+pg_password_file="/run/secrets/$db_secret"
+pg_port="5432"
+pg_user="$project"
 
 ########################################
 ## Ethereum Config
@@ -105,8 +106,8 @@ then
   number_of_services=$(( $number_of_services + 1 ))
   ethprovider_service="
   ethprovider:
-    image: $ethprovider_image
     command: [\"--db=/data\", \"--mnemonic=$eth_mnemonic\", \"--networkId=$ganache_chain_id\"]
+    image: $ethprovider_image
     ports:
       - 8545:8545
     volumes:
@@ -127,6 +128,9 @@ redis_url="redis://redis:6379"
 database_image="postgres:9-alpine"
 nats_image="nats:2.0.0-linux"
 redis_image="redis:5-alpine"
+pull_if_unavailable "$database_image"
+pull_if_unavailable "$nats_image"
+pull_if_unavailable "$redis_image"
 if [[ "$INDRA_DOMAINNAME" != "localhost" ]]
 then
   if [[ "$INDRA_MODE" == "prod" ]]
@@ -139,18 +143,15 @@ then
   node_image="$registry/${project}_node:$version"
   proxy_image="$registry/${project}_proxy:$version"
   relay_image="$registry/${project}_relay:$version"
-  pull_if_unavailable $database_image
-  pull_if_unavailable $node_image
-  pull_if_unavailable $proxy_image
-  pull_if_unavailable $relay_image
+  pull_if_unavailable "$database_image"
+  pull_if_unavailable "$node_image"
+  pull_if_unavailable "$proxy_image"
+  pull_if_unavailable "$relay_image"
 else # local/testing mode, don't use images from registry
   node_image="${project}_node:latest"
   proxy_image="${project}_proxy:latest"
   relay_image="${project}_relay:latest"
 fi
-pull_if_unavailable $database_image
-pull_if_unavailable $nats_image
-pull_if_unavailable $redis_image
 
 ########################################
 ## Deploy according to configuration
@@ -183,25 +184,22 @@ services:
       ETH_RPC_URL: $INDRA_ETH_PROVIDER
       MESSAGING_URL: http://relay:4223
       MODE: prod
-    ports:
-      - "80:80"
-      - "443:443"
-    volumes:
-      - certs:/etc/letsencrypt
     logging:
       driver: "json-file"
       options:
           max-file: 10
           max-size: 10m
-
-  relay:
-    image: $relay_image
-    command: ["nats:$nats_port"]
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - certs:/etc/letsencrypt
 
   node:
     image: $node_image
     entrypoint: bash ops/entry.sh
     environment:
+      INDRA_ADMIN_TOKEN: $INDRA_ADMIN_TOKEN
       INDRA_ETH_CONTRACT_ADDRESSES: '$eth_contract_addresses'
       INDRA_ETH_MNEMONIC_FILE: /run/secrets/$eth_mnemonic_name
       INDRA_ETH_RPC_URL: $INDRA_ETH_PROVIDER
@@ -209,22 +207,22 @@ services:
       INDRA_NATS_CLUSTER_ID: abc123
       INDRA_NATS_SERVERS: nats://nats:$nats_port
       INDRA_NATS_TOKEN: abc123
-      INDRA_PG_DATABASE: $postgres_db
-      INDRA_PG_HOST: $postgres_host
-      INDRA_PG_PASSWORD_FILE: $postgres_password_file
-      INDRA_PG_PORT: $postgres_port
-      INDRA_PG_USERNAME: $postgres_user
+      INDRA_PG_DATABASE: $pg_db
+      INDRA_PG_HOST: $pg_host
+      INDRA_PG_PASSWORD_FILE: $pg_password_file
+      INDRA_PG_PORT: $pg_port
+      INDRA_PG_USERNAME: $pg_user
       INDRA_PORT: $node_port
       INDRA_REDIS_URL: $redis_url
       NODE_ENV: production
-    secrets:
-      - $db_secret
-      - $eth_mnemonic_name
     logging:
       driver: "json-file"
       options:
           max-file: 10
           max-size: 10m
+    secrets:
+      - $db_secret
+      - $eth_mnemonic_name
 
   database:
     image: $database_image
@@ -235,7 +233,7 @@ services:
       AWS_SECRET_ACCESS_KEY: $INDRA_AWS_SECRET_ACCESS_KEY
       ETH_NETWORK: $eth_network_name
       POSTGRES_DB: $project
-      POSTGRES_PASSWORD_FILE: $postgres_password_file
+      POSTGRES_PASSWORD_FILE: $pg_password_file
       POSTGRES_USER: $project
     secrets:
       - $db_secret
@@ -244,15 +242,21 @@ services:
       - `pwd`/modules/database/snapshots:/root/snapshots
 
   nats:
-    command: -V
     image: $nats_image
-    ports:
-      - "4222:4222"
+    command: -V
     logging:
       driver: "json-file"
       options:
           max-file: 10
           max-size: 10m
+    ports:
+      - "4222:4222"
+
+  relay:
+    image: $relay_image
+    command: ["nats:$nats_port"]
+    ports:
+      - "4223:4223"
 
   redis:
     image: $redis_image
@@ -261,10 +265,10 @@ services:
 
   logdna:
     image: logdna/logspout:latest
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
     environment:
       LOGDNA_KEY: $INDRA_LOGDNA_KEY
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
 EOF
 
 docker stack deploy -c /tmp/$project/docker-compose.yml $project

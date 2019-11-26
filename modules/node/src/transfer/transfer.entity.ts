@@ -1,5 +1,14 @@
 import { BigNumber } from "ethers/utils";
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
+import {
+  Column,
+  CreateDateColumn,
+  Entity,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+  UpdateDateColumn,
+  ViewColumn,
+  ViewEntity,
+} from "typeorm";
 
 import { Channel } from "../channel/channel.entity";
 
@@ -13,6 +22,12 @@ export enum PeerToPeerTransferStatus {
 export class PeerToPeerTransfer {
   @PrimaryGeneratedColumn()
   id!: number;
+
+  @CreateDateColumn({ type: "timestamp" })
+  createdAt!: Date;
+
+  @UpdateDateColumn({ type: "timestamp" })
+  updatedAt!: Date;
 
   @Column("text", {
     transformer: {
@@ -31,11 +46,20 @@ export class PeerToPeerTransfer {
   @Column("enum", { enum: PeerToPeerTransferStatus, default: PeerToPeerTransferStatus.PENDING })
   status!: PeerToPeerTransferStatus;
 
-  @ManyToOne((type: any) => Channel, (channel: Channel) => channel.senderPeerToPeerTransfers)
+  @ManyToOne(
+    (type: any) => Channel,
+    (channel: Channel) => channel.senderPeerToPeerTransfers,
+  )
   senderChannel!: Channel;
 
-  @ManyToOne((type: any) => Channel, (channel: Channel) => channel.receiverPeerToPeerTransfers)
+  @ManyToOne(
+    (type: any) => Channel,
+    (channel: Channel) => channel.receiverPeerToPeerTransfers,
+  )
   receiverChannel!: Channel;
+
+  @Column("json")
+  meta: object;
 }
 
 export enum LinkedTransferStatus {
@@ -50,6 +74,12 @@ export enum LinkedTransferStatus {
 export class LinkedTransfer {
   @PrimaryGeneratedColumn()
   id!: number;
+
+  @CreateDateColumn({ type: "timestamp" })
+  createdAt!: Date;
+
+  @UpdateDateColumn({ type: "timestamp" })
+  updatedAt!: Date;
 
   @Column("text", {
     transformer: {
@@ -77,14 +107,84 @@ export class LinkedTransfer {
   @Column("text", { nullable: true })
   paymentId!: string;
 
+  @Column("text", { nullable: true })
+  recipientPublicIdentifier!: string;
+
+  @Column("text", { nullable: true })
+  encryptedPreImage!: string;
+
   @Column("enum", { enum: LinkedTransferStatus, default: LinkedTransferStatus.PENDING })
   status!: LinkedTransferStatus;
 
-  @ManyToOne((type: any) => Channel, (channel: Channel) => channel.senderLinkedTransfers)
+  @ManyToOne(
+    (type: any) => Channel,
+    (channel: Channel) => channel.senderLinkedTransfers,
+  )
   senderChannel!: Channel;
 
-  @ManyToOne((type: any) => Channel, (channel: Channel) => channel.receiverLinkedTransfers, {
-    nullable: true,
-  })
+  @ManyToOne(
+    (type: any) => Channel,
+    (channel: Channel) => channel.receiverLinkedTransfers,
+    {
+      nullable: true,
+    },
+  )
   receiverChannel!: Channel;
+
+  @Column({ type: "json" })
+  meta: object;
+}
+
+@ViewEntity({
+  expression: `
+    SELECT
+      "peer_to_peer_transfer"."id" as "id",
+      "peer_to_peer_transfer"."amount" as "amount",
+      "peer_to_peer_transfer"."assetId" as "assetId",
+      "sender_channel"."userPublicIdentifier" as "senderPublicIdentifier",
+      "receiver_channel"."userPublicIdentifier" as "receiverPublicIdentifier",
+      "peer_to_peer_transfer"."createdAt" as "createdAt",
+      "peer_to_peer_transfer"."meta" as "meta"
+    FROM "peer_to_peer_transfer"
+    LEFT JOIN "channel" as "receiver_channel"
+      ON "receiver_channel"."id" = "peer_to_peer_transfer"."receiverChannelId"
+    LEFT JOIN "channel" as "sender_channel"
+      ON "sender_channel"."id" = "peer_to_peer_transfer"."senderChannelId"
+    UNION ALL
+    SELECT
+      "linked_transfer"."id" as "id",
+      "linked_transfer"."amount" as "amount",
+      "linked_transfer"."assetId" as "assetId",
+      "sender_channel"."userPublicIdentifier" as "senderPublicIdentifier",
+      "receiver_channel"."userPublicIdentifier" as "receiverPublicIdentifier",
+      "linked_transfer"."createdAt" as "createdAt",
+      "linked_transfer"."meta" as "meta"
+    FROM "linked_transfer"
+    LEFT JOIN "channel" as "receiver_channel"
+      ON "receiver_channel"."id" = "linked_transfer"."receiverChannelId"
+    LEFT JOIN "channel" as "sender_channel"
+      ON "sender_channel"."id" = "linked_transfer"."senderChannelId"
+  `,
+})
+export class Transfer {
+  @ViewColumn()
+  id!: number;
+
+  @ViewColumn()
+  createdAt!: Date;
+
+  @ViewColumn()
+  amount!: string;
+
+  @ViewColumn()
+  assetId!: string;
+
+  @ViewColumn()
+  senderPublicIdentifier!: string;
+
+  @ViewColumn()
+  receiverPublicIdentifier!: string;
+
+  @ViewColumn()
+  meta: object;
 }

@@ -3,6 +3,9 @@ import { parseEther } from "ethers/utils";
 
 import { PaymentProfile } from "./paymentProfile/paymentProfile.entity";
 
+// PROTOCOL CONSTANTS
+export const CF_PATH = "m/44'/60'/0'/25446";
+
 export enum Network {
   GANACHE = "ganache",
   KOVAN = "kovan",
@@ -13,7 +16,9 @@ export enum Network {
 }
 
 // PROVIDERS
+export const AdminMessagingProviderId = "ADMIN_MESSAGING";
 export const AppRegistryProviderId = "APP_REGISTRY";
+export const AuthProviderId = "AUTH";
 export const CFCoreProviderId = "CF_CORE";
 export const ChannelMessagingProviderId = "CHANNEL_MESSAGING";
 export const ConfigMessagingProviderId = "CONFIG_MESSAGING";
@@ -25,10 +30,6 @@ export const RedisProviderId = "REDIS";
 export const RedlockProviderId = "REDLOCK";
 export const SwapRateProviderId = "SWAP_RATE";
 export const TransferProviderId = "TRANSFER";
-
-// REGEX
-export const EthAddressRegex = /^0x[a-fA-F0-9]{40}$/;
-export const XpubRegex = /^xpub[a-zA-Z0-9]{107}$/;
 
 // PROFILE
 export const defaultPaymentProfileEth: PaymentProfile = {

@@ -27,6 +27,7 @@ yarn-debug.log*
 yarn-error.log*
 ops/*.log
 .deploy-indra.patch
+.state-before.json
 
 # OS
 .bash_history
@@ -56,12 +57,18 @@ cypress/videos
 # Git submodules
 modules/**/.git
 modules/**/.circleci
-.cf-core-bridge
+.bridge-*
 
 # Local packages
 counterfactual
+walletconnect
+walletconnect-monorepo
+walletconnect
 
 # Regenerated files from tests
 bots.json
 links.json
 nohup.out
+
+# Docs
+modules/client/docs

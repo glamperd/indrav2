@@ -1,12 +1,10 @@
-import { BigNumber, ChannelState, convert, DepositParameters } from "@connext/types";
-import { Node as CFCoreTypes } from "@counterfactual/types";
 import { Contract } from "ethers";
 import { AddressZero } from "ethers/constants";
 import tokenAbi from "human-standard-token-abi";
 
-import { publicIdentifierToAddress, replaceBN } from "../lib/utils";
-import { invalidAddress } from "../validation/addresses";
-import { falsy, notLessThanOrEqualTo, notPositive } from "../validation/bn";
+import { stringify, xpubToAddress } from "../lib/utils";
+import { BigNumber, CFCoreTypes, ChannelState, convert, DepositParameters } from "../types";
+import { invalidAddress, notLessThanOrEqualTo, notPositive, validate } from "../validation";
 
 import { AbstractController } from "./AbstractController";
 
@@ -15,17 +13,28 @@ export class DepositController extends AbstractController {
     const myFreeBalanceAddress = this.connext.freeBalanceAddress;
 
     const { assetId, amount } = convert.Deposit("bignumber", params);
-    const invalid = await this.validateInputs(assetId, amount);
-    if (invalid) {
-      throw new Error(invalid);
+
+    // check asset balance of address
+    const depositAddr = xpubToAddress(this.connext.publicIdentifier);
+    let bal: BigNumber;
+    if (assetId === AddressZero) {
+      bal = await this.ethProvider.getBalance(depositAddr);
+    } else {
+      // get token balance
+      const token = new Contract(assetId, tokenAbi, this.ethProvider);
+      // TODO: correct? how can i use allowance?
+      bal = await token.balanceOf(depositAddr);
     }
+    validate(
+      invalidAddress(assetId),
+      notPositive(amount),
+      notLessThanOrEqualTo(amount, bal), // cant deposit more than default addr owns
+    );
 
     // TODO: remove free balance stuff?
     const preDepositBalances = await this.connext.getFreeBalance(assetId);
 
-    this.log.info(
-      `\nDepositing ${amount} of ${assetId} into ${this.connext.opts.multisigAddress}\n`,
-    );
+    this.log.info(`\nDepositing ${amount} of ${assetId} into ${this.connext.multisigAddress}\n`);
 
     // register listeners
     this.log.info("Registering listeners........");
@@ -34,8 +43,8 @@ export class DepositController extends AbstractController {
 
     try {
       this.log.info(`Calling ${CFCoreTypes.RpcMethodName.DEPOSIT}`);
-      const depositResponse = await this.connext.cfDeposit(amount, assetId);
-      this.log.info(`Deposit Response: ${JSON.stringify(depositResponse, replaceBN, 2)}`);
+      const depositResponse = await this.connext.providerDeposit(amount, assetId);
+      this.log.info(`Deposit Response: ${stringify(depositResponse)}`);
 
       const postDepositBalances = await this.connext.getFreeBalance(assetId);
 
@@ -51,7 +60,7 @@ export class DepositController extends AbstractController {
     } catch (e) {
       this.log.error(`Failed to deposit...`);
       this.removeListeners();
-      throw new Error(e);
+      throw e;
     }
 
     // TODO: fix types!
@@ -63,31 +72,6 @@ export class DepositController extends AbstractController {
 
   /////////////////////////////////
   ////// PRIVATE METHODS
-
-  ////// Validation
-  private validateInputs = async (
-    assetId: string,
-    amount: BigNumber,
-  ): Promise<string | undefined> => {
-    // check asset balance of address
-    // TODO: fix for non-eth balances
-    const depositAddr = publicIdentifierToAddress(this.cfCore.publicIdentifier);
-    let bal: BigNumber;
-    if (assetId === AddressZero) {
-      bal = await this.ethProvider.getBalance(depositAddr);
-    } else {
-      // get token balance
-      const token = new Contract(assetId, tokenAbi, this.ethProvider);
-      // TODO: correct? how can i use allowance?
-      bal = await token.balanceOf(depositAddr);
-    }
-    const errs = [
-      invalidAddress(assetId),
-      notPositive(amount),
-      notLessThanOrEqualTo(amount, bal), // cant deposit more than default addr owns
-    ];
-    return errs ? errs.filter(falsy)[0] : undefined;
-  };
 
   ////// Listener callbacks
   private depositConfirmedCallback = (data: any): void => {

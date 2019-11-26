@@ -1,46 +1,46 @@
 import { Grid, Typography, withStyles } from "@material-ui/core";
-import { ethers as eth } from "ethers";
 import React from "react";
+
+// import { ethers as eth } from "ethers";
 
 const styles = theme => ({
   row: {
-    color: "white"
+    color: "white",
   },
   pending: {
     marginBottom: "3%",
-    color: "white"
+    color: "white",
   },
   clipboard: {
-    cursor: "pointer"
-  }
+    cursor: "pointer",
+  },
 });
 
 export const ChannelCard = withStyles(styles)(props => {
-  const { balance, classes } = props;
-  const split = (balance) => {
-    const bal = balance.format({ decimals: 3, symbol: false });
-    const whole = bal.substring(0, bal.indexOf('.'));
-    const part = bal.substring(bal.indexOf('.'));
-    return { whole, part: part.substring(0,4) };
-  }
+  const { balance, classes, swapRate } = props;
+  const split = balance => {
+    const bal = balance.format({ decimals: 2, symbol: false, round: false });
+    const whole = bal.substring(0, bal.indexOf("."));
+    const part = bal.substring(bal.indexOf("."));
+    return { whole, part: part.substring(0, 4) };
+  };
   return (
-      <Grid>
-        <Grid
-          container
-          spacing={2}
-          direction="column"
-          style={{
-            paddingLeft: "5%",
-            paddingRight: "5%",
-            paddingTop: "10%",
-            paddingBottom: "20%",
-            backgroundColor: "#282b2e",
-            textAlign: "center"
-          }}
-          alignItems="center"
-          justify="center"
-        >
-
+    <Grid>
+      <Grid
+        container
+        spacing={2}
+        direction="column"
+        style={{
+          paddingLeft: "5%",
+          paddingRight: "5%",
+          paddingTop: "10%",
+          paddingBottom: "20%",
+          backgroundColor: "#282b2e",
+          textAlign: "center",
+        }}
+        alignItems="center"
+        justify="center"
+      >
         <Grid item xs={12}>
           {/* <Typography style={{ color: 'white' }}> Channel </Typography> */}
           <span id="balance-channel-token">
@@ -68,7 +68,7 @@ export const ChannelCard = withStyles(styles)(props => {
           </span> */}
         </Grid>
 
-        <br/>
+        <br />
 
         <Grid item xs={12}>
           <span id="balance-channel-tips">
@@ -104,7 +104,6 @@ export const ChannelCard = withStyles(styles)(props => {
             </Typography>
           </span> */}
         </Grid>
-
       </Grid>
     </Grid>
   );
