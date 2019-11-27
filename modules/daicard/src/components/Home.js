@@ -31,20 +31,20 @@ export const Home = style(({ balance, swapRate, channel, history, parseQRCode })
     }
   };
 
-  handleSubmit = (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
     const address = e.target.children[0].value;
     console.log('submit' + address);
-    store.set([ {path: 'ethAddress', value: address }]);
+    channel.store.set([ {path: 'ethAddress', value: address }]);
   }
 
-  setAddress = (addr) => {
+  const setAddress = (addr) => {
     console.log('new address: ' + addr);
-    store.set([ {path: 'ethAddress', value: addr }]);
+    channel.store.set([ {path: 'ethAddress', value: addr }]);
   }
 
   const { address } = this.props;
-  const ethAddress = store.get('ethAddress');
+  const ethAddress = channel.store.get('ethAddress');
 
   return (
     <>

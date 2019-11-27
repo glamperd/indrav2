@@ -149,7 +149,7 @@ services:
     ports:
       - "$dash_port:3000"
     volumes:
-      - `pwd`:/root
+      - $home_dir:/root
     working_dir: /root/modules/dashboard
 
   node:

@@ -14,7 +14,7 @@ import { Zero } from "ethers/constants";
 import React, { Component } from "react";
 import queryString from "query-string";
 
-import { Currency, delay } from "../utils";
+import { Currency } from "../utils";
 
 const SWAP_LIMIT = Currency.DAI("10"); // $10 capped swap amount
 
@@ -150,7 +150,7 @@ class BuyTipsCard extends Component {
         break;
       } catch (e) {
         console.log('error' + e.message);
-        await delay(5000);
+        await new Promise(res => setTimeout(res, 5000));
       }
     }
     if (!transferRes) {
