@@ -28,6 +28,7 @@ import { SettingsCard } from "./components/settingsCard";
 import { SetupCard } from "./components/setupCard";
 import { SupportCard } from "./components/supportCard";
 import { WithdrawSaiDialog } from "./components/withdrawSai";
+import BuyTipsCard from "./components/buyTipsCard";
 import { rootMachine } from "./state";
 import {
   cleanWalletConnect,
@@ -78,6 +79,7 @@ const CF_PATH = "m/44'/60'/0'/25446";
 // needed for autoswap
 const DEFAULT_COLLATERAL_MINIMUM = Currency.DAI("5");
 const DEFAULT_AMOUNT_TO_COLLATERALIZE = Currency.DAI("10");
+const DEFAULT_TIP_AMOUNT_TO_COLLATERALIZE = Currency.TIP("1000");
 
 const style = withStyles(theme => ({
   paper: {
@@ -294,6 +296,11 @@ class App extends React.Component {
       tokenArtifacts.abi,
       wallet || ethProvider,
     );
+    const tipToken = new Contract(
+      channel.contractAddresses.Token2,
+      tokenArtifacts.abi,
+      wallet || ethProvider
+    );
     const swapRate = await channel.getLatestSwapRate(AddressZero, token.address);
 
     console.log(`Client created successfully!`);
@@ -302,6 +309,7 @@ class App extends React.Component {
     console.log(` - CF Account address: ${channel.signerAddress}`);
     console.log(` - Free balance address: ${channel.freeBalanceAddress}`);
     console.log(` - Token address: ${token.address}`);
+    console.log(` - Tip Token address: ${tipToken.address}`);
     console.log(` - Swap rate: ${swapRate}`);
 
     channel.subscribeToSwapRates(AddressZero, token.address, res => {
@@ -777,7 +785,6 @@ class App extends React.Component {
                   {...props}
                   balance={balance}
                   channel={channel}
-                  scanArgs={sendScanArgs}
                   token={token}
                   tipToken={tipToken}
                 />

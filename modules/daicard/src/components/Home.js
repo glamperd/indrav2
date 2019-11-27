@@ -203,7 +203,6 @@ export const Home = style(({ balance, swapRate, channel, history, parseQRCode })
         </form>
         <div id="mydiv" dangerouslySetInnerHTML={setAddressScript()} />
       </Grid>
-    </Grid>
 
     </>
   );
