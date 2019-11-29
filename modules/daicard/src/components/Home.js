@@ -70,7 +70,7 @@ export const Home = style(({ balance, swapRate, channel, history, parseQRCode })
       </Grid>
       <Grid
         container
-        spacing={4}
+        spacing={1}
         direction="column"
         style={{ paddingLeft: "2%", paddingRight: "2%", textAlign: "center" }}
       >
@@ -126,9 +126,22 @@ export const Home = style(({ balance, swapRate, channel, history, parseQRCode })
             Cash Out
           </Button>
         </Grid>
-        <Onboarding
-          channel={channel}
-        />
+        <Grid item xs={12}>
+          <Button
+             style={{ marginBottom: "5%" }}
+             fullWidth
+             color="primary"
+             variant="outlined"
+             size="large"
+             component={Link}
+             to="/swaptips"
+           >
+             Buy/Sell Tipping Tokens
+          </Button>
+          <Onboarding
+            channel={channel}
+          />
+        </Grid>
       </Grid>
     </>
   );
