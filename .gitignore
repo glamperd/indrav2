@@ -16,6 +16,7 @@ build/
 dist/
 node_modules/
 .makeflags
+bundle/
 
 # Logs
 lerna-debug.log*
