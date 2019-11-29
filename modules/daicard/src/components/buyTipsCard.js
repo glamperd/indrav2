@@ -139,12 +139,14 @@ class BuyTipsCard extends Component {
           Currency.TIP("1000").wad
         );*/
 
+        console.log('Trying transfer' );
         transferRes = await channel.swap({
           amount: amount.value.wad.toString(),
           fromAssetId: token.address,
           toAssetId: tipToken.address,
           swapRate,
         });
+        console.log('transferRes', transferRes );
 
         //await this.refreshBalances();
         break;
