@@ -3,7 +3,10 @@ set -e
 
 project="indra"
 name=${project}_contract_deployer
-cwd="`pwd`"
+if [[ "`pwd`" =~ /mnt/c/.* ]]
+then cwd="C:\dev\workspace\indra"
+else cwd="`pwd`"
+fi
 
 ########################################
 # Setup env vars

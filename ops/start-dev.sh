@@ -46,9 +46,16 @@ nats_image="nats:2.0.0-linux"
 proxy_image="${project}_proxy:dev"
 daicard_devserver_image="$builder_image"
 relay_image="${project}_relay"
+redis_image=redis:5-alpine
+redis_url="redis://redis:6379"
 
 node_port=8080
 nats_port=4222
+
+if [[ "`pwd`" =~ /mnt/c/(.*) ]]
+then home_dir=//c/${BASH_REMATCH[1]}
+else home_dir="`pwd`"
+fi
 
 ####################
 # Deploy according to above configuration
@@ -84,7 +91,7 @@ then
   echo "Created ATTACHABLE network with id $id"
 fi
 
-number_of_services=7 # NOTE: Gotta update this manually when adding/removing services :(
+number_of_services=8 # NOTE: Gotta update this manually when adding/removing services :(
 
 mkdir -p /tmp/$project
 cat - > /tmp/$project/docker-compose.yml <<EOF
@@ -126,7 +133,7 @@ services:
     networks:
       - $project
     volumes:
-      - `pwd`:/root
+      - $home_dir:/root
     working_dir: /root/modules/daicard
 
   relay:
@@ -154,6 +161,7 @@ services:
       INDRA_PG_PORT: $postgres_port
       INDRA_PG_USERNAME: $postgres_user
       INDRA_PORT: $node_port
+      INDRA_REDIS_URL: $redis_url
       NODE_ENV: development
     networks:
       - $project
@@ -162,11 +170,11 @@ services:
     secrets:
       - ${project}_database_dev
     volumes:
-      - `pwd`:/root
+      - $home_dir:/root
 
   ethprovider:
     image: $ethprovider_image
-    command: ["--db=/data", "--mnemonic=$eth_mnemonic", "--networkId=4447"]
+    command: ["--db=/data", "--mnemonic=$eth_mnemonic", "--networkId=4447", "--blockTime=15"]
     networks:
       - $project
     ports:
@@ -198,6 +206,14 @@ services:
       - $project
     ports:
       - "$nats_port:$nats_port"
+
+  redis:
+    image: $redis_image
+    networks:
+      - $project
+    ports:
+      - "6379:6379"
+
 EOF
 
 docker stack deploy -c /tmp/$project/docker-compose.yml $project

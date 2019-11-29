@@ -12,13 +12,17 @@ version=$(shell cat package.json | grep '"version":' | awk -F '"' '{print $$4}')
 
 # Get absolute paths to important dirs
 cwd=$(shell pwd)
+wincwd="C:\dev\workspace\indra"
 bot=$(cwd)/modules/payment-bot
+client=$(cwd)/modules/client
 contracts=$(cwd)/modules/contracts
 daicard=$(cwd)/modules/daicard
-client=$(cwd)/modules/client
+database=$(cwd)/modules/database
 messaging=$(cwd)/modules/messaging
 node=$(cwd)/modules/node
+proxy-lock=$(cwd)/modules/proxy-lock
 proxy=$(cwd)/modules/proxy
+redis-lock=$(cwd)/modules/redis-lock
 types=$(cwd)/modules/types
 
 # Setup docker run time
@@ -26,7 +30,9 @@ types=$(cwd)/modules/types
 # On Mac, the docker-VM takes care of this for us so pass root's id (ie noop)
 my_id=$(shell id -u):$(shell id -g)
 id=$(shell if [[ "`uname`" == "Darwin" ]]; then echo 0:0; else echo $(my_id); fi)
-docker_run=docker run --name=$(project)_builder --tty --rm --volume=$(cwd):/root $(project)_builder $(id)
+is_win=$(shell if [[ "`uname -a`" =~ .*Microsoft.* ]]; then echo true; else echo false; fi)
+volcwd=$(shell if [ $is_win == true ]; then echo ${wincwd}; else echo ${cwd}; fi)
+docker_run=docker run --name=$(project)_builder --tty --rm --volume=$(volcwd):/root $(project)_builder $(id)
 
 log_start=@echo "=============";echo "[Makefile] => Start building $@"; date "+%s" > $(flags)/.timestamp
 log_finish=@echo "[Makefile] => Finished building $@ in $$((`date "+%s"` - `cat $(flags)/.timestamp`)) seconds";echo "=============";echo
@@ -40,8 +46,8 @@ $(shell mkdir -p .makeflags $(node)/dist)
 
 default: dev
 all: dev prod
-dev: node types client payment-bot proxy ws-tcp-relay
-prod: node-prod proxy-prod ws-tcp-relay
+dev: database node types client payment-bot proxy ws-tcp-relay
+prod: database node-prod proxy-prod ws-tcp-relay
 
 start: dev
 	bash ops/start-dev.sh ganache
@@ -79,10 +85,10 @@ reset: stop
 	rm -rf $(flags)/deployed-contracts
 
 push-latest: prod
-	bash ops/push-images.sh latest node proxy relay
+	bash ops/push-images.sh latest database node proxy relay
 
 push-prod: prod
-	bash ops/push-images.sh $(version) node proxy relay
+	bash ops/push-images.sh $(version) database node proxy relay
 
 deployed-contracts: contracts
 	bash ops/deploy-contracts.sh ganache
@@ -102,17 +108,20 @@ watch: watch-node
 start-test: prod deployed-contracts
 	INDRA_ETH_PROVIDER=http://localhost:8545 INDRA_MODE=test bash ops/start-prod.sh
 
-test-ui:
+test-ui: payment-bot
 	bash ops/test-ui.sh
 
 watch-ui: node-modules
 	bash ops/test-ui.sh watch
 
-test-bot:
+test-bot: payment-bot
 	bash ops/test-bot.sh
 
 test-bot-farm:
 	bash ops/test-bot-farm.sh
+
+test-contracts: contracts
+		bash ops/test-contracts.sh
 
 test-node: node
 	bash ops/test-node.sh --runInBand --forceExit
@@ -128,7 +137,7 @@ builder: ops/builder.dockerfile
 	docker build --file ops/builder.dockerfile --tag $(project)_builder:latest .
 	$(log_finish) && touch $(flags)/$@
 
-client: contracts types messaging $(shell find $(client)/src $(find_options))
+client: contracts types messaging proxy-lock $(shell find $(client)/src $(find_options))
 	$(log_start)
 	$(docker_run) "cd modules/client && npm run build"
 	$(log_finish) && touch $(flags)/$@
@@ -143,12 +152,17 @@ daicard-prod: node-modules client $(shell find $(daicard)/src $(find_options))
 	$(docker_run) "cd modules/daicard && npm run build"
 	$(log_finish) && touch $(flags)/$@
 
+database: node-modules $(shell find $(database) $(find_options))
+	$(log_start)
+	docker build --file $(database)/db.dockerfile --tag $(project)_database:latest $(database)
+	$(log_finish) && touch $(flags)/$@
+
 messaging: node-modules $(shell find $(messaging)/src $(find_options))
 	$(log_start)
 	$(docker_run) "cd modules/messaging && npm run build"
 	$(log_finish) && touch $(flags)/$@
 
-node: contracts types messaging $(shell find $(node)/src $(node)/migrations $(find_options))
+node: contracts types messaging redis-lock $(shell find $(node)/src $(node)/migrations $(find_options))
 	$(log_start)
 	$(docker_run) "cd modules/node && npm run build"
 	$(log_finish) && touch $(flags)/$@
@@ -176,6 +190,16 @@ proxy: $(shell find $(proxy) $(find_options))
 proxy-prod: daicard-prod $(shell find $(proxy) $(find_options))
 	$(log_start)
 	docker build --file $(proxy)/prod.dockerfile --tag $(project)_proxy:latest .
+	$(log_finish) && touch $(flags)/$@
+
+redis-lock: node-modules $(shell find $(redis-lock)/src $(find_options))
+	$(log_start)
+	$(docker_run) "cd modules/redis-lock && npm run build"
+	$(log_finish) && touch $(flags)/$@
+
+proxy-lock: node-modules $(shell find $(proxy-lock)/src $(find_options))
+	$(log_start)
+	$(docker_run) "cd modules/proxy-lock && npm run build"
 	$(log_finish) && touch $(flags)/$@
 
 types: node-modules messaging $(shell find $(types)/src $(find_options))
