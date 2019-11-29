@@ -113,6 +113,7 @@ class App extends React.Component {
   constructor(props) {
     super(props);
     const swapRate = "100.00";
+    console.log('ethProvider:', urls.ethProviderUrl);
     this.state = {
       balance: {
         channel: {
@@ -297,7 +298,7 @@ class App extends React.Component {
       wallet || ethProvider,
     );
     const tipToken = new Contract(
-      channel.contractAddresses.Token2,
+      channel.config.contractAddresses.Token2,
       tokenArtifacts.abi,
       wallet || ethProvider
     );
@@ -355,6 +356,7 @@ class App extends React.Component {
       useWalletConnext,
       swapRate,
       token,
+      tipToken,
       tokenProfile,
       tipTokenProfile,
     });

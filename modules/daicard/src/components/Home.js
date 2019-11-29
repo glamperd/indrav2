@@ -1,4 +1,4 @@
-import { Button, Fab, Grid, Modal, withStyles, TextField } from "@material-ui/core";
+import { Button, Fab, Grid, Modal, withStyles } from "@material-ui/core";
 import { SaveAlt as ReceiveIcon, Send as SendIcon } from "@material-ui/icons";
 import QRIcon from "mdi-material-ui/QrcodeScan";
 import React, { useState } from "react";
@@ -8,14 +8,11 @@ import "../App.css";
 
 import { ChannelCard } from "./channelCard";
 import { QRScan } from "./qrCode";
+import Onboarding from "./Onboarding";
 
 import { initWalletConnect } from "../utils";
 
 const style = withStyles({});
-
-function setAddressScript() {
-  return {__html: '<script>function setAddr(addr) {assert(addr);}</script>'}
-}
 
 export const Home = style(({ balance, swapRate, channel, history, parseQRCode }) => {
   const [scanModal, setScanModal] = useState(false);
@@ -31,25 +28,10 @@ export const Home = style(({ balance, swapRate, channel, history, parseQRCode })
     }
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    const address = e.target.children[0].value;
-    console.log('submit' + address);
-    channel.store.set([ {path: 'ethAddress', value: address }]);
-  }
-
-  const setAddress = (addr) => {
-    console.log('new address: ' + addr);
-    channel.store.set([ {path: 'ethAddress', value: addr }]);
-  }
-
-  const { address } = this.props;
-  const ethAddress = channel.store.get('ethAddress');
-
   return (
     <>
       <Grid container direction="row" style={{ marginBottom: "-7.5%" }}>
-        <Grid item xs={12} style={{ marginRight: "5%", marginLeft: "80%" }}>
+        <Grid item xs={12} style={{ flexGrow: 1 }}>
           <ChannelCard balance={balance} swapRate={swapRate} />
         </Grid>
       </Grid>
@@ -144,66 +126,10 @@ export const Home = style(({ balance, swapRate, channel, history, parseQRCode })
             Cash Out
           </Button>
         </Grid>
+        <Onboarding
+          channel={channel}
+        />
       </Grid>
-      <Grid item xs={12}>
-        <Button
-          style={{ marginBottom: "5%" }}
-          fullWidth
-          color="primary"
-          variant="outlined"
-          size="large"
-          onClick={() => this.setState({ onrampModal: true })}
-        >
-          Buy Credits
-        </Button>
-        <Modal
-          id="onramp"
-          open={this.state.onrampModal}
-          onClose={() => this.setState({ onrampModal: false })}
-          style={{
-            justifyContent: "center",
-            alignItems: "center",
-            textAlign: "center",
-            position: "absolute",
-            top: "10%",
-            width: "375px",
-            marginLeft: "auto",
-            marginRight: "auto",
-            left: "0",
-            right: "0"
-          }}
-        >
-          <div>
-            <iframe
-              title="onrampwyre"
-              src={"https://pay.testwyre.com/purchase?destCurrency=DAI&sourceAmount=10&dest=" + ethAddress }
-              frameBorder="0"
-              allowFullScreen
-              height="800">
-            </iframe>
-          </div>
-          {/*<div ref={this.onrampRef} />; */}
-        </Modal>
-      </Grid>
-      <Grid item xs={12}>
-        <Button
-          style={{ marginBottom: "5%" }}
-          fullWidth
-          color="primary"
-          variant="outlined"
-          size="large"
-          component={Link}
-          to="/swaptips"
-        >
-          Buy/Sell Tipping Tokens
-        </Button>
-        <form id="addressform" onSubmit={this.handleSubmit} hidden >
-          <input id="setaddress" type="hidden" onChange={this.setAddress}/>
-          <input id="submitaddress" type='submit' value='Submit' />
-        </form>
-        <div id="mydiv" dangerouslySetInnerHTML={setAddressScript()} />
-      </Grid>
-
     </>
   );
 });
