@@ -14,15 +14,19 @@ version=$(shell cat package.json | grep '"version":' | awk -F '"' '{print $$4}')
 cwd=$(shell pwd)
 wincwd="C:\dev\workspace\indra"
 bot=$(cwd)/modules/payment-bot
+cf-adjudicator-contracts=$(cwd)/modules/cf-adjudicator-contracts
+cf-apps=$(cwd)/modules/cf-apps
+cf-funding-protocol-contracts=$(cwd)/modules/cf-funding-protocol-contracts
+cf-core=$(cwd)/modules/cf-core
+cf-types=$(cwd)/modules/cf-types
 client=$(cwd)/modules/client
 contracts=$(cwd)/modules/contracts
 daicard=$(cwd)/modules/daicard
+dashboard=$(cwd)/modules/dashboard
 database=$(cwd)/modules/database
 messaging=$(cwd)/modules/messaging
 node=$(cwd)/modules/node
-proxy-lock=$(cwd)/modules/proxy-lock
 proxy=$(cwd)/modules/proxy
-redis-lock=$(cwd)/modules/redis-lock
 types=$(cwd)/modules/types
 
 # Setup docker run time
@@ -31,7 +35,11 @@ types=$(cwd)/modules/types
 my_id=$(shell id -u):$(shell id -g)
 id=$(shell if [[ "`uname`" == "Darwin" ]]; then echo 0:0; else echo $(my_id); fi)
 is_win=$(shell if [[ "`uname -a`" =~ .*Microsoft.* ]]; then echo true; else echo false; fi)
-volcwd=$(shell if [ $is_win == true ]; then echo ${wincwd}; else echo ${cwd}; fi)
+ifeq ($(is_win), true)
+  volcwd=$(wincwd)
+else
+  volcwd=$(cwd)
+endif
 docker_run=docker run --name=$(project)_builder --tty --rm --volume=$(volcwd):/root $(project)_builder $(id)
 
 log_start=@echo "=============";echo "[Makefile] => Start building $@"; date "+%s" > $(flags)/.timestamp
@@ -46,8 +54,8 @@ $(shell mkdir -p .makeflags $(node)/dist)
 
 default: dev
 all: dev prod
-dev: database node types client payment-bot proxy ws-tcp-relay
-prod: database node-prod proxy-prod ws-tcp-relay
+dev: database node types client payment-bot indra-proxy ws-tcp-relay
+prod: database node-prod indra-proxy-prod ws-tcp-relay daicard-proxy
 
 start: dev
 	bash ops/start-dev.sh ganache
@@ -71,6 +79,8 @@ clean: stop
 	rm -rf $(flags)/*
 	rm -rf node_modules/@counterfactual/*
 	rm -rf modules/**/node_modules/@counterfactual/*
+	rm -rf node_modules/@walletconnect/*
+	rm -rf modules/**/node_modules/@walletconnect/*
 	rm -rf modules/**/build
 	rm -rf modules/**/dist
 	rm -rf modules/**/node_modules/**/.git
@@ -108,11 +118,17 @@ watch: watch-node
 start-test: prod deployed-contracts
 	INDRA_ETH_PROVIDER=http://localhost:8545 INDRA_MODE=test bash ops/start-prod.sh
 
+test-cf: cf-core
+	bash ops/test-cf.sh
+
+watch-cf: cf-core
+	bash ops/test-cf.sh --watch
+
 test-ui: payment-bot
 	bash ops/test-ui.sh
 
 watch-ui: node-modules
-	bash ops/test-ui.sh watch
+	bash ops/test-ui.sh --watch
 
 test-bot: payment-bot
 	bash ops/test-bot.sh
@@ -137,12 +153,37 @@ builder: ops/builder.dockerfile
 	docker build --file ops/builder.dockerfile --tag $(project)_builder:latest .
 	$(log_finish) && touch $(flags)/$@
 
-client: contracts types messaging proxy-lock $(shell find $(client)/src $(find_options))
+cf-adjudicator-contracts: node-modules $(shell find $(cf-adjudicator-contracts)/contracts $(cf-adjudicator-contracts)/waffle.json $(find_options))
+	$(log_start)
+	$(docker_run) "cd modules/cf-adjudicator-contracts && npm run build"
+	$(log_finish) && touch $(flags)/$@
+
+cf-apps: node-modules cf-adjudicator-contracts $(shell find $(cf-apps)/contracts $(cf-apps)/waffle.json $(find_options))
+	$(log_start)
+	$(docker_run) "cd modules/cf-apps && npm run build"
+	$(log_finish) && touch $(flags)/$@
+
+cf-core: node-modules types cf-adjudicator-contracts cf-funding-protocol-contracts $(shell find $(cf-core)/src $(cf-core)/tsconfig.json $(find_options))
+	$(log_start)
+	$(docker_run) "cd modules/cf-core && npm run build:ts"
+	$(log_finish) && touch $(flags)/$@
+
+cf-funding-protocol-contracts: node-modules $(shell find $(cf-funding-protocol-contracts)/contracts $(cf-funding-protocol-contracts)/waffle.json $(find_options))
+	$(log_start)
+	$(docker_run) "cd modules/cf-funding-protocol-contracts && npm run build"
+	$(log_finish) && touch $(flags)/$@
+
+cf-types: node-modules $(shell find $(cf-types)/src $(cf-types)/tsconfig.json $(find_options))
+	$(log_start)
+	$(docker_run) "cd modules/cf-types && npm run build"
+	$(log_finish) && touch $(flags)/$@
+
+client: cf-core contracts types messaging $(shell find $(client)/src $(client)/tsconfig.json $(find_options))
 	$(log_start)
 	$(docker_run) "cd modules/client && npm run build"
 	$(log_finish) && touch $(flags)/$@
 
-contracts: node-modules $(shell find $(contracts)/contracts $(find_options))
+contracts: node-modules $(shell find $(contracts)/contracts $(contracts)/waffle.json $(find_options))
 	$(log_start)
 	$(docker_run) "cd modules/contracts && npm run build"
 	$(log_finish) && touch $(flags)/$@
@@ -152,17 +193,27 @@ daicard-prod: node-modules client $(shell find $(daicard)/src $(find_options))
 	$(docker_run) "cd modules/daicard && npm run build"
 	$(log_finish) && touch $(flags)/$@
 
+dashboard-prod: node-modules client $(shell find $(dashboard)/src $(find_options))
+	$(log_start)
+	$(docker_run) "cd modules/dashboard && npm run build"
+	$(log_finish) && touch $(flags)/$@
+
+daicard-proxy: $(shell find $(proxy) $(find_options))
+	$(log_start)
+	docker build --file $(proxy)/daicard.io/prod.dockerfile --tag daicard_proxy:latest .
+	$(log_finish) && touch $(flags)/$@
+
 database: node-modules $(shell find $(database) $(find_options))
 	$(log_start)
 	docker build --file $(database)/db.dockerfile --tag $(project)_database:latest $(database)
 	$(log_finish) && touch $(flags)/$@
 
-messaging: node-modules $(shell find $(messaging)/src $(find_options))
+messaging: node-modules types $(shell find $(messaging)/src $(find_options))
 	$(log_start)
 	$(docker_run) "cd modules/messaging && npm run build"
 	$(log_finish) && touch $(flags)/$@
 
-node: contracts types messaging redis-lock $(shell find $(node)/src $(node)/migrations $(find_options))
+node: cf-core contracts types messaging $(shell find $(node)/src $(node)/migrations $(find_options))
 	$(log_start)
 	$(docker_run) "cd modules/node && npm run build"
 	$(log_finish) && touch $(flags)/$@
@@ -170,6 +221,7 @@ node: contracts types messaging redis-lock $(shell find $(node)/src $(node)/migr
 node-modules: builder package.json $(shell ls modules/**/package.json)
 	$(log_start)
 	$(docker_run) "lerna bootstrap --hoist"
+	$(docker_run) "cd node_modules/eccrypto && npm run install"
 	$(log_finish) && touch $(flags)/$@
 
 node-prod: node $(node)/ops/prod.dockerfile $(node)/ops/entry.sh
@@ -182,27 +234,17 @@ payment-bot: node-modules client types $(shell find $(bot)/src $(find_options))
 	$(docker_run) "cd modules/payment-bot && npm run build"
 	$(log_finish) && touch $(flags)/$@
 
-proxy: $(shell find $(proxy) $(find_options))
+indra-proxy: ws-tcp-relay $(shell find $(proxy) $(find_options))
 	$(log_start)
-	docker build --file $(proxy)/dev.dockerfile --tag $(project)_proxy:dev .
+	docker build --file $(proxy)/indra.connext.network/dev.dockerfile --tag $(project)_proxy:dev .
 	$(log_finish) && touch $(flags)/$@
 
-proxy-prod: daicard-prod $(shell find $(proxy) $(find_options))
+indra-proxy-prod: daicard-prod dashboard-prod ws-tcp-relay $(shell find $(proxy) $(find_options))
 	$(log_start)
-	docker build --file $(proxy)/prod.dockerfile --tag $(project)_proxy:latest .
+	docker build --file $(proxy)/indra.connext.network/prod.dockerfile --tag $(project)_proxy:latest .
 	$(log_finish) && touch $(flags)/$@
 
-redis-lock: node-modules $(shell find $(redis-lock)/src $(find_options))
-	$(log_start)
-	$(docker_run) "cd modules/redis-lock && npm run build"
-	$(log_finish) && touch $(flags)/$@
-
-proxy-lock: node-modules $(shell find $(proxy-lock)/src $(find_options))
-	$(log_start)
-	$(docker_run) "cd modules/proxy-lock && npm run build"
-	$(log_finish) && touch $(flags)/$@
-
-types: node-modules messaging $(shell find $(types)/src $(find_options))
+types: node-modules cf-types $(shell find $(types)/src $(find_options))
 	$(log_start)
 	$(docker_run) "cd modules/types && npm run build"
 	$(log_finish) && touch $(flags)/$@

@@ -4,10 +4,6 @@ import BN from 'bn.js'
 const depositEth = '0.05'
 const depositToken = '5'
 const payTokens = '3.14'
-const botTransferAmount = '0.618' // Keep this synced w what recipient expects in ops/test-ui
-
-// You can also hard-code this to the xpub for a daicard you have open in a separate browser
-const recipientBot = 'xpub6DXwZMmWUq4bRZ3LtaBYwu47XV4Td19pnngok2Y7DnRzcCJSKCmD1AcLJDbZZf5dzZpvHqYzmRaKf7Gd2MV9qDvWwwN7VpBPNXQCZCbfyoK'
 
 describe('Daicard', () => {
   beforeEach(() => {
@@ -27,13 +23,16 @@ describe('Daicard', () => {
   describe('Send', (done) => {
     it(`Should send a payment when a link payment is opened in another card`, () => {
       my.getMnemonic().then(recipientMnemonic => {
-        my.burnCard() // also decollateralizes the channel
+        my.burnCard()
         my.deposit(depositEth).then(tokensDeposited => {
           my.linkPay(payTokens).then(redeemLink => {
+            // TODO: has sender balance subtracted link amount?
             my.restoreMnemonic(recipientMnemonic)
             cy.visit(redeemLink)
-            cy.contains('span', /payment.* redeemed/i).should('exist')
-            my.goBack()
+            cy.contains('button', /redeem/i).click()
+            cy.contains('button', /confirm/i).click()
+            cy.contains('h5', /redeemed successfully/i).should('exist')
+            cy.contains('button', /home/i).click()
             cy.resolve(my.getChannelTokenBalance).should('contain', payTokens)
           })
         })
@@ -51,13 +50,18 @@ describe('Daicard', () => {
         cy.contains('p', /less than your balance/i).should('exist')
         // No invalid xpub addresses
         cy.get('input[type="string"]').clear().type('0xabc123')
-        cy.contains('p', /invalid recipient/i).should('exist')
+        cy.contains('p', /invalid/i).should('exist')
       })
     })
 
-    it(`Should transfer tokens to a collateralized payment bot`, () => {
-      my.deposit(depositEth).then(tokensDeposited => {
-        my.pay(recipientBot, botTransferAmount)
+    it(`Should transfer tokens to an unopen daicard`, () => {
+      my.getAccount().then(recipient => {
+        my.burnCard()
+        my.deposit(depositEth).then(tokensDeposited => {
+          my.pay(recipient.xpub, payTokens)
+          my.restoreMnemonic(recipient.mnemonic)
+          cy.resolve(my.getChannelTokenBalance).should('contain', payTokens)
+        })
       })
     })
 
@@ -69,7 +73,7 @@ describe('Daicard', () => {
         my.goToRequest()
         cy.get('input[type="number"]').clear().type(payTokens)
         cy.contains('button', `recipient=${xpub}`).should('exist')
-        cy.contains('button', `amountToken=${payTokens}`).invoke('text').then(requestLink => {
+        cy.contains('button', `amount=${payTokens}`).invoke('text').then(requestLink => {
           my.burnCard()
           cy.visit(requestLink)
           cy.get(`input[value="${payTokens}"]`).should('exist')
@@ -125,3 +129,17 @@ describe('Daicard', () => {
     })
   })
 })
+
+
+// describe('Dashboard', () => {
+//   beforeEach(() => {
+//     cy.visit(Cypress.env('publicUrl'))
+//   })
+//   describe('Debug', () => {
+//     it(`Should navigate to debug screen`, () => {
+//       my.goToDashboard()
+//       my.goToDebug()
+//       my.goToDebugChannel()
+//     })
+//   })
+// })

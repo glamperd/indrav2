@@ -2,7 +2,7 @@
 set -e
 
 # This is the order they'll be published in
-packages="messaging,types,redis-lock,proxy-lock,client"
+packages="cf-types,types,cf-core,messaging,client"
 project="indra"
 
 ########################################

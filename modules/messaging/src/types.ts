@@ -1,4 +1,4 @@
-import { Node } from "@counterfactual/types";
+import { MessagingConfig, Node } from "@connext/types";
 
 export interface MessagingConfig {
   clusterId?: string;
@@ -10,6 +10,7 @@ export interface MessagingConfig {
 export interface IMessagingService extends Node.IMessagingService {
   connect(): Promise<void>;
   disconnect(): Promise<void>;
+  flush(): Promise<void>;
   onReceive(subject: string, callback: (msg: Node.NodeMessage) => void): Promise<void>;
   publish(subject: string, data: any): Promise<void>;
   request(

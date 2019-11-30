@@ -1,18 +1,30 @@
-import { AppActionBigNumber } from "@connext/types";
-import { AppInstanceJson, AppInstanceProposal, Node as CFCoreTypes } from "@counterfactual/types";
+import { AppActionBigNumber, ConnextNodeStorePrefix } from "@connext/types";
 import { Inject, Injectable, Logger } from "@nestjs/common";
 import { AddressZero, Zero } from "ethers/constants";
 import { BigNumber } from "ethers/utils";
 
+import { ConfigService } from "../config/config.service";
 import { CFCoreProviderId } from "../constants";
 import { CLogger, freeBalanceAddressFromXpub, replaceBN } from "../util";
-import { CFCore } from "../util/cfCore";
+import {
+  AppInstanceJson,
+  AppInstanceProposal,
+  CFCore,
+  CFCoreTypes,
+  getMultisigAddressfromXpubs,
+} from "../util/cfCore";
+
+import { CFCoreRecordRepository } from "./cfCore.repository";
 
 const logger = new CLogger("CFCoreService");
 
 Injectable();
 export class CFCoreService {
-  constructor(@Inject(CFCoreProviderId) public readonly cfCore: CFCore) {
+  constructor(
+    @Inject(CFCoreProviderId) public readonly cfCore: CFCore,
+    private readonly configService: ConfigService,
+    private readonly cfCoreRepository: CFCoreRecordRepository,
+  ) {
     this.cfCore = cfCore;
   }
 
@@ -74,6 +86,28 @@ export class CFCoreService {
     const createRes = await this.cfCore.rpcRouter.dispatch(params);
     logger.log(`createChannel called with result: ${JSON.stringify(createRes.result.result)}`);
     return createRes.result.result as CFCoreTypes.CreateChannelResult;
+  }
+
+  async deployMultisig(
+    multisigAddress: string,
+  ): Promise<CFCoreTypes.DeployStateDepositHolderResult> {
+    const params = {
+      id: Date.now(),
+      methodName: CFCoreTypes.RpcMethodName.DEPLOY_STATE_DEPOSIT_HOLDER,
+      parameters: {
+        multisigAddress,
+      } as CFCoreTypes.DeployStateDepositHolderParams,
+    };
+    logger.log(
+      `Calling chan_deployStateDepositHolder with params: ${JSON.stringify(params, replaceBN, 2)}`,
+    );
+    const deployRes = await this.cfCore.rpcRouter.dispatch(params);
+    logger.log(
+      `chan_deployStateDepositHolder called with result: ${JSON.stringify(
+        deployRes.result.result,
+      )}`,
+    );
+    return deployRes.result.result as CFCoreTypes.DeployStateDepositHolderResult;
   }
 
   async deposit(
@@ -161,11 +195,7 @@ export class CFCoreService {
 
   async uninstallApp(appInstanceId: string): Promise<CFCoreTypes.UninstallResult> {
     // check the app is actually installed
-    const err = await this.appNotInstalled(appInstanceId);
-    if (err) {
-      logger.error(err);
-      throw new Error(err);
-    }
+    await this.assertAppInstalled(appInstanceId);
     logger.log(`Calling uninstallApp for appInstanceId ${appInstanceId}`);
     const uninstallResponse = await this.cfCore.rpcRouter.dispatch({
       id: Date.now(),
@@ -212,7 +242,7 @@ export class CFCoreService {
   }
 
   async getAppInstanceDetails(appInstanceId: string): Promise<AppInstanceJson> {
-    let appInstance;
+    let appInstance: any;
     try {
       const appInstanceResponse = await this.cfCore.rpcRouter.dispatch({
         id: Date.now(),
@@ -248,6 +278,23 @@ export class CFCoreService {
     });
 
     return stateResponse.result.result as CFCoreTypes.GetStateResult;
+  }
+
+  async getExpectedMultisigAddressFromUserXpub(userXpub: string): Promise<string> {
+    const owners = [userXpub, this.cfCore.publicIdentifier];
+    const addresses = await this.configService.getContractAddresses();
+    const proxyFactory = addresses.ProxyFactory;
+    const mVMultisig = addresses.MinimumViableMultisig;
+    return getMultisigAddressfromXpubs(owners, proxyFactory, mVMultisig);
+  }
+
+  /**
+   * Returns value from `node_records` table stored at:
+   * `{prefix}/{nodeXpub}/channel/{multisig}`
+   */
+  async getChannelRecord(multisig: string, prefix: string = ConnextNodeStorePrefix): Promise<any> {
+    const path = `${prefix}/${this.cfCore.publicIdentifier}/channel/${multisig}`;
+    return await this.cfCoreRepository.get(path);
   }
 
   private async appNotInstalled(appInstanceId: string): Promise<string | undefined> {

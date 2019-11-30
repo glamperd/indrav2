@@ -1,22 +1,33 @@
+import EthCrypto from "eth-crypto";
+import { HashZero, Zero } from "ethers/constants";
+import { fromExtendedKey } from "ethers/utils/hdnode";
+
+import { createLinkedHash, delayAndThrow, stringify, xpubToAddress } from "../lib/utils";
 import {
   BigNumber,
+  CFCoreTypes,
   ConditionalTransferParameters,
   ConditionalTransferResponse,
   convert,
   LinkedTransferParameters,
   LinkedTransferResponse,
+  LinkedTransferToRecipientParameters,
+  LinkedTransferToRecipientResponse,
   RegisteredAppDetails,
+  RejectInstallVirtualMessage,
   SimpleLinkedTransferAppStateBigNumber,
   SupportedApplication,
   SupportedApplications,
   TransferCondition,
-} from "@connext/types";
-import { Node as CFCoreTypes } from "@counterfactual/types";
-import { HashZero, Zero } from "ethers/constants";
-
-import { RejectInstallVirtualMessage } from "../lib/cfCore";
-import { createLinkedHash, freeBalanceAddressFromXpub, replaceBN } from "../lib/utils";
-import { falsy, invalid32ByteHexString, invalidAddress, notLessThanOrEqualTo } from "../validation";
+} from "../types";
+import {
+  invalid32ByteHexString,
+  invalidAddress,
+  invalidXpub,
+  notLessThanOrEqualTo,
+  notNegative,
+  validate,
+} from "../validation";
 
 import { AbstractController } from "./AbstractController";
 
@@ -29,14 +40,10 @@ type ConditionalExecutors = {
 export class ConditionalTransferController extends AbstractController {
   private appId: string;
 
-  private timeout: NodeJS.Timeout;
-
   public conditionalTransfer = async (
     params: ConditionalTransferParameters,
   ): Promise<ConditionalTransferResponse> => {
-    this.log.info(
-      `Conditional transfer called with parameters: ${JSON.stringify(params, replaceBN, 2)}`,
-    );
+    this.log.info(`Conditional transfer called with parameters: ${stringify(params)}`);
 
     const res = await this.conditionalExecutors[params.conditionType](params);
     return res;
@@ -44,15 +51,84 @@ export class ConditionalTransferController extends AbstractController {
 
   /////////////////////////////////
   ////// PRIVATE METHODS
+  // TODO: types
+  private handleLinkedTransferToRecipient = async (
+    params: LinkedTransferToRecipientParameters,
+  ): Promise<LinkedTransferToRecipientResponse> => {
+    const { amount, assetId, paymentId, preImage, recipient } = convert.LinkedTransferToRecipient(
+      "bignumber",
+      params,
+    );
+
+    const freeBalance = await this.connext.getFreeBalance(assetId);
+    const preTransferBal = freeBalance[this.connext.freeBalanceAddress];
+    validate(
+      notNegative(amount),
+      invalidAddress(assetId),
+      notLessThanOrEqualTo(amount, preTransferBal),
+      invalid32ByteHexString(paymentId),
+      invalid32ByteHexString(preImage),
+      invalidXpub(recipient),
+    );
+
+    const linkedHash = createLinkedHash(amount, assetId, paymentId, preImage);
+
+    // wait for linked transfer
+    const ret = await this.handleLinkedTransfers({
+      ...params,
+      conditionType: "LINKED_TRANSFER",
+    });
+
+    // set recipient and encrypted pre-image on linked transfer
+    // TODO: use app path instead?
+    const recipientPublicKey = fromExtendedKey(recipient).derivePath("0").publicKey;
+    const encryptedPreImageCipher = await EthCrypto.encryptWithPublicKey(
+      recipientPublicKey.slice(2), // remove 0x
+      preImage,
+    );
+    const encryptedPreImage = EthCrypto.cipher.stringify(encryptedPreImageCipher);
+    await this.connext.setRecipientAndEncryptedPreImageForLinkedTransfer(
+      recipient,
+      encryptedPreImage,
+      linkedHash,
+    );
+
+    // publish encrypted secret
+    // TODO: should we move this to its own file?
+    this.connext.messaging.publish(
+      `transfer.send-async.${recipient}`,
+      stringify({
+        amount: amount.toString(),
+        assetId,
+        encryptedPreImage,
+        paymentId,
+      }),
+    );
+
+    // need to flush here so that the client can exit knowing that messages are in the NATS server
+    await this.connext.messaging.flush();
+
+    return { ...ret, recipient };
+  };
+
   private handleLinkedTransfers = async (
     params: LinkedTransferParameters,
   ): Promise<LinkedTransferResponse> => {
     // convert params + validate
-    const { amount, assetId, paymentId, preImage } = convert.LinkedTransfer("bignumber", params);
-    const invalid = await this.validateLinked(amount, assetId, paymentId, preImage);
-    if (invalid) {
-      throw new Error(invalid);
-    }
+    const { amount, assetId, paymentId, preImage, meta } = convert.LinkedTransfer(
+      "bignumber",
+      params,
+    );
+
+    const freeBalance = await this.connext.getFreeBalance(assetId);
+    const preTransferBal = freeBalance[this.connext.freeBalanceAddress];
+    validate(
+      notNegative(amount),
+      invalidAddress(assetId),
+      notLessThanOrEqualTo(amount, preTransferBal),
+      invalid32ByteHexString(paymentId),
+      invalid32ByteHexString(preImage),
+    );
 
     const appInfo = this.connext.getRegisteredAppDetails(
       SupportedApplications.SimpleLinkedTransferApp as SupportedApplication,
@@ -67,11 +143,11 @@ export class ConditionalTransferController extends AbstractController {
       coinTransfers: [
         {
           amount,
-          to: freeBalanceAddressFromXpub(this.connext.publicIdentifier),
+          to: xpubToAddress(this.connext.publicIdentifier),
         },
         {
           amount: Zero,
-          to: freeBalanceAddressFromXpub(this.connext.nodePublicIdentifier),
+          to: xpubToAddress(this.connext.nodePublicIdentifier),
         },
       ],
       linkedHash,
@@ -84,6 +160,7 @@ export class ConditionalTransferController extends AbstractController {
       assetId,
       initialState,
       appInfo,
+      meta,
     );
 
     if (!appId) {
@@ -97,24 +174,6 @@ export class ConditionalTransferController extends AbstractController {
     };
   };
 
-  private validateLinked = async (
-    amount: BigNumber,
-    assetId: string,
-    paymentId: string,
-    preImage: string,
-  ): Promise<undefined | string> => {
-    // check that there is sufficient free balance for amount
-    const freeBalance = await this.connext.getFreeBalance(assetId);
-    const preTransferBal = freeBalance[this.connext.freeBalanceAddress];
-    const errs = [
-      invalidAddress(assetId),
-      notLessThanOrEqualTo(amount, preTransferBal),
-      invalid32ByteHexString(paymentId),
-      invalid32ByteHexString(preImage),
-    ];
-    return errs ? errs.filter(falsy)[0] : undefined;
-  };
-
   // creates a promise that is resolved once the app is installed
   // and rejected if the virtual application is rejected
   private conditionalTransferAppInstalled = async (
@@ -122,6 +181,7 @@ export class ConditionalTransferController extends AbstractController {
     assetId: string,
     initialState: SimpleLinkedTransferAppStateBigNumber,
     appInfo: RegisteredAppDetails,
+    meta?: object,
   ): Promise<string | undefined> => {
     let boundResolve: (value?: any) => void;
     let boundReject: (reason?: any) => void;
@@ -142,6 +202,7 @@ export class ConditionalTransferController extends AbstractController {
       initialState,
       initiatorDeposit,
       initiatorDepositTokenAddress: assetId,
+      meta,
       outcomeType,
       proposedToIdentifier: this.connext.nodePublicIdentifier,
       responderDeposit: Zero,
@@ -154,16 +215,19 @@ export class ConditionalTransferController extends AbstractController {
     this.appId = proposeRes.appInstanceId;
 
     try {
-      await new Promise((res: () => any, rej: () => any): void => {
-        boundResolve = this.resolveInstallTransfer.bind(null, res);
-        boundReject = this.rejectInstallTransfer.bind(null, rej);
-        this.connext.messaging.subscribe(
-          `indra.node.${this.connext.nodePublicIdentifier}.install.${proposeRes.appInstanceId}`,
-          boundResolve,
-        );
-        this.listener.on(CFCoreTypes.EventName.REJECT_INSTALL, boundReject);
-      });
-      this.log.info(`App was installed successfully!: ${JSON.stringify(proposeRes)}`);
+      const raceRes = await Promise.race([
+        new Promise((res: () => any, rej: () => any): void => {
+          boundResolve = this.resolveInstallTransfer.bind(null, res);
+          boundReject = this.rejectInstallTransfer.bind(null, rej);
+          this.connext.messaging.subscribe(
+            `indra.node.${this.connext.nodePublicIdentifier}.install.${proposeRes.appInstanceId}`,
+            boundResolve,
+          );
+          this.listener.on(CFCoreTypes.EventName.REJECT_INSTALL, boundReject);
+        }),
+        delayAndThrow(15_000, "App install took longer than 15 seconds"),
+      ]);
+      this.log.info(`App was installed successfully!: ${stringify(raceRes as object)}`);
       return proposeRes.appInstanceId;
     } catch (e) {
       this.log.error(`Error installing app: ${e.toString()}`);
@@ -181,7 +245,7 @@ export class ConditionalTransferController extends AbstractController {
     if (appInstance.identityHash !== this.appId) {
       // not our app
       this.log.info(
-        `Caught INSTALL event for different app ${JSON.stringify(message)}, expected ${this.appId}`,
+        `Caught INSTALL event for different app ${stringify(message)}, expected ${this.appId}`,
       );
       return;
     }
@@ -199,7 +263,7 @@ export class ConditionalTransferController extends AbstractController {
       return;
     }
 
-    return rej(`Install failed. Event data: ${JSON.stringify(msg, replaceBN, 2)}`);
+    return rej(`Install failed. Event data: ${stringify(msg)}`);
   };
 
   private cleanupInstallListeners = (boundReject: any, appId: string): void => {
@@ -212,5 +276,6 @@ export class ConditionalTransferController extends AbstractController {
   // add all executors/handlers here
   private conditionalExecutors: ConditionalExecutors = {
     LINKED_TRANSFER: this.handleLinkedTransfers,
+    LINKED_TRANSFER_TO_RECIPIENT: this.handleLinkedTransferToRecipient,
   };
 }

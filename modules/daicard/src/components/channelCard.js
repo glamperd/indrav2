@@ -1,57 +1,57 @@
 import { Grid, Typography, withStyles } from "@material-ui/core";
-import { ethers as eth } from "ethers";
 import React from "react";
+
+// import { ethers as eth } from "ethers";
 
 const styles = theme => ({
   row: {
-    color: "white"
+    color: "white",
   },
   pending: {
     marginBottom: "3%",
-    color: "white"
+    color: "white",
   },
   clipboard: {
-    cursor: "pointer"
-  }
+    cursor: "pointer",
+  },
 });
 
 export const ChannelCard = withStyles(styles)(props => {
-  const { balance, classes } = props;
-  const split = (balance) => {
-    const bal = balance.format({ decimals: 3, symbol: false });
-    const whole = bal.substring(0, bal.indexOf('.'));
-    const part = bal.substring(bal.indexOf('.'));
-    return { whole, part: part.substring(0,4) };
-  }
+  const { balance, classes, swapRate } = props;
+  const split = balance => {
+    const bal = balance.format({ decimals: 2, symbol: false, round: false });
+    const whole = bal.substring(0, bal.indexOf("."));
+    const part = bal.substring(bal.indexOf("."));
+    return { whole, part: part.substring(0, 4) };
+  };
   return (
-      <Grid>
-        <Grid 
-          container
-          spacing={2}
-          direction="column"
-          style={{
-            paddingLeft: "5%",
-            paddingRight: "5%",
-            paddingTop: "10%",
-            paddingBottom: "20%",
-            backgroundColor: "#282b2e",
-            textAlign: "center"
-          }}
-          alignItems="center"
-          justify="center"
-        >
-
+    <Grid>
+      <Grid
+        container
+        spacing={2}
+        direction="column"
+        style={{
+          paddingLeft: "5%",
+          paddingRight: "5%",
+          paddingTop: "10%",
+          paddingBottom: "20%",
+          backgroundColor: "#282b2e",
+          textAlign: "center",
+        }}
+        alignItems="center"
+        justify="center"
+      >
         <Grid item xs={12}>
           {/* <Typography style={{ color: 'white' }}> Channel </Typography> */}
           <span id="balance-channel-token">
-            <Typography style={{display: 'inline-block'}} variant="h3" className={classes.row}>
-              {"$ "}
-            </Typography>
             <Typography style={{display: 'inline-block'}} variant="h1" className={classes.row}>
               <span>{split(balance.channel.token.toDAI()).whole}</span>
             </Typography>
             <Typography style={{display: 'inline-block'}} variant="h3" className={classes.row}>
               <span>{split(balance.channel.token.toDAI()).part}</span>
+            </Typography>
+            <Typography style={{display: 'inline-block'}} variant="h5" className={classes.row}>
+              {"   CREDITS"}
             </Typography>
           </span>
           {/* <span style={{fontSize: 64}}>&nbsp;&nbsp;&nbsp;</span> */}
@@ -68,9 +68,17 @@ export const ChannelCard = withStyles(styles)(props => {
           </span> */}
         </Grid>
 
-        <br/>
+        <br />
 
         <Grid item xs={12}>
+          <span id="balance-channel-tips">
+            <Typography style={{display: 'inline-block'}} variant="h4" className={classes.row}>
+              <span>{split(balance.channel.tipToken.toTIP()).whole}</span>
+            </Typography>
+            <Typography style={{display: 'inline-block'}} variant="h5" className={classes.row}>
+              {" TIPS"}
+            </Typography>
+          </span>
           {/* <Typography style={{ color: 'white' }}> On-Chain </Typography>
           <span id="balance-onchain-token">
             <Typography style={{display: 'inline-block'}} variant="h5" className={classes.row}>
@@ -96,7 +104,6 @@ export const ChannelCard = withStyles(styles)(props => {
             </Typography>
           </span> */}
         </Grid>
-
       </Grid>
     </Grid>
   );

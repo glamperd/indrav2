@@ -1,6 +1,6 @@
 import { utils } from "ethers";
 
-import { replaceBN } from "../lib/utils";
+import { stringify } from "../lib/utils";
 
 // this contains all of the bn related validation
 // all functions in this library will return `undefined` if the conditions are
@@ -15,14 +15,14 @@ export const falsy = (x: string | undefined): boolean => !!x;
 export function notBigNumber(value: any): string | undefined {
   return utils.BigNumber.isBigNumber(value)
     ? undefined
-    : `Value is not a bignumber. Value: ${JSON.stringify(value, replaceBN, 2)}`;
+    : `Value "${stringify(value)}" is not a bignumber`;
 }
 
 export function notBigNumberish(value: any): string | undefined {
   try {
     utils.bigNumberify(value);
   } catch (e) {
-    return `Value is not bignumberish. Value: ${JSON.stringify(value, replaceBN, 2)}`;
+    return `Value ${stringify(value)} is not bignumberish}`;
   }
   return undefined;
 }
@@ -70,5 +70,5 @@ export function notPositive(value: any): string | undefined {
 }
 
 export function notNegative(value: any): string | undefined {
-  return notLessThan(value, 0);
+  return notLessThan(0, value);
 }

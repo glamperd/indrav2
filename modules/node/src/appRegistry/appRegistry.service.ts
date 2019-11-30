@@ -5,7 +5,6 @@ import {
   SimpleTransferAppStateBigNumber,
   SupportedApplications,
 } from "@connext/types";
-import { Node as CFCoreTypes } from "@counterfactual/types";
 import { Injectable } from "@nestjs/common";
 import { Zero } from "ethers/constants";
 import { BigNumber, bigNumberify, formatEther } from "ethers/utils";
@@ -19,10 +18,11 @@ import {
   bigNumberifyObj,
   CLogger,
   freeBalanceAddressFromXpub,
+  isEthAddress,
   normalizeEthAddresses,
+  stringify,
 } from "../util";
-import { ProposeMessage } from "../util/cfCore";
-import { isEthAddress } from "../validator";
+import { CFCoreTypes, ProposeMessage } from "../util/cfCore";
 
 import { AppRegistry } from "./appRegistry.entity";
 import { AppRegistryRepository } from "./appRegistry.repository";
@@ -47,37 +47,21 @@ export class AppRegistryService {
    * accept or reject the install.
    * @param data Data from CF event PROPOSE_INSTALL
    */
-  async allowOrReject(
-    data: ProposeMessage,
-  ): Promise<CFCoreTypes.InstallResult | CFCoreTypes.RejectInstallResult> {
+  async allowOrReject(data: ProposeMessage): Promise<AppRegistry | void> {
     try {
-      await this.verifyAppProposal(data.data, data.from);
-      return await this.cfCoreService.installApp(data.data.appInstanceId);
+      // TODO: remove any casting when #573 is merged
+      const registryAppInfo = await this.verifyAppProposal(data.data as any, data.from);
+      await this.cfCoreService.installApp(data.data.appInstanceId);
+      return registryAppInfo;
     } catch (e) {
       logger.error(`Caught error during proposed app validation, rejecting install`);
       console.error(e);
-      return await this.cfCoreService.rejectInstallApp(data.data.appInstanceId);
+      await this.cfCoreService.rejectInstallApp(data.data.appInstanceId);
+      return;
     }
   }
 
-  /**
-   * Reject app installs for virtual apps that node is intermediary of
-   * based on invalid conditions.
-   * @param data Data from CF event PROPOSE_INSTALL_VIRTUAL
-   */
-  async allowOrRejectVirtual(
-    data: ProposeMessage,
-  ): Promise<void | CFCoreTypes.RejectInstallResult> {
-    try {
-      await this.verifyVirtualAppProposal(data.data, data.from);
-    } catch (e) {
-      logger.error(`Caught error during proposed app validation, rejecting virtual install`);
-      console.error(e);
-      return await this.cfCoreService.rejectInstallApp(data.data.appInstanceId);
-    }
-  }
-
-  private async appProposalMatchesRegistry(
+  async appProposalMatchesRegistry(
     proposal: CFCoreTypes.ProposeInstallParams,
   ): Promise<AppRegistry> {
     const registryAppInfo = await this.appRegistryRepository.findByAppDefinitionAddress(
@@ -96,7 +80,7 @@ export class AppRegistryService {
       )
     ) {
       throw new Error(
-        `Proposed app details ${JSON.stringify(proposal)} do not match registry ${JSON.stringify(
+        `Proposed app details ${stringify(proposal)} do not match registry ${stringify(
           registryAppInfo,
         )}`,
       );
@@ -162,9 +146,7 @@ export class AppRegistryService {
     ) {
       throw new Error(
         `Swap from ${initiatorDepositTokenAddress} to ` +
-          `${responderDepositTokenAddress} is not valid. Valid swaps: ${JSON.stringify(
-            validSwaps,
-          )}`,
+          `${responderDepositTokenAddress} is not valid. Valid swaps: ${stringify(validSwaps)}`,
       );
     }
 
@@ -183,7 +165,7 @@ export class AppRegistryService {
 
     if (discrepancyPct > ALLOWED_DISCREPANCY_PCT) {
       throw new Error(
-        `Derived rate is ${derivedRate.toString()}, more than ${ALLOWED_DISCREPANCY_PCT}% ` +
+        `Derived rate is ${derivedRate.toString()} (vs ${ourRate}), more than ${ALLOWED_DISCREPANCY_PCT}% ` +
           `larger discrepancy than our rate of ${ourRate.toString()}`,
       );
     }
@@ -213,24 +195,20 @@ export class AppRegistryService {
 
     if (responderDeposit.gt(Zero)) {
       throw new Error(
-        `Will not accept linked transfer install where node deposit is >0 ${JSON.stringify(
-          params,
-        )}`,
+        `Will not accept linked transfer install where node deposit is >0 ${stringify(params)}`,
       );
     }
 
     if (initiatorDeposit.lte(Zero)) {
       throw new Error(
-        `Will not accept linked transfer install where initiator deposit is <=0 ${JSON.stringify(
+        `Will not accept linked transfer install where initiator deposit is <=0 ${stringify(
           params,
         )}`,
       );
     }
 
     if (!initialState.amount.eq(initiatorDeposit)) {
-      throw new Error(
-        `Payment amount bust be the same as initiator deposit ${JSON.stringify(params)}`,
-      );
+      throw new Error(`Payment amount bust be the same as initiator deposit ${stringify(params)}`);
     }
 
     if (bigNumberify(initialState.coinTransfers[0].amount).lte(Zero)) {
@@ -359,8 +337,8 @@ export class AppRegistryService {
       appInstanceId: string;
     },
     initiatorIdentifier: string,
-  ): Promise<void> {
-    const myIdentifier = await this.cfCoreService.cfCore.publicIdentifier;
+  ): Promise<AppRegistry | void> {
+    const myIdentifier = this.cfCoreService.cfCore.publicIdentifier;
     if (initiatorIdentifier === myIdentifier) {
       logger.log(`Received proposal from our own node.`);
       return;
@@ -368,24 +346,11 @@ export class AppRegistryService {
 
     const registryAppInfo = await this.appProposalMatchesRegistry(proposedAppParams.params);
 
-    if (registryAppInfo.name === "SimpleTransferApp") {
-      logger.debug(
-        `Caught propose install for what should always be a virtual app. CF should also emit a virtual app install event, so let this callback handle and verify. Will need to refactor soon!`,
-      );
-      return;
-    }
-
     if (!registryAppInfo.allowNodeInstall) {
       throw new Error(`App ${registryAppInfo.name} is not allowed to be installed on the node`);
     }
 
-    logger.log(
-      `App with params ${JSON.stringify(
-        proposedAppParams.params,
-        null,
-        2,
-      )} allowed to be installed`,
-    );
+    logger.log(`App with params ${stringify(proposedAppParams.params, 2)} allowed to be installed`);
 
     await this.commonAppProposalValidation(proposedAppParams.params, initiatorIdentifier);
 
@@ -393,30 +358,21 @@ export class AppRegistryService {
       case SupportedApplications.SimpleTwoPartySwapApp:
         await this.validateSwap(proposedAppParams.params);
         break;
+      // TODO: add validation of simple transfer validateSimpleTransfer
       case SupportedApplications.SimpleLinkedTransferApp:
-        // TODO: add validation of simple transfer validateSimpleTransfer
         await this.validateSimpleLinkedTransfer(proposedAppParams.params);
-        logger.log(`saving linked transfer`);
-        await this.transferService.saveLinkedTransfer(
-          initiatorIdentifier,
-          proposedAppParams.params.initiatorDepositTokenAddress,
-          bigNumberify(proposedAppParams.params.initiatorDeposit),
-          proposedAppParams.appInstanceId,
-          (proposedAppParams.params.initialState as SimpleLinkedTransferAppStateBigNumber)
-            .linkedHash,
-        );
-        logger.log(`saved!`);
         break;
       default:
         break;
     }
     logger.log(`Validation completed for app ${registryAppInfo.name}`);
+    return registryAppInfo;
   }
 
+  // TODO: will need to remove this
   private async verifyVirtualAppProposal(
     proposedAppParams: {
       params: CFCoreTypes.ProposeInstallParams;
-      // ^^ may be propose install virtual despite what package types say..
       appInstanceId: string;
     },
     initiatorIdentifier: string,
@@ -469,12 +425,14 @@ export class AppRegistryService {
     switch (registryAppInfo.name) {
       case SupportedApplications.SimpleTransferApp:
         // TODO: move this to install
+        // TODO: this doesn't work with the new paradigm, we won't know this info
         await this.transferService.savePeerToPeerTransfer(
           initiatorIdentifier,
           proposedAppParams.params.proposedToIdentifier,
           proposedAppParams.params.initiatorDepositTokenAddress,
           bigNumberify(proposedAppParams.params.initiatorDeposit),
           proposedAppParams.appInstanceId,
+          proposedAppParams.params.meta,
         );
         break;
       default:
