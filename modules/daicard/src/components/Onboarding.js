@@ -1,11 +1,9 @@
-import { Button, Grid, Modal, withStyles,
-  TextField
- } from "@material-ui/core";
+import { Button, Grid, Modal, withStyles } from "@material-ui/core";
 import React from "react";
 
 import "../App.css";
 
-import { store } from '../utils';
+//import { store } from '../utils';
 
 const styles = {};
 
@@ -53,7 +51,7 @@ class Onboarding extends React.Component {
   }
 
   render() {
-    const { address } = this.props;
+    //const { address } = this.props;
     const { store } = this.state;
     const ethAddress = store ? store.get('ethAddress') : '';
     return (

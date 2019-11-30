@@ -56,4 +56,3 @@ else
   echo "Starting indra node in prod-mode"
   exec node dist/src/main.js
 fi
-
