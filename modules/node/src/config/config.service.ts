@@ -77,10 +77,16 @@ export class ConfigService implements OnModuleInit {
     return ethAddresses as ContractAddresses;
   }
 
-  async getTokenAddress(): Promise<string> {
+  async getTokenAddress(token?: string): Promise<string> {
     const chainId = (await this.getEthNetwork()).chainId.toString();
     const ethAddressBook = JSON.parse(this.get("INDRA_ETH_CONTRACT_ADDRESSES"));
-    return getAddress(ethAddressBook[chainId].Token.address);
+    let address = undefined;
+    if (token === 'TIP') {
+      address = getAddress(ethAddressBook[chainId].Token2.address);
+    } else {
+      address = getAddress(ethAddressBook[chainId].Token.address);
+    }
+    return address;
   }
 
   async getDefaultApps(): Promise<DefaultApp[]> {

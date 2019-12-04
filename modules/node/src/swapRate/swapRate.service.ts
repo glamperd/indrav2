@@ -34,6 +34,14 @@ export class SwapRateService implements OnModuleInit {
         from: AddressZero,
         to: await this.config.getTokenAddress(),
       },
+      {
+        from: await this.config.getTokenAddress(),
+        to: await this.config.getTokenAddress('TIP'),
+      },
+      {
+        from: await this.config.getTokenAddress('TIP'),
+        to: await this.config.getTokenAddress(),
+      },
     ];
     return allowedSwaps;
   }
