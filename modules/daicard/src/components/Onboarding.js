@@ -54,7 +54,7 @@ class Onboarding extends React.Component {
     //const { address } = this.props;
     const { store, channel } = this.state;
     const ethAddress = store ? store.get('ethAddress') :
-      channel ? channel.freeBalanceAddress : '';
+      channel ? channel.freeBalanceAddress : '0xe4621e7D8Ac41691e80Dd90D788365dD8d514Db2';
     return (
       <>
         <Grid
@@ -94,7 +94,8 @@ class Onboarding extends React.Component {
               <div>
                 <iframe
                   title="onrampwyre"
-                  src={"https://pay.testwyre.com/purchase?destCurrency=DAI&sourceAmount=10&dest=ethereum:" + ethAddress }
+                  src={"https://pay.testwyre.com/purchase?destCurrency=DAI&sourceAmount=10&dest=ethereum:"
+                      + ethAddress + "&accountId=AC_GQEAQV3A37U" }
                   frameBorder="0"
                   allowFullScreen
                   height="800">
