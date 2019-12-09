@@ -79,7 +79,8 @@ class Onboarding extends React.Component {
                     search: "?destCurrency=DAI" +
                       "&sourceAmount=10" +
                       "&dest=ethereum:" + ethAddress +
-                      "&accountId=AC_GQEAQV3A37U" +
+                      //"&accountId=AC_GQEAQV3A37U" +
+                      "&accountId=AC_J3QD6WH3B83" + 
                       "&redirectUrl=https://card.gazecoin.xyz"
                   }}
             >
