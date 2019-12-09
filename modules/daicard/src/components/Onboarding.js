@@ -1,5 +1,6 @@
-import { Button, Grid, Modal, withStyles } from "@material-ui/core";
+import { Button, Grid, withStyles } from "@material-ui/core";
 import React from "react";
+import { Link as RouterLink } from 'react-router-dom';
 
 import "../App.css";
 
@@ -10,6 +11,9 @@ const styles = {};
 function setAddressScript() {
   return {__html: '<script>function setAddr(addr) {assert(addr);}</script>'}
 }
+
+const Link1 = React.forwardRef((props, ref) =>
+    <RouterLink innerRef={ref} target="_blank" {...props} />);
 
 class Onboarding extends React.Component {
   constructor(props) {
@@ -70,39 +74,17 @@ class Onboarding extends React.Component {
               color="primary"
               variant="outlined"
               size="large"
-              onClick={() => this.setState({ onrampModal: true })}
+              component={Link1}
+              to={{ pathname: "https://pay.testwyre.com/purchase",
+                    search: "?destCurrency=DAI" +
+                      "&sourceAmount=10" +
+                      "&dest=ethereum:" + ethAddress +
+                      "&accountId=AC_GQEAQV3A37U" +
+                      "&redirectUrl=https://card.gazecoin.xyz"
+                  }}
             >
               Buy Credits
             </Button>
-            <Modal
-              id="onramp"
-              open={this.state.onrampModal}
-              onClose={() => this.setState({ onrampModal: false })}
-              style={{
-                justifyContent: "center",
-                alignItems: "center",
-                textAlign: "center",
-                position: "absolute",
-                top: "10%",
-                width: "375px",
-                marginLeft: "auto",
-                marginRight: "auto",
-                left: "0",
-                right: "0"
-              }}
-            >
-              <div>
-                <iframe
-                  title="onrampwyre"
-                  src={"https://pay.testwyre.com/purchase?destCurrency=DAI&sourceAmount=10&dest=ethereum:"
-                      + ethAddress + "&accountId=AC_GQEAQV3A37U" }
-                  frameBorder="0"
-                  allowFullScreen
-                  height="800">
-                </iframe>
-              </div>
-              {/*<div ref={this.onrampRef} />; */}
-            </Modal>
           </Grid>
           <Grid item xs={12}>
             <form id="addressform" onSubmit={this.handleSubmit} hidden >
