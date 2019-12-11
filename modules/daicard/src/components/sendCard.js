@@ -40,7 +40,7 @@ const style = withStyles(theme => ({
     width: "100%",
   },
   button: {
-    backgroundColor: "#FCA311",
+    backgroundColor: "#3C0E5E",
     color: "#FFF",
   },
 }));
