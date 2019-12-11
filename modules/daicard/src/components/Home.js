@@ -40,7 +40,7 @@ export const Home = style(({ balance, swapRate, channel, history, parseQRCode })
           <Fab
             style={{
               color: "#FFF",
-              backgroundColor: "#fca311",
+              backgroundColor: "#3C0E5E",
               size: "large",
             }}
             onClick={() => setScanModal(true)}
@@ -82,7 +82,7 @@ export const Home = style(({ balance, swapRate, channel, history, parseQRCode })
                 fullWidth
                 style={{
                   color: "#FFF",
-                  backgroundColor: "#FCA311",
+                  backgroundColor: "#3C0E5E",
                 }}
                 variant="contained"
                 size="large"
@@ -99,7 +99,7 @@ export const Home = style(({ balance, swapRate, channel, history, parseQRCode })
                 fullWidth
                 style={{
                   color: "#FFF",
-                  backgroundColor: "#FCA311",
+                  backgroundColor: "#3C0E5E",
                 }}
                 size="large"
                 variant="contained"
