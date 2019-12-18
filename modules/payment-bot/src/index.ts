@@ -75,7 +75,7 @@ process.on("unhandledRejection", (e: any): any => {
   }
 
   if (config.swap) {
-    const tokenAddress = client.config.contractAddresses.Token;
+    const tokenAddress = client.config.contractAddresses.CreditToken;
     const swapRate = await client.getLatestSwapRate(AddressZero, tokenAddress);
     console.log(`Swapping ${config.swap} eth for ${assetId} at rate ${swapRate.toString()}`);
     await client.swap({

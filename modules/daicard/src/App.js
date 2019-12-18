@@ -293,12 +293,12 @@ class App extends React.Component {
     await channel.isAvailable();
 
     const token = new Contract(
-      channel.config.contractAddresses.Token,
+      channel.config.contractAddresses.CreditToken,
       tokenArtifacts.abi,
       wallet || ethProvider,
     );
     const tipToken = new Contract(
-      channel.config.contractAddresses.Token2,
+      channel.config.contractAddresses.RewardToken,
       tokenArtifacts.abi,
       wallet || ethProvider
     );
@@ -374,11 +374,11 @@ class App extends React.Component {
 
   getSaiBalance = async wallet => {
     const { channel } = this.state;
-    if (!channel.config.contractAddresses.SAIToken) {
+    if (!channel.config.contractAddresses.CreditToken) {
       return Zero;
     }
     const saiToken = new Contract(
-      channel.config.contractAddresses.SAIToken,
+      channel.config.contractAddresses.CreditToken,
       tokenArtifacts.abi,
       wallet,
     );
