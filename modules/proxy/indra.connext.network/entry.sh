@@ -9,7 +9,7 @@ messaging_url="${MESSAGING_URL:-http://relay:4223}"
 mode="${MODE:-dev}"
 echo "domain=$domain email=$email eth=$eth_rpc_url messaging=$messaging_url daicard=$daicard_url mode=$mode"
 
-ping -c 3 172.31.4.182
+curl -X POST --data '{"jsonrpc": "2.0","method": "eth_getBlockByNumber","params": ["latest",false], "id": 1 }' -H "Content-Type: application/json" http://localhost:8545
 
 # Provide a message indicating that we're still waiting for everything to wake up
 function loading_msg {
