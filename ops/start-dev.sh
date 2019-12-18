@@ -26,6 +26,8 @@ if [[ "$ETH_NETWORK" == "rinkeby" ]]
 then eth_rpc_url="https://rinkeby.infura.io/metamask"
 elif [[ "$ETH_NETWORK" == "kovan" ]]
 then eth_rpc_url="https://kovan.infura.io/metamask"
+elif [[ "$ETH_NETWORK" == "ropsten" ]]
+then eth_rpc_url="http://localhost:8545"
 elif [[ "$ETH_NETWORK" == "ganache" ]]
 then
   eth_rpc_url="http://ethprovider:8545"
@@ -94,7 +96,7 @@ then
   echo "Created ATTACHABLE network with id $id"
 fi
 
-number_of_services=9 # NOTE: Gotta update this manually when adding/removing services :(
+number_of_services=8 # NOTE: Gotta update this manually when adding/removing services :(
 
 mkdir -p /tmp/$project
 cat - > /tmp/$project/docker-compose.yml <<EOF
@@ -181,15 +183,15 @@ services:
     volumes:
       - $home_dir:/root
 
-  ethprovider:
-    image: $ethprovider_image
-    command: ["--db=/data", "--mnemonic=$eth_mnemonic", "--networkId=4447"]
-    networks:
-      - $project
-    ports:
-      - "8545:8545"
-    volumes:
-      - chain_dev:/data
+#  ethprovider:
+#    image: $ethprovider_image
+#    command: ["--db=/data", "--mnemonic=$eth_mnemonic", "--networkId=4447"]
+#    networks:
+#      - $project
+#    ports:
+#      - "8545:8545"
+#    volumes:
+#      - chain_dev:/data
 
   database:
     image: $database_image
