@@ -4,7 +4,7 @@
 domain="${DOMAINNAME:-localhost}"
 email="${EMAIL:-noreply@gmail.com}"
 daicard_url="${DAICARD_URL:-http://daicard:3000}"
-eth_rpc_url="${ETH_RPC_URL:-http://ethprovider:8545}"
+eth_rpc_url="${ETH_RPC_URL:-http://172.31.4.182:8545}"
 messaging_url="${MESSAGING_URL:-http://relay:4223}"
 mode="${MODE:-dev}"
 echo "domain=$domain email=$email eth=$eth_rpc_url messaging=$messaging_url daicard=$daicard_url mode=$mode"
