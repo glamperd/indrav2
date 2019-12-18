@@ -27,7 +27,7 @@ then eth_rpc_url="https://rinkeby.infura.io/metamask"
 elif [[ "$ETH_NETWORK" == "kovan" ]]
 then eth_rpc_url="https://kovan.infura.io/metamask"
 elif [[ "$ETH_NETWORK" == "ropsten" ]]
-then eth_rpc_url="http://localhost:8545"
+then eth_rpc_url="http://ethprovider:8545"
 elif [[ "$ETH_NETWORK" == "ganache" ]]
 then
   eth_rpc_url="http://ethprovider:8545"
@@ -129,7 +129,8 @@ services:
       - "$port:80"
     volumes:
       - certs:/etc/letsencrypt
-    network_mode: "host"
+    extra_hosts:
+      - "ethprovider:127.0.0.1"
 
   daicard:
     image: $daicard_devserver_image
@@ -177,7 +178,8 @@ services:
       NODE_ENV: development
     networks:
       - $project
-    network_mode: "host"
+    extra_hosts:
+      - "ethprovider:127.0.0.1"
     ports:
       - "$node_port:$node_port"
     secrets:
