@@ -6,24 +6,22 @@ import "../App.css";
 const styles = {};
 
 class RequestGrant extends React.Component {
-  constructor(props) {
-    super(props);
-  }
 
   handleSubmit = (e) => {
     e.preventDefault();
+    const ethaddress = "0x123";
     // Send
-    fetch('https://api.ropsten.dreamchannel.io/requesttokens?to=' + ethaddress)
-      .then()
-    var store = this.state.store;
-    if (store) {
-      store.set([ {path: 'ethAddress', value: address }]);
-    }
+    fetch('https://api.ropsten.dreamchannel.io/requesttokens?to=' + ethaddress);
+    //  .then();
+    // var store = this.state.store;
+    // if (store) {
+    //   store.set([ {path: 'ethAddress', value: address }]);
+    // }
   }
 
   render() {
     //const { address } = this.props;
-    const { store, channel } = this.state;
+    //const { store, channel } = this.state;
     return (
       <>
         <Grid

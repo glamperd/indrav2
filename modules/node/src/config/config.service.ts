@@ -82,9 +82,9 @@ export class ConfigService implements OnModuleInit {
     const ethAddressBook = JSON.parse(this.get("INDRA_ETH_CONTRACT_ADDRESSES"));
     let address = undefined;
     if (token === 'TIP') {
-      address = getAddress(ethAddressBook[chainId].Token2.address);
+      address = getAddress(ethAddressBook[chainId].RewardToken.address);
     } else {
-      address = getAddress(ethAddressBook[chainId].Token.address);
+      address = getAddress(ethAddressBook[chainId].CreditToken.address);
     }
     return address;
   }

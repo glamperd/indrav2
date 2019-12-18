@@ -29,6 +29,7 @@ import { SetupCard } from "./components/setupCard";
 import { SupportCard } from "./components/supportCard";
 import { WithdrawSaiDialog } from "./components/withdrawSai";
 import BuyTipsCard from "./components/buyTipsCard";
+import RequestGrant from "./components/RequestGrant";
 import { rootMachine } from "./state";
 import {
   cleanWalletConnect,
