@@ -58,14 +58,16 @@ dev: database node types client payment-bot indra-proxy ws-tcp-relay
 prod: database node-prod indra-proxy-prod ws-tcp-relay daicard-proxy
 
 start: dev
-	bash ops/start-dev.sh ganache
+#	bash ops/start-dev.sh ganache
+	bash ops/start-dev.sh ropsten
 
 stop:
 	bash ops/stop.sh
 
 restart: dev
 	bash ops/stop.sh
-	bash ops/start-dev.sh ganache
+	bash ops/start-dev.sh ropsten
+#	bash ops/start-dev.sh ganache
 
 start-prod: prod
 	bash ops/start-prod.sh
