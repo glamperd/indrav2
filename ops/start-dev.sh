@@ -133,7 +133,7 @@ services:
     volumes:
       - certs:/etc/letsencrypt
     extra_hosts:
-      - "ethprovider:127.0.0.1"
+      - "ethprovider:172.31.4.182"
 
   daicard:
     image: $daicard_devserver_image
@@ -182,14 +182,14 @@ services:
     networks:
       - $project
       - bridge
-    extra_hosts:
-      - "ethprovider:127.0.0.1"
     ports:
       - "$node_port:$node_port"
     secrets:
       - ${project}_database_dev
     volumes:
       - $home_dir:/root
+    extra_hosts:
+      - "ethprovider:172.31.4.182"
 
 #  ethprovider:
 #    image: $ethprovider_image
