@@ -27,7 +27,7 @@ then eth_rpc_url="https://rinkeby.infura.io/metamask"
 elif [[ "$ETH_NETWORK" == "kovan" ]]
 then eth_rpc_url="https://kovan.infura.io/metamask"
 elif [[ "$ETH_NETWORK" == "ropsten" ]]
-then eth_rpc_url="http://172.31.4.182:8545"
+then eth_rpc_url="https://rpc.gazecoin.xyz"
 elif [[ "$ETH_NETWORK" == "ganache" ]]
 then
   eth_rpc_url="http://ethprovider:8545"

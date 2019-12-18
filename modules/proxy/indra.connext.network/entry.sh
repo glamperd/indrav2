@@ -9,7 +9,7 @@ messaging_url="${MESSAGING_URL:-http://relay:4223}"
 mode="${MODE:-dev}"
 echo "domain=$domain email=$email eth=$eth_rpc_url messaging=$messaging_url daicard=$daicard_url mode=$mode"
 
-curl -X POST --data '{"jsonrpc": "2.0","method": "eth_getBlockByNumber","params": ["latest",false], "id": 1 }' -H "Content-Type: application/json" http://localhost:8545
+curl -X POST --data '{"jsonrpc": "2.0","method": "eth_getBlockByNumber","params": ["latest",false], "id": 1 }' -H "Content-Type: application/json" https://rpc.gazecoin.xyz
 
 # Provide a message indicating that we're still waiting for everything to wake up
 function loading_msg {
