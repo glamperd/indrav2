@@ -105,6 +105,8 @@ version: '3.4'
 networks:
   $project:
     external: true
+  bridge:
+    external: true
 
 secrets:
   ${project}_database_dev:
@@ -125,6 +127,7 @@ services:
       MODE: dev
     networks:
       - $project
+      - bridge
     ports:
       - "$port:80"
     volumes:
@@ -178,6 +181,7 @@ services:
       NODE_ENV: development
     networks:
       - $project
+      - bridge
     extra_hosts:
       - "ethprovider:127.0.0.1"
     ports:
