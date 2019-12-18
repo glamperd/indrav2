@@ -149,6 +149,7 @@ const sendGift = async (address, token) => {
 ;(async function() {
   let provider, balance, nonce, isDeployed, token, token2
 
+  console.log('migrate-contracts.sh ', process.env.ETH_PROVIDER);
   if (process.env.ETH_PROVIDER) {
     provider = new eth.providers.JsonRpcProvider(process.env.ETH_PROVIDER)
   } else if (process.env.INFURA_KEY) {

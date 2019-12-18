@@ -103,6 +103,7 @@ docker service create \
   --env="INFURA_KEY=$INFURA_KEY" \
   --mount="type=volume,source=${project}_chain_dev,target=/data" \
   --mount="type=bind,source=$cwd,target=/root" \
+  --network=host \
   --restart-condition="none" \
   $SECRET_ENV \
   --entrypoint "bash" \
