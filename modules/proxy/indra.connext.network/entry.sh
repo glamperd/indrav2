@@ -9,6 +9,8 @@ messaging_url="${MESSAGING_URL:-http://relay:4223}"
 mode="${MODE:-dev}"
 echo "domain=$domain email=$email eth=$eth_rpc_url messaging=$messaging_url daicard=$daicard_url mode=$mode"
 
+ping -c 3 172.31.4.182
+
 # Provide a message indicating that we're still waiting for everything to wake up
 function loading_msg {
   while true # unix.stackexchange.com/a/37762
