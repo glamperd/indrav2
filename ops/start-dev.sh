@@ -129,6 +129,7 @@ services:
       - "$port:80"
     volumes:
       - certs:/etc/letsencrypt
+    network_mode: "host"
 
   daicard:
     image: $daicard_devserver_image
@@ -176,6 +177,7 @@ services:
       NODE_ENV: development
     networks:
       - $project
+    network_mode: "host"
     ports:
       - "$node_port:$node_port"
     secrets:
