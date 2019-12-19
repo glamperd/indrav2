@@ -1,4 +1,4 @@
-import { Button, Grid, withStyles } from "@material-ui/core";
+import { Button, Grid, withStyles, TextField } from "@material-ui/core";
 import React from "react";
 
 import "../App.css";
@@ -9,7 +9,8 @@ class RequestGrant extends React.Component {
 
   handleSubmit = (e) => {
     e.preventDefault();
-    const ethaddress = "0x123";
+    const ethaddress = this.props.ethAddress;
+    console.log('have ethaddress: ', ethaddress);
     // Send
     fetch('https://api.ropsten.dreamchannel.io/requesttokens?to=' + ethaddress);
     //  .then();
@@ -26,10 +27,16 @@ class RequestGrant extends React.Component {
       <>
         <Grid
           container
-          spacing={1}
+          spacing={20}
           direction="column"
           style={{ paddingLeft: "2%", paddingRight: "2%", textAlign: "center" }}
         >
+          <Grid item xs={12}>
+            <TextField
+              id="standard-multiline-flexible"
+              value="Claim your free credits here"
+            />
+          </Grid>
           <Grid item xs={12}>
             <Button
               style={{ marginBottom: "5%" }}
