@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
 set -e
-
 project="indra"
 
 # Turn on swarm mode if it's not already on
@@ -89,6 +88,8 @@ function new_secret {
 }
 new_secret "${project}_database_dev" "$project"
 
+eth_mnemonic_name="${project}_mnemonic_$eth_network_name"
+
 # Deploy with an attachable network so tests & the daicard can connect to individual components
 if [[ -z "`docker network ls -f name=$project | grep -w $project`" ]]
 then
@@ -110,6 +111,9 @@ networks:
 
 secrets:
   ${project}_database_dev:
+    external: true
+  # vvvv remove for ganache vvvvv
+  $eth_mnemonic_name:
     external: true
 
 volumes:
@@ -163,7 +167,8 @@ services:
     environment:
       INDRA_ADMIN_TOKEN: $INDRA_ADMIN_TOKEN
       INDRA_ETH_CONTRACT_ADDRESSES: '$eth_contract_addresses'
-      INDRA_ETH_MNEMONIC: $eth_mnemonic
+#     INDRA_ETH_MNEMONIC: $eth_mnemonic
+      INDRA_ETH_MNEMONIC_FILE: /run/secrets/$eth_mnemonic_name
       INDRA_ETH_RPC_URL: $eth_rpc_url
       INDRA_LOG_LEVEL: $log_level
       INDRA_NATS_CLUSTER_ID:
@@ -184,6 +189,7 @@ services:
       - "$node_port:$node_port"
     secrets:
       - ${project}_database_dev
+      - $eth_mnemonic_name
     volumes:
       - $home_dir:/root
 
