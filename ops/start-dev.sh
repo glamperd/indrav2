@@ -88,7 +88,7 @@ function new_secret {
 }
 new_secret "${project}_database_dev" "$project"
 
-eth_mnemonic_name="${project}_mnemonic_$eth_network_name"
+eth_mnemonic_name="${project}_mnemonic_$ETH_NETWORK"
 
 # Deploy with an attachable network so tests & the daicard can connect to individual components
 if [[ -z "`docker network ls -f name=$project | grep -w $project`" ]]
