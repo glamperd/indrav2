@@ -97,7 +97,7 @@ then
   echo "Created ATTACHABLE network with id $id"
 fi
 
-number_of_services=8 # NOTE: Gotta update this manually when adding/removing services :(
+number_of_services=9 # NOTE: Gotta update this manually when adding/removing services :(
 
 mkdir -p /tmp/$project
 cat - > /tmp/$project/docker-compose.yml <<EOF
@@ -106,15 +106,13 @@ version: '3.4'
 networks:
   $project:
     external: true
-  bridge:
-    external: true
 
 secrets:
   ${project}_database_dev:
     external: true
-  # vvvv remove for ganache vvvvv
-  $eth_mnemonic_name:
-    external: true
+  # vvvv comment for ganache vvvvv
+  #$eth_mnemonic_name:
+  #  external: true
 
 volumes:
   certs:
@@ -131,7 +129,6 @@ services:
       MODE: dev
     networks:
       - $project
-      - bridge
     ports:
       - "$port:80"
     volumes:
@@ -167,8 +164,8 @@ services:
     environment:
       INDRA_ADMIN_TOKEN: $INDRA_ADMIN_TOKEN
       INDRA_ETH_CONTRACT_ADDRESSES: '$eth_contract_addresses'
-#     INDRA_ETH_MNEMONIC: $eth_mnemonic
-      INDRA_ETH_MNEMONIC_FILE: /run/secrets/$eth_mnemonic_name
+      INDRA_ETH_MNEMONIC: $eth_mnemonic
+#      INDRA_ETH_MNEMONIC_FILE: /run/secrets/$eth_mnemonic_name
       INDRA_ETH_RPC_URL: $eth_rpc_url
       INDRA_LOG_LEVEL: $log_level
       INDRA_NATS_CLUSTER_ID:
@@ -184,24 +181,23 @@ services:
       NODE_ENV: development
     networks:
       - $project
-      - bridge
     ports:
       - "$node_port:$node_port"
     secrets:
       - ${project}_database_dev
-      - $eth_mnemonic_name
+#      - $eth_mnemonic_name
     volumes:
       - $home_dir:/root
 
-#  ethprovider:
-#    image: $ethprovider_image
-#    command: ["--db=/data", "--mnemonic=$eth_mnemonic", "--networkId=4447"]
-#    networks:
-#      - $project
-#    ports:
-#      - "8545:8545"
-#    volumes:
-#      - chain_dev:/data
+  ethprovider:
+    image: $ethprovider_image
+    command: ["--db=/data", "--mnemonic=$eth_mnemonic", "--networkId=4447"]
+    networks:
+      - $project
+    ports:
+      - "8545:8545"
+    volumes:
+      - chain_dev:/data
 
   database:
     image: $database_image

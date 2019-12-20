@@ -829,14 +829,14 @@ class App extends React.Component {
               )}
             />
             <Route
-              path="/request"
+              path="/requestgrant"
               render={props => (
                 <RequestGrant
                   {...props}
                   setWalletConnext={this.setWalletConnext}
                   getWalletConnext={this.getWalletConnext}
                   store={channel ? channel.store : undefined}
-                  xpub={channel ? channel.publicIdentifier : "Unknown"}
+                  ethAddress={channel ? channel.freeBalanceAddress : "Unknown"}
                 />
               )}
             />
