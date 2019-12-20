@@ -136,7 +136,7 @@ export const Home = style(({ balance, swapRate, channel, history, parseQRCode })
              component={Link}
              to="/swaptips"
            >
-             Buy/Sell Tipping Tokens
+             Buy/Sell Reward Tokens
           </Button>
           <Onboarding
             channel={channel}

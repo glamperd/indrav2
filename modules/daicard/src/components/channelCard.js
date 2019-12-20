@@ -76,7 +76,7 @@ export const ChannelCard = withStyles(styles)(props => {
               <span>{split(balance.channel.tipToken.toTIP()).whole}</span>
             </Typography>
             <Typography style={{display: 'inline-block'}} variant="h5" className={classes.row}>
-              {" TIPS"}
+              {" REWARDS"}
             </Typography>
           </span>
           {/* <Typography style={{ color: 'white' }}> On-Chain </Typography>

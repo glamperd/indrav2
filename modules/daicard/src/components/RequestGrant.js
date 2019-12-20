@@ -12,7 +12,7 @@ class RequestGrant extends React.Component {
     const ethaddress = this.props.ethAddress;
     console.log('have ethaddress: ', ethaddress);
     // Send
-    fetch('https://api.ropsten.dreamchannel.io/requesttokens?to=' + ethaddress);
+    fetch('https://adbot.gazecoin.xyz/requestgrant/' + ethaddress);
     //  .then();
     // var store = this.state.store;
     // if (store) {

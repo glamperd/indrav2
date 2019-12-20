@@ -375,11 +375,11 @@ class App extends React.Component {
 
   getSaiBalance = async wallet => {
     const { channel } = this.state;
-    if (!channel.config.contractAddresses.CreditToken) {
+    if (!channel.config.contractAddresses.SAIToken) {
       return Zero;
     }
     const saiToken = new Contract(
-      channel.config.contractAddresses.CreditToken,
+      channel.config.contractAddresses.SAIToken,
       tokenArtifacts.abi,
       wallet,
     );

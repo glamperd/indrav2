@@ -8,8 +8,9 @@ import {
   TextField,
   Typography,
   withStyles,
+  IconButton,
 } from "@material-ui/core";
-import { Send as SendIcon } from "@material-ui/icons";
+import { SwapHorizontalCircle as SwapIcon } from "@material-ui/icons";
 import { Zero } from "ethers/constants";
 import React, { Component } from "react";
 import queryString from "query-string";
@@ -117,10 +118,10 @@ class BuyTipsCard extends Component {
 
   async buyTipsHandler() {
     const { channel, token, tipToken } = this.props;
-    const { amount, tips, address } = this.state;
+    const { amount, tips, address, isBuy } = this.state;
     if (amount.error || tips.error) return;
 
-    console.log(`Swapping ${amount.value} for ${tips.value}`);
+    console.log(`Swapping 1 for 1000 rewards`);
     this.setState({ paymentState: PaymentStates.Collateralizing });
 
     // there is a chance the payment will fail when it is first sent
@@ -128,24 +129,24 @@ class BuyTipsCard extends Component {
     // hub side. retry for 1min, then fail
     const endingTs = Date.now() + 60 * 1000;
     let transferRes = undefined;
-    const swapRate = "1000";
     while (Date.now() < endingTs) {
       try {
-        //transferRes =
-        await channel.requestCollateral(
-          tipToken.address);
-           /*,
-          channel.xpub,
-          Currency.TIP("1000").wad
-        );*/
+        var swapParams = {};
+        if (isBuy) {
+          await channel.requestCollateral(tipToken.address);
+          swapParams.amount= "1000000000000000000";
+          swapParams.fromAssetId = token.address;
+          swapParams.toAssetId = tipToken.address;
+          swapParams.swapRate = "1000";
+        } else {
+          swapParams.amount = "1000000000000000000000";
+          swapParams.fromAssetId = tipToken.address;
+          swapParams.toAssetId = token.address;
+          swapParams.swapRate = "0.001";
+        }
 
         console.log('Trying transfer' );
-        transferRes = await channel.swap({
-          amount: amount.value.wad.toString(),
-          fromAssetId: token.address,
-          toAssetId: tipToken.address,
-          swapRate,
-        });
+        transferRes = await channel.swap(swapParams);
         console.log('transferRes', transferRes );
 
         //await this.refreshBalances();
@@ -162,6 +163,11 @@ class BuyTipsCard extends Component {
     }
     console.log('Swap succeeded');
     this.setState({ showReceipt: true, paymentState: PaymentStates.Success });
+  }
+
+  async swapDirectionHandler() {
+    const { isBuy } = this.state;
+    this.setState({ isBuy: !isBuy });
   }
 
   closeModal = () => {
@@ -189,7 +195,7 @@ class BuyTipsCard extends Component {
       >
         <Grid container wrap="nowrap" direction="row" justify="center" alignItems="center">
           <Grid item xs={12}>
-            <SendIcon className={classes.icon} /> {/*TODO make this a swap icon*/}
+            <SwapIcon className={classes.icon} />
           </Grid>
         </Grid>
         <Grid item xs={12}>
@@ -203,36 +209,46 @@ class BuyTipsCard extends Component {
               <span>{this.props.balance.channel.tipToken.toTIP().format()}</span>
             </Typography>
             <Typography variant="body2">
-              TIP
+              REWARDS
             </Typography>
           </Grid>
         </Grid>
         <Grid container direction="row" alignItems="center" justify="center" spacing={8}>
-          <Grid item xs={6}>
+          <Grid item xs={5}>
             <TextField
               fullWidth
               id="outlined-number"
               label="Credits"
-              value={amount.display}
+              value={1}
+              disabled={true}
               type="number"
               margin="normal"
               variant="outlined"
-              onChange={evt => this.updateAmountHandler(evt.target.value)}
-              error={amount.error !== null}
               helperText={amount.error}
             />
           </Grid>
-          <Grid item xs={6}>
+          <Grid item xs={2}>
+            <IconButton
+              aria-label="swap"
+              className={classes.margin}
+              size="medium"
+              onClick={() => {
+                this.swapDirectionHandler();
+              }}
+            >
+              <SwapIcon fontSize="inherit" />
+            </IconButton>
+          </Grid>
+          <Grid item xs={5}>
             <TextField
               fullWidth
               id="outlined-number"
-              label="Tip Tokens"
-              value={tips.display}
+              label="Reward Tokens"
+              value={1000}
+              disabled={true}
               type="number"
               margin="normal"
               variant="outlined"
-              onChange={evt => this.updateTipsHandler(evt.target.value)}
-              error={tips.error !== null}
               helperText={tips.error}
             />
           </Grid>
@@ -247,10 +263,10 @@ class BuyTipsCard extends Component {
                   onClick={() => {
                     this.buyTipsHandler();
                   }}
-                  size="large"
+                  size="medium"
                   variant="contained"
               >
-                {buyOrSell + ' TIPS'}
+                {buyOrSell + ' REWARDS'}
               </Button>
             </Grid>
           </Grid>

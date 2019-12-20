@@ -75,14 +75,14 @@ class Onboarding extends React.Component {
               variant="outlined"
               size="large"
               component={Link1}
-              to={{ pathname: "https://pay.sendwyre.com/purchase",
+              to={'/requestgrant'/*{ pathname: "https://pay.sendwyre.com/purchase",
                     search: "?destCurrency=DAI" +
                       "&sourceAmount=10" +
                       "&dest=ethereum:" + ethAddress +
                       //"&accountId=AC_GQEAQV3A37U" +
                       //"&accountId=AC_J3QD6WH3B83" +
                       "&redirectUrl=https://card.gazecoin.xyz"
-                  }}
+                  }*/}
             >
               Buy Credits
             </Button>
