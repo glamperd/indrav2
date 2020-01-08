@@ -12,7 +12,7 @@ version=$(shell cat package.json | grep '"version":' | awk -F '"' '{print $$4}')
 
 # Get absolute paths to important dirs
 cwd=$(shell pwd)
-wincwd="C:\dev\workspace\indra"
+wincwd="C:\dev\workspace\indra_2.3.19"
 bot=$(cwd)/modules/payment-bot
 cf-adjudicator-contracts=$(cwd)/modules/cf-adjudicator-contracts
 cf-apps=$(cwd)/modules/cf-apps
@@ -53,9 +53,19 @@ $(shell mkdir -p .makeflags $(node)/dist)
 .PHONY: default all dev prod start start-prod stop restart restart-prod clean reset push-latest backup
 
 default: dev
-all: dev prod
-dev: database node types client payment-bot indra-proxy ws-tcp-relay
-prod: database node-prod indra-proxy-prod ws-tcp-relay daicard-proxy
+all: dev staging release
+dev: database ethprovider node client payment-bot-staging indra-proxy ws-tcp-relay
+staging: daicard-proxy database indra-proxy-prod node-staging payment-bot-staging ws-tcp-relay ethprovider
+release: daicard-proxy database indra-proxy-prod node-release payment-bot-release ws-tcp-relay ethprovider
+
+start: start-daicard
+#	bash ops/start-dev.sh ropsten
+
+start-headless: dev
+	INDRA_UI=headless bash ops/start-dev.sh
+
+start-daicard: dev
+	INDRA_UI=daicard bash ops/start-dev.sh
 
 start: dev
 	bash ops/start-dev.sh ganache
@@ -129,6 +139,15 @@ watch-cf: cf-core
 test-ui: payment-bot
 	bash ops/test-ui.sh
 
+test-daicard:
+	bash ops/test-ui.sh daicard
+
+# ensure you've run "make start-dashboard" first & not just "make start"
+test-dashboard:
+	bash ops/test-ui.sh dashboard
+
+# You can interactively select daicard or dashboard tests after running below
+
 watch-ui: node-modules
 	bash ops/test-ui.sh --watch
 
@@ -147,13 +166,18 @@ test-node: node
 watch-node: node-modules
 	bash ops/test-node.sh --watch
 
-########################################
-# Begin Real Rules
+	########################################
+	# Docker Images
 
 builder: ops/builder.dockerfile
 	$(log_start)
-	docker build --file ops/builder.dockerfile --tag $(project)_builder:latest .
-	$(log_finish) && touch $(flags)/$@
+	docker build --file ops/ws-tcp-relay.dockerfile $(cache_from) --tag $(project)_relay:latest .
+	docker tag $(project)_relay:latest $(project)_relay:$(commit)
+	$(log_finish) && mv -f $(totalTime) $(flags)/$@
+
+
+########################################
+# Contracts
 
 cf-adjudicator-contracts: node-modules $(shell find $(cf-adjudicator-contracts)/contracts $(cf-adjudicator-contracts)/waffle.json $(find_options))
 	$(log_start)

@@ -31,6 +31,38 @@ function cleanup {
 }
 trap cleanup EXIT SIGINT
 
+<<<<<<< Updated upstream
+=======
+function checkInstalledApps {
+  senderStore=modules/payment-bot/.payment-bot-db/2.json
+  recipientStore=modules/payment-bot/.payment-bot-db/1.json
+  senderApps=0
+  recipientApps=0
+  set +o pipefail
+  if [[ -f "$senderStore" ]]
+  then senderApps="`cat $senderStore | grep channel | cut -d ":" -f3- | tr -d '\\\' | cut -c 3- | rev | cut -c 3- | rev | jq '.appInstances | length'`"
+  fi
+  if [[ -f "$recipientStore" ]]
+  then recipientApps="`cat $recipientStore | grep channel | cut -d ":" -f3- | tr -d '\\\' | cut -c 3- | rev | cut -c 3- | rev | jq '.appInstances | length'`"
+  fi
+  set -o pipefail
+  if [[ ("$senderApps" != "0" && "$senderApps" != "") || ("$recipientApps" != "0" && "$recipientApps" != "") ]]
+  then
+    echo -e "$divider";echo "Installed apps:"
+    echo "Sender: $senderApps"
+    echo "Recipient: $recipientApps"
+    echo "Error: no lingering apps should be left uninstalled"
+    echo
+    exit 1
+  fi
+}
+
+recipientLog=.recipient-bot.log
+senderLog=.sender-bot.log
+rm -f $recipientLog $senderLog
+touch $recipientLog $senderLog
+
+>>>>>>> Stashed changes
 ########################################
 ## Run Tests
 
@@ -64,7 +96,28 @@ echo -e "$divider";echo "Depositing tokens into sender bot"
 bash ops/payment-bot.sh -i 2 -d 0.1 -a $tokenAddress -m "$mnemonic2"
 
 echo -e "$divider";echo "Removing sender's state to trigger a restore"
+<<<<<<< Updated upstream
 rm modules/payment-bot/.payment-bot-db/2.json
+=======
+rm -f modules/payment-bot/.payment-bot-db/2.json
+bash ops/payment-bot.sh -i 2 | tee -a $senderLog
+
+echo -e "$divider";echo "Skipping sync transfer tests for now.."
+#echo -e "$divider";echo "Starting recipient bot in background, waiting for payments"
+#rm -f ops/recipient-bot.log
+#bash ops/payment-bot.sh -i 1 -a $tokenAddress -o &> ops/recipient-bot.log &
+#sleep 3 # give recipient a sec to get set up
+#echo -e "$divider";echo "Sending eth to recipient bot"
+#bash ops/payment-bot.sh -i 2 -t 0.025 -c $id
+#echo -e "$divider";echo "Sending tokens to recipient bot"
+#bash ops/payment-bot.sh -i 2 -t 0.05 -c $id -a $tokenAddress
+#echo -e "$divider";echo "Stopping recipient listener so it can redeem a link payment"
+#cleanup
+
+echo -e "$divider";echo "Generating an async payment & leaving the sender running so it can uninstall the app after"
+bash ops/payment-bot.sh -i 2 -a -n 0.01 -c $id -p "$paymentId2" -h "$preImage2" -o | tee -a $senderLog &
+sleep 10
+>>>>>>> Stashed changes
 
 # echo -e "$divider";echo "Sending eth to recipient bot"
 # bash ops/payment-bot.sh -i 2 -t 0.025 -c $id -m "$mnemonic2"

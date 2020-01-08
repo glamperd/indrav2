@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 set -e
+
 project="indra"
 
 # Turn on swarm mode if it's not already on
@@ -8,12 +9,15 @@ docker swarm init 2> /dev/null || true
 ####################
 # External Env Vars
 
-ETH_NETWORK="${1:-kovan}"
+INDRA_ETH_NETWORK="${1:-ganache}"
 INDRA_ADMIN_TOKEN="${INDRA_ADMIN_TOKEN:-foo}"
+INDRA_UI="${INDRA_UI:-daicard}"
 
 ####################
 # Internal Config
 # config & hard-coded stuff you might want to change
+
+number_of_services=5 # NOTE: Gotta update this manually when adding/removing services :(
 
 log_level=3
 nats_port=4222
@@ -21,13 +25,11 @@ node_port=8080
 dash_port=9999
 port=3000
 
-if [[ "$ETH_NETWORK" == "rinkeby" ]]
+if [[ "$INDRA_ETH_NETWORK" == "rinkeby" ]]
 then eth_rpc_url="https://rinkeby.infura.io/metamask"
-elif [[ "$ETH_NETWORK" == "kovan" ]]
+elif [[ "$INDRA_ETH_NETWORK" == "kovan" ]]
 then eth_rpc_url="https://kovan.infura.io/metamask"
-elif [[ "$ETH_NETWORK" == "ropsten" ]]
-then eth_rpc_url="https://rpc.gazecoin.xyz"
-elif [[ "$ETH_NETWORK" == "ganache" ]]
+elif [[ "$INDRA_ETH_NETWORK" == "ganache" ]]
 then
   eth_rpc_url="http://ethprovider:8545"
   make deployed-contracts
@@ -45,21 +47,15 @@ pg_user="$project"
 
 # docker images
 builder_image="${project}_builder"
-daicard_devserver_image="$builder_image"
-dashboard_image="$builder_image"
+ui_image="$builder_image"
 database_image="postgres:9-alpine"
-ethprovider_image="trufflesuite/ganache-cli:v6.4.5"
+ethprovider_image="${project}_ethprovider"
 nats_image="nats:2.0.0-linux"
 node_image="$builder_image"
 proxy_image="${project}_proxy:dev"
 redis_image=redis:5-alpine
 redis_url="redis://redis:6379"
 relay_image="${project}_relay"
-
-if [[ "`pwd`" =~ /mnt/c/(.*) ]]
-then home_dir=//c/${BASH_REMATCH[1]}
-else home_dir="`pwd`"
-fi
 
 ####################
 # Deploy according to above configuration
@@ -140,8 +136,6 @@ function new_secret {
 }
 new_secret "${project}_database_dev" "$project"
 
-eth_mnemonic_name="${project}_mnemonic_$ETH_NETWORK"
-
 # Deploy with an attachable network so tests & the daicard can connect to individual components
 if [[ -z "`docker network ls -f name=$project | grep -w $project`" ]]
 then
@@ -149,31 +143,21 @@ then
   echo "Created ATTACHABLE network with id $id"
 fi
 
-number_of_services=8 # NOTE: Gotta update this manually when adding/removing services :(
-
 mkdir -p /tmp/$project
 cat - > /tmp/$project/docker-compose.yml <<EOF
 version: '3.4'
-
 networks:
   $project:
     external: true
-
 secrets:
   ${project}_database_dev:
     external: true
-  # vvvv comment for ganache vvvvv
-  #$eth_mnemonic_name:
-  #  external: true
-
 volumes:
   certs:
   chain_dev:
   database_dev:
-
 services:
   $ui_services
-
   node:
     image: $node_image
     entrypoint: bash modules/node/ops/entry.sh
@@ -181,7 +165,6 @@ services:
       INDRA_ADMIN_TOKEN: $INDRA_ADMIN_TOKEN
       INDRA_ETH_CONTRACT_ADDRESSES: '$eth_contract_addresses'
       INDRA_ETH_MNEMONIC: $eth_mnemonic
-#      INDRA_ETH_MNEMONIC_FILE: /run/secrets/$eth_mnemonic_name
       INDRA_ETH_RPC_URL: $eth_rpc_url
       INDRA_LOG_LEVEL: $log_level
       INDRA_NATS_CLUSTER_ID:
@@ -201,20 +184,19 @@ services:
       - "$node_port:$node_port"
     secrets:
       - ${project}_database_dev
-#      - $eth_mnemonic_name
     volumes:
-      - $home_dir:/root
-
+      - `pwd`:/root
   ethprovider:
     image: $ethprovider_image
-    command: ["--db=/data", "--mnemonic=$eth_mnemonic", "--networkId=4447"]
+    command: "start"
+    environment:
+      ETH_MNEMONIC: $eth_mnemonic
     networks:
       - $project
     ports:
       - "8545:8545"
     volumes:
       - chain_dev:/data
-
   database:
     image: $database_image
     deploy:
@@ -231,7 +213,6 @@ services:
       - ${project}_database_dev
     volumes:
       - database_dev:/var/lib/postgresql/data
-
   nats:
     command: -V
     image: $nats_image
@@ -239,22 +220,12 @@ services:
       - $project
     ports:
       - "$nats_port:$nats_port"
-
-  relay:
-    image: $relay_image
-    command: ["nats:$nats_port"]
-    networks:
-      - $project
-    ports:
-      - "4223:4223"
-
   redis:
     image: $redis_image
     networks:
       - $project
     ports:
       - "6379:6379"
-
 EOF
 
 docker stack deploy -c /tmp/$project/docker-compose.yml $project
