@@ -1,6 +1,5 @@
 #!/bin/bash
 set -e
-
 echo "Ethprovider entrypoint activated!"
 
 if [[ "$1" == "start" ]]

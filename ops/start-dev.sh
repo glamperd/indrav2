@@ -1,8 +1,6 @@
 #!/usr/bin/env bash
 set -e
-
-dir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
-project="`cat $dir/../package.json | jq .name | tr -d '"'`"
+project="indra"
 
 # Turn on swarm mode if it's not already on
 docker swarm init 2> /dev/null || true
@@ -30,6 +28,8 @@ if [[ "$INDRA_ETH_NETWORK" == "rinkeby" ]]
 then eth_rpc_url="https://rinkeby.infura.io/metamask"
 elif [[ "$INDRA_ETH_NETWORK" == "kovan" ]]
 then eth_rpc_url="https://kovan.infura.io/metamask"
+elif [[ "$INDRA_ETH_NETWORK" == "ropsten" ]]
+then eth_rpc_url="https://rpc.gazecoin.xyz"
 elif [[ "$INDRA_ETH_NETWORK" == "ganache" ]]
 then
   eth_rpc_url="http://ethprovider:8545"
@@ -57,6 +57,11 @@ proxy_image="${project}_proxy:dev"
 redis_image=redis:5-alpine
 redis_url="redis://redis:6379"
 relay_image="${project}_relay"
+
+if [[ "`pwd`" =~ /mnt/c/(.*) ]]
+then home_dir="//c/${BASH_REMATCH[1]}"
+else home_dir="`pwd`"
+fi
 
 ####################
 # Deploy according to above configuration
@@ -93,7 +98,6 @@ else
       - "$port:80"
     volumes:
       - certs:/etc/letsencrypt
-
   relay:
     image: $relay_image
     command: ["nats:$nats_port"]
@@ -101,7 +105,6 @@ else
       - $project
     ports:
       - "4223:4223"
-
   ui:
     image: $ui_image
     entrypoint: npm start
@@ -110,7 +113,7 @@ else
     networks:
       - $project
     volumes:
-      - `pwd`:/root
+      - $home_dir:/root
     working_dir: $ui_working_dir
   "
 fi
@@ -139,6 +142,8 @@ function new_secret {
 }
 new_secret "${project}_database_dev" "$project"
 
+eth_mnemonic_name="${project}_mnemonic_$ETH_NETWORK"
+
 # Deploy with an attachable network so tests & the daicard can connect to individual components
 if [[ -z "`docker network ls -f name=$project | grep -w $project`" ]]
 then
@@ -157,6 +162,9 @@ networks:
 secrets:
   ${project}_database_dev:
     external: true
+  # vvvv comment for ganache vvvvv
+  #$eth_mnemonic_name:
+  #  external: true
 
 volumes:
   certs:
@@ -164,7 +172,6 @@ volumes:
   database_dev:
 
 services:
-
   $ui_services
 
   node:
@@ -174,6 +181,7 @@ services:
       INDRA_ADMIN_TOKEN: $INDRA_ADMIN_TOKEN
       INDRA_ETH_CONTRACT_ADDRESSES: '$eth_contract_addresses'
       INDRA_ETH_MNEMONIC: $eth_mnemonic
+#      INDRA_ETH_MNEMONIC_FILE: /run/secrets/$eth_mnemonic_name
       INDRA_ETH_RPC_URL: $eth_rpc_url
       INDRA_LOG_LEVEL: $log_level
       INDRA_NATS_CLUSTER_ID:
@@ -193,8 +201,9 @@ services:
       - "$node_port:$node_port"
     secrets:
       - ${project}_database_dev
+#      - $eth_mnemonic_name
     volumes:
-      - `pwd`:/root
+      - $home_dir:/root
 
   ethprovider:
     image: $ethprovider_image

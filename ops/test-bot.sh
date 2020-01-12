@@ -40,7 +40,7 @@ function checkInstalledApps {
   fi
   set -o pipefail
   if [[ ("$senderApps" != "0" && "$senderApps" != "") || ("$recipientApps" != "0" && "$recipientApps" != "") ]]
-  then 
+  then
     echo -e "$divider";echo "Installed apps:"
     echo "Sender: $senderApps"
     echo "Recipient: $recipientApps"
@@ -82,9 +82,9 @@ echo -e "$divider";echo "Skipping sync transfer tests for now.."
 #bash ops/payment-bot.sh -i 1 -a $tokenAddress -o &> ops/recipient-bot.log &
 #sleep 3 # give recipient a sec to get set up
 #echo -e "$divider";echo "Sending eth to recipient bot"
-#bash ops/payment-bot.sh -i 2 -t 0.025 -c $id 
+#bash ops/payment-bot.sh -i 2 -t 0.025 -c $id
 #echo -e "$divider";echo "Sending tokens to recipient bot"
-#bash ops/payment-bot.sh -i 2 -t 0.05 -c $id -a $tokenAddress 
+#bash ops/payment-bot.sh -i 2 -t 0.05 -c $id -a $tokenAddress
 #echo -e "$divider";echo "Stopping recipient listener so it can redeem a link payment"
 #cleanup
 

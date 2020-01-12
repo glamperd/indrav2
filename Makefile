@@ -17,6 +17,7 @@ cache_from=$(shell if [[ -n "${GITHUB_WORKFLOW}" ]]; then echo "--cache-from=$(p
 
 # Get absolute paths to important dirs
 cwd=$(shell pwd)
+wincwd="C:\dev\workspace\indra_v2.3.22"
 bot=$(cwd)/modules/payment-bot
 cf-adjudicator-contracts=$(cwd)/modules/cf-adjudicator-contracts
 cf-apps=$(cwd)/modules/cf-apps
@@ -40,7 +41,13 @@ types=$(cwd)/modules/types
 # On Mac, the docker-VM takes care of this for us so pass root's id (ie noop)
 my_id=$(shell id -u):$(shell id -g)
 id=$(shell if [[ "`uname`" == "Darwin" ]]; then echo 0:0; else echo $(my_id); fi)
-docker_run=docker run --name=$(project)_builder --tty --rm --volume=$(cwd):/root $(project)_builder $(id)
+is_win=$(shell if [[ "`uname -a`" =~ .*Microsoft.* ]]; then echo true; else echo false; fi)
+ifeq ($(is_win), true)
+  volcwd=$(wincwd)
+else
+  volcwd=$(cwd)
+endif
+docker_run=docker run --name=$(project)_builder --tty --rm --volume=$(volcwd):/root $(project)_builder $(id)
 
 startTime=$(flags)/.startTime
 totalTime=$(flags)/.totalTime
@@ -360,7 +367,8 @@ types: node-modules $(shell find $(types)/src $(find_options))
 
 node-modules: builder package.json $(shell ls modules/**/package.json)
 	$(log_start)
-	$(docker_run) "lerna bootstrap --hoist --no-progress"
+	$(docker_run) "lerna bootstrap --hoist"
+	$(docker_run) "ls node_modules"
 	$(docker_run) "cd node_modules/eccrypto && npm run install"
 	$(log_finish) && mv -f $(totalTime) $(flags)/$@
 

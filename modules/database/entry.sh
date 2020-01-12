@@ -54,7 +54,7 @@ log "Good morning"
 
 # Is this a fresh database? Should we restore data from a snapshot?
 if [[ ! -f "/var/lib/postgresql/data/PG_VERSION" && -f "$backup_file" ]]
-then 
+then
   log "Fresh postgres db started w backup present, we'll restore: $backup_file"
   should_restore_backup="yes"
 

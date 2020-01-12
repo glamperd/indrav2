@@ -6,11 +6,17 @@ version="${2:-latest}"
 
 dir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 project="`cat $dir/../package.json | jq .name | tr -d '"'`"
-cwd="`pwd`"
+# cwd="`pwd`"
+
+if [[ "`pwd`" =~ /mnt/c/(.*) ]]
+then home_dir=//c/${BASH_REMATCH[1]}
+else home_dir="`pwd`"
+fi
+
 registry="connextproject"
 
 name=${project}_contract_deployer
-log="$cwd/ops/ethprovider/ganache.log"
+log="$home_dir/ops/ethprovider/ganache.log"
 image="${project}_ethprovider:$version"
 
 ########################################
@@ -66,7 +72,8 @@ then
   fi
 fi
 
-touch $log
+# TODO - restore this
+# touch $log
 
 ########################################
 # Remove this deployer service when we're done
@@ -111,7 +118,7 @@ id="`
     --env="INFURA_KEY=$INFURA_KEY" \
     --mount="type=volume,source=${project}_chain_dev,target=/data" \
     --mount="type=bind,source=$log,target=/root/ganache.log" \
-    --mount="type=bind,source=$cwd/address-book.json,target=/root/address-book.json" \
+    --mount="type=bind,source=$home_dir/address-book.json,target=/root/address-book.json" \
     --restart-condition="none" \
     $SECRET_ENV \
     $image deploy 2> /dev/null
