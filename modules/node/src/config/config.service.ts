@@ -74,10 +74,13 @@ export class ConfigService implements OnModuleInit {
     return ethAddresses as ContractAddresses;
   }
 
-  async getTokenAddress(): Promise<string> {
+  async getTokenAddress(token?: string): Promise<string> {
     const chainId = (await this.getEthNetwork()).chainId.toString();
     const ethAddressBook = JSON.parse(this.get("INDRA_ETH_CONTRACT_ADDRESSES"));
-    return getAddress(ethAddressBook[chainId].Token.address);
+    const tokenAddress = (token && token === 'TIP') ?
+        ethAddressBook[chainId].TipToken.address :
+        ethAddressBook[chainId].Token.address
+    return getAddress(tokenAddress);
   }
 
   async getDefaultAppByName(name: SupportedApplication): Promise<DefaultApp> {
@@ -168,6 +171,7 @@ export class ConfigService implements OnModuleInit {
     assetId: string = AddressZero,
   ): Promise<PaymentProfile | undefined> {
     const tokenAddress = await this.getTokenAddress();
+    const tipTokenAddress = await this.getTokenAddress('TIP');
     switch (assetId) {
       case AddressZero:
         return {
@@ -184,6 +188,14 @@ export class ConfigService implements OnModuleInit {
           channels: [],
           id: 0,
           minimumMaintainedCollateral: parseEther("5"),
+        };
+      case tipTokenAddress:
+        return {
+          amountToCollateralize: parseEther("1000"),
+          assetId: AddressZero,
+          channels: [],
+          id: 0,
+          minimumMaintainedCollateral: parseEther("100"),
         };
       default:
         return undefined;

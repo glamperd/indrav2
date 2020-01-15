@@ -326,7 +326,7 @@
       "bytecode": "0xf97398131762b89df0289198fa30b8da8776d0afc8662aefc397a0b6b31ceb44",
       "txHash": "0x641fac27fb298bd31fa0c55b46f9b68f5b63a810e994d025a159b51499235d44"
     },
-    "RewardToken": {
+    "TipToken": {
       "address": "0x0d8cc4b8d15D4c3eF1d70af0071376fb26B5669b",
       "bytecode": "0xf97398131762b89df0289198fa30b8da8776d0afc8662aefc397a0b6b31ceb44",
       "txHash": "0xac65c7667ea1d25323df1853082a9c77e4d85518dceba020f3d14ce69ebdf098"
