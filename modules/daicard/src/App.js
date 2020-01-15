@@ -210,7 +210,10 @@ class App extends React.Component {
     const network = await ethProvider.getNetwork();
     if (!useWalletConnext) {
       wallet = eth.Wallet.fromMnemonic(mnemonic, CF_PATH + "/0").connect(ethProvider);
-      this.setState({ network, wallet });
+      let associatedWallet = eth.Wallet.fromMnemonic(mnemonic, CF_PATH + "/300");
+      let associatedAddress = associatedWallet.address;
+      console.log('assoc addr: ', associatedAddress);
+      this.setState({ network, wallet, associatedAddress });
     }
 
     // migrate if needed
@@ -686,6 +689,7 @@ class App extends React.Component {
       token,
       tipToken,
       wallet,
+      associatedAddress,
     } = this.state;
     const address = wallet ? wallet.address : channel ? channel.signerAddress : AddressZero;
     const { classes } = this.props;
@@ -837,6 +841,7 @@ class App extends React.Component {
                   getWalletConnext={this.getWalletConnext}
                   store={channel ? channel.store : undefined}
                   ethAddress={channel ? channel.freeBalanceAddress : "Unknown"}
+                  associatedAddress={associatedAddress}
                 />
               )}
             />
