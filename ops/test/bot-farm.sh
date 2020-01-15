@@ -10,6 +10,7 @@ docker swarm init 2> /dev/null || true
 dir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 project="`cat $dir/../../package.json | jq .name | tr -d '"'`"
 tokenAddress="`cat address-book.json | jq '.["4447"].Token.address' | tr -d '"'`"
+token2Address="`cat address-book.json | jq '.["4447"].Token2.address' | tr -d '"'`"
 numBots=${NUMBER_BOTS:-3};
 botsFile="bots.json"
 numLinks=${NUMBER_LINKS:-2}

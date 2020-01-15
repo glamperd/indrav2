@@ -15,8 +15,10 @@ modules/database/snapshots
 # Compiled output
 build/
 dist/
+bundle/
 node_modules/
 .makeflags
+bundle/
 
 # Logs
 lerna-debug.log*

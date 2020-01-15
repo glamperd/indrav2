@@ -1,6 +1,6 @@
 [![CircleCI](https://circleci.com/gh/ConnextProject/indra/tree/master.svg?style=shield)](https://circleci.com/gh/ConnextProject/indra/tree/master)
-[![Discord](https://img.shields.io/discord/454734546869551114)](https://discord.gg/m93Sqf4)
-[![Twitter Follow](https://img.shields.io/twitter/follow/ConnextNetwork?style=social)](https://twitter.com/ConnextNetwork)
+![Discord](https://img.shields.io/discord/454734546869551114)
+![Twitter Follow](https://img.shields.io/twitter/follow/ConnextNetwork?style=social)
 
 # Indra 2.0
 
@@ -221,14 +221,14 @@ Dai card in production runs a proxy with endpoints:
  1. AuthApiService
   - GET /auth/status: returns success and address if a valid auth token is provided
   - POST /auth/challenge: returns a challenge nonce
-  - POST /auth/response: 
+  - POST /auth/response:
     - nonce: returned by /auth/challenge
     - address
     - origin
     - signature
 
  2. ChannelsApiService
-  - POST /channel/:user/request-deposit: 
+  - POST /channel/:user/request-deposit:
     - depositWei
     - depositToken
     - lastChanTx
@@ -246,7 +246,7 @@ If you encounter problems while the app is running, the first thing to do is che
 
  - `bash ops/logs.sh node`: Core hub logic logs
  - `bash ops/logs.sh database`
- - `bash ops/logs.sh proxy` 
+ - `bash ops/logs.sh proxy`
 
 ### `The container name "/indra_buidler" is already in use`
 

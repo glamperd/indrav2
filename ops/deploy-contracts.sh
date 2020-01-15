@@ -119,9 +119,29 @@ id="`
     --mount="type=volume,source=${project}_chain_dev,target=/data" \
     --mount="type=bind,source=$log,target=/root/ganache.log" \
     --mount="type=bind,source=$home_dir/address-book.json,target=/root/address-book.json" \
+    --network=host \
     --restart-condition="none" \
     $SECRET_ENV \
-    $image deploy 2> /dev/null
+    --entrypoint "bash" \
+#    // TODO - review this vvvv cf v2.4.0
+    ${project}_builder -c '
+      if [[ "$ETH_NETWORK" == "ganache" ]]
+      then
+        echo "Starting Ganache.."
+        mkdir -p /data
+        ./node_modules/.bin/ganache-cli \
+          --db="/data" \
+          --gasPrice="10000000000" \
+          --host="0.0.0.0" \
+          --mnemonic="$ETH_MNEMONIC" \
+          --networkId="4447" \
+          --port="8545" \
+           > ops/ganache.log &
+        bash /ops/wait-for.sh localhost:8545 2> /dev/null
+      fi
+      touch address-book.json
+      node ops/migrate-contracts.js
+    ' 2> /dev/null
 `"
 
 echo "Success! Deployer service started with id: $id"

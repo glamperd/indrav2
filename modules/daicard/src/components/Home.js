@@ -8,6 +8,7 @@ import "../App.css";
 
 import { ChannelCard } from "./channelCard";
 import { QRScan } from "./qrCode";
+import Onboarding from "./Onboarding";
 
 import { initWalletConnect } from "../utils";
 
@@ -39,7 +40,7 @@ export const Home = style(({ balance, swapRate, channel, history, parseQRCode, d
           <Fab
             style={{
               color: "#FFF",
-              backgroundColor: "#fca311",
+              backgroundColor: "#3C0E5E",
               size: "large",
             }}
             onClick={() => setScanModal(true)}
@@ -69,7 +70,7 @@ export const Home = style(({ balance, swapRate, channel, history, parseQRCode, d
       </Grid>
       <Grid
         container
-        spacing={4}
+        spacing={1}
         direction="column"
         style={{ paddingLeft: "2%", paddingRight: "2%", textAlign: "center" }}
       >
@@ -81,7 +82,7 @@ export const Home = style(({ balance, swapRate, channel, history, parseQRCode, d
                 fullWidth
                 style={{
                   color: "#FFF",
-                  backgroundColor: "#FCA311",
+                  backgroundColor: "#3C0E5E",
                 }}
                 variant="contained"
                 size="large"
@@ -98,7 +99,7 @@ export const Home = style(({ balance, swapRate, channel, history, parseQRCode, d
                 fullWidth
                 style={{
                   color: "#FFF",
-                  backgroundColor: "#FCA311",
+                  backgroundColor: "#3C0E5E",
                 }}
                 size="large"
                 variant="contained"
@@ -124,6 +125,22 @@ export const Home = style(({ balance, swapRate, channel, history, parseQRCode, d
           >
             Cash Out
           </Button>
+        </Grid>
+        <Grid item xs={12}>
+          <Button
+             style={{ marginBottom: "5%" }}
+             fullWidth
+             color="primary"
+             variant="outlined"
+             size="large"
+             component={Link}
+             to="/swaptips"
+           >
+             Buy/Sell Reward Tokens
+          </Button>
+          <Onboarding
+            channel={channel}
+          />
         </Grid>
       </Grid>
     </>

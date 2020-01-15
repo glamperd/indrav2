@@ -23,7 +23,10 @@ docker swarm init 2> /dev/null || true
 
 dir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 project="`cat $dir/../package.json | jq .name | tr -d '"'`"
-cwd="`pwd`"
+if [[ "`pwd`" =~ /mnt/c/.* ]]
+then cwd="//C/dev/workspace/indra"
+else cwd="`pwd`"
+fi
 args="$@"
 identifier=1
 while [ "$1" != "" ]; do

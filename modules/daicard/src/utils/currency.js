@@ -13,6 +13,8 @@ export class Currency {
   static ETH = (amount, daiRate) => new Currency("ETH", amount, daiRate);
   static FIN = (amount, daiRate) => new Currency("FIN", amount, daiRate);
   static WEI = (amount, daiRate) => new Currency("WEI", amount, daiRate);
+  static TIP = (amount, daiRate) => new Currency('TIP', amount, daiRate)
+  static TEI = (amount, daiRate) => new Currency('TEI', amount, daiRate)
 
   typeToSymbol = {
     DAI: "$",
@@ -20,6 +22,8 @@ export class Currency {
     ETH: eth.constants.EtherSymbol,
     FIN: "FIN ",
     WEI: "WEI ",
+    TIP: "TIP ",
+    TEI: "TEI ",
   };
 
   defaultOptions = {
@@ -28,6 +32,8 @@ export class Currency {
     ETH: { commas: false, decimals: 3, symbol: true, round: true },
     FIN: { commas: false, decimals: 3, symbol: false, round: true },
     WEI: { commas: false, decimals: 0, symbol: false, round: true },
+    TIP: { commas: false, decimals: 0, symbol: false, round: true },
+    TEI: { commas: false, decimals: 0, symbol: false, round: true },
   };
 
   ////////////////////////////////////////
@@ -91,7 +97,7 @@ export class Currency {
   }
 
   isTokenType(type) {
-    return ["DAI", "DEI"].includes(type || this.type);
+    return ["DAI", "DEI", "TIP", "TEI"].includes(type || this.type);
   }
 
   toBN() {
@@ -144,6 +150,8 @@ export class Currency {
       ETH: this.toRay("1"),
       FIN: this.toRay(parseUnits("1", 3).toString()),
       WEI: this.toRay(parseUnits("1", 18).toString()),
+      TEI: this.toRay(parseUnits("1", 18).toString()),
+      TIP: this.toRay(this.daiRate),      
     };
     if (
       (this.isEthType() && this.isEthType(currency)) ||
@@ -163,6 +171,8 @@ export class Currency {
   toETH = daiRate => this._convert("ETH", daiRate);
   toFIN = daiRate => this._convert("FIN", daiRate);
   toWEI = daiRate => this._convert("WEI", daiRate);
+  toTEI = daiRate => this._convert("TEI", daiRate);
+  toTIP = daiRate => this._convert("TIP", daiRate);
 
   ////////////////////////////////////////
   // Private Methods

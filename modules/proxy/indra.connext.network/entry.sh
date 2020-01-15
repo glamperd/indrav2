@@ -3,7 +3,8 @@
 # Set default email & domain name
 domain="${DOMAINNAME:-localhost}"
 email="${EMAIL:-noreply@gmail.com}"
-eth_rpc_url="${ETH_RPC_URL:-http://ethprovider:8545}"
+daicard_url="${DAICARD_URL:-http://daicard:3000}"
+eth_rpc_url="${ETH_RPC_URL:-https://rpc.gazecoin.xyz}"
 messaging_url="${MESSAGING_URL:-http://relay:4223}"
 mode="${MODE:-dev}"
 ui_url="${UI_URL:-$messaging_url}"

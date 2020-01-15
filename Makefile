@@ -87,8 +87,9 @@ start-test-staging:
 start-test-release:
 	INDRA_ETH_PROVIDER=http://localhost:8545 INDRA_MODE=test-release bash ops/start-prod.sh
 
-start-prod: prod
-	bash ops/start-prod.sh
+start: dev
+	bash ops/start-dev.sh ganache
+#	bash ops/start-dev.sh ropsten
 
 stop:
 	bash ops/stop.sh

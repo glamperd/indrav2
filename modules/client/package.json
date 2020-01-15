@@ -13,7 +13,8 @@
     "rebuild": "npm run clean && npm run build",
     "clean": "rm -rf ./dist",
     "prepare": "npm run build",
-    "test": "./node_modules/.bin/jest"
+    "test": "./node_modules/.bin/jest",
+    "bundle": "webpack-cli --config webpack.config.js"
   },
   "dependencies": {
     "@connext/cf-core": "1.5.0",
@@ -35,8 +36,19 @@
     "@types/jest": "24.0.25",
     "@types/uuid": "3.4.6",
     "eth-crypto": "1.5.0",
-    "jest": "24.9.0",
     "ts-jest": "24.2.0",
-    "typescript": "3.5.3"
+    "typescript": "3.5.3",
+    "babel-plugin-transform-class-properties": "^6.24.1",
+    "jest": "24.9.0",
+    "rollup-plugin-commonjs": "^10.1.0",
+    "rollup-plugin-inject": "^3.0.2",
+    "rollup-plugin-node-builtins": "^2.1.2",
+    "rollup-plugin-node-resolve": "^5.2.0",
+    "rollup-plugin-typescript": "^1.0.1",
+    "rollup-plugin-typescript2": "^0.25.2",
+    "ts-loader": "^6.2.1",
+    "webpack-cli": "^3.3.10",
+    "webpack-node-externals": "^1.7.2",
+    "webpack-node-modules-list": "^0.4.1"
   }
 }

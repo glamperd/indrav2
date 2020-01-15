@@ -29,6 +29,8 @@ import { SettingsCard } from "./components/settingsCard";
 import { SetupCard } from "./components/setupCard";
 import { SupportCard } from "./components/supportCard";
 import { WithdrawSaiDialog } from "./components/withdrawSai";
+import BuyTipsCard from "./components/buyTipsCard";
+import RequestGrant from "./components/RequestGrant";
 import { rootMachine } from "./state";
 import {
   cleanWalletConnect,
@@ -116,11 +118,13 @@ class App extends React.Component {
           ether: Currency.ETH("0", swapRate),
           token: Currency.DAI("0", swapRate),
           total: Currency.ETH("0", swapRate),
+          tipToken: Currency.TIP("0", "1000"),
         },
         onChain: {
           ether: Currency.ETH("0", swapRate),
           token: Currency.DAI("0", swapRate),
           total: Currency.ETH("0", swapRate),
+          tipToken: Currency.TIP("0", "1000"),
         },
       },
       ethProvider: new eth.providers.JsonRpcProvider(urls.ethProviderUrl),
@@ -134,6 +138,7 @@ class App extends React.Component {
       state: machine.initialState,
       swapRate,
       token: null,
+      tipToken: null,
     };
     this.refreshBalances.bind(this);
     this.autoDeposit.bind(this);
@@ -293,9 +298,14 @@ class App extends React.Component {
     await channel.isAvailable();
 
     const token = new Contract(
-      channel.config.contractAddresses.Token,
+      channel.config.contractAddresses.CreditToken,
       tokenArtifacts.abi,
       ethProvider,
+    );
+    const tipToken = new Contract(
+      channel.config.contractAddresses.RewardToken,
+      tokenArtifacts.abi,
+      wallet || ethProvider
     );
     const swapRate = await channel.getLatestSwapRate(AddressZero, token.address);
 
@@ -305,6 +315,7 @@ class App extends React.Component {
     console.log(` - CF Account address: ${channel.signerAddress}`);
     console.log(` - Free balance address: ${channel.freeBalanceAddress}`);
     console.log(` - Token address: ${token.address}`);
+    console.log(` - Tip Token address: ${tipToken.address}`);
     console.log(` - Swap rate: ${swapRate}`);
 
     channel.subscribeToSwapRates(AddressZero, token.address, res => {
@@ -333,6 +344,7 @@ class App extends React.Component {
       useWalletConnext,
       swapRate,
       token,
+      tipToken,
     });
 
     const saiBalance = Currency.DEI(await this.getSaiBalance(ethProvider), swapRate);
@@ -412,10 +424,11 @@ class App extends React.Component {
   };
 
   getChannelBalances = async () => {
-    const { balance, channel, swapRate, token } = this.state;
+    const { balance, channel, swapRate, token, tipToken, ethProvider } = this.state;
     const getTotal = (ether, token) => Currency.WEI(ether.wad.add(token.toETH().wad), swapRate);
     const freeEtherBalance = await channel.getFreeBalance();
     const freeTokenBalance = await channel.getFreeBalance(token.address);
+    const freeTipBalance = await channel.getFreeBalance(tipToken.address);
     balance.onChain.ether = Currency.WEI(
       await ethProvider.getBalance(channel.signerAddress),
       swapRate,
@@ -440,6 +453,10 @@ class App extends React.Component {
       }
       console.debug(`${prefix}: ${wad.toString()}`);
     };
+    balance.channel.tipToken = Currency.TEI(
+      freeTipBalance[channel.freeBalanceAddress],
+      "1",
+    ).toTIP();
     logIfNotZero(balance.onChain.token.wad, `chain token balance`);
     logIfNotZero(balance.onChain.ether.wad, `chain ether balance`);
     logIfNotZero(balance.channel.token.wad, `channel token balance`);
@@ -595,13 +612,13 @@ class App extends React.Component {
     // depending on payment profile for user and amount to swap,
     // the amount the hub collateralized could be lte token equivalent
     // of client eth deposit
-    const weiToSwap = collateral.sub(tokensForWei).gte(Zero) 
+    const weiToSwap = collateral.sub(tokensForWei).gte(Zero)
       ? availableWeiToSwap.toString() // sufficient collateral for entire swap
       : tokenToWei(collateral, swapRate).toString() // insufficient, claim all hubs balance
 
     console.log(`Attempting to swap ${formatEther(weiToSwap)} eth for ${formatEther(weiToToken(weiToSwap, swapRate))} dai at rate: ${swapRate}`);
     machine.send(["START_SWAP"]);
-  
+
     await channel.swap({
       amount: weiToSwap,
       fromAssetId: AddressZero,
@@ -659,6 +676,7 @@ class App extends React.Component {
       saiBalance,
       state,
       token,
+      tipToken,
       wallet,
     } = this.state;
     const address = wallet ? wallet.address : channel ? channel.signerAddress : AddressZero;
@@ -757,6 +775,18 @@ class App extends React.Component {
               )}
             />
             <Route
+              path="/swaptips"
+              render={props => (
+                <BuyTipsCard
+                  {...props}
+                  balance={balance}
+                  channel={channel}
+                  token={token}
+                  tipToken={tipToken}
+                />
+              )}
+            />
+            <Route
               path="/redeem"
               render={props => <RedeemCard {...props} channel={channel} token={token} />}
             />
@@ -776,7 +806,29 @@ class App extends React.Component {
                 />
               )}
             />
-            <Route path="/support" render={props => <SupportCard {...props} channel={channel} />} />
+
+            <Route
+              path="/support"
+              render={props => (
+                <SupportCard
+                  {...props}
+                  channel={channel}
+                />
+              )}
+            />
+            <Route
+              path="/requestgrant"
+              render={props => (
+                <RequestGrant
+                  {...props}
+                  setWalletConnext={this.setWalletConnext}
+                  getWalletConnext={this.getWalletConnext}
+                  store={channel ? channel.store : undefined}
+                  ethAddress={channel ? channel.freeBalanceAddress : "Unknown"}
+                />
+              )}
+            />
+
             <Confirmations machine={machine} state={state} network={network} state={state} />
           </Paper>
         </Grid>

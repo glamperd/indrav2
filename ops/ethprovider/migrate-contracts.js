@@ -145,8 +145,9 @@ const sendGift = async (address, token) => {
 // First, setup signer & connect to eth provider
 
 ;(async function() {
-  let provider, balance, nonce, isDeployed, token
+  let provider, balance, nonce, isDeployed, token, token2
 
+  console.log('migrate-contracts.sh ', process.env.ETH_PROVIDER);
   if (process.env.ETH_PROVIDER) {
     provider = new eth.providers.JsonRpcProvider(process.env.ETH_PROVIDER)
   } else if (process.env.INFURA_KEY) {
@@ -204,6 +205,7 @@ const sendGift = async (address, token) => {
   // If on testnet, deploy a token contract too
   if (chainId === ganacheId) {
     token = await deployContract('Token', tokenArtifacts, [])
+    token2 = await deployContract('Token2', tokenArtifacts, [])
   }
 
   ////////////////////////////////////////
@@ -212,9 +214,13 @@ const sendGift = async (address, token) => {
   if (chainId === ganacheId) {
     await sendGift(eth.Wallet.fromMnemonic(mnemonic).address, token)
     await sendGift(eth.Wallet.fromMnemonic(mnemonic, cfPath).address, token)
+    await sendGift(eth.Wallet.fromMnemonic(mnemonic).address, token2)
+    await sendGift(eth.Wallet.fromMnemonic(mnemonic, cfPath).address, token2)
     for (const botMnemonic of botMnemonics) {
       await sendGift(eth.Wallet.fromMnemonic(botMnemonic).address, token)
       await sendGift(eth.Wallet.fromMnemonic(botMnemonic, cfPath).address, token)
+      await sendGift(eth.Wallet.fromMnemonic(botMnemonic).address, token2)
+      await sendGift(eth.Wallet.fromMnemonic(botMnemonic, cfPath).address, token2)
     }
   }
 
