@@ -845,6 +845,15 @@ class App extends React.Component {
                 />
               )}
             />
+            <Route
+              path="/history"
+              render={props => (
+                <SupportCard
+                  {...props}
+                  channel={channel}
+                />
+              )}
+            />
 
             <Confirmations
               machine={machine}

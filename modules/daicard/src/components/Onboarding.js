@@ -8,10 +8,6 @@ import "../App.css";
 
 const styles = {};
 
-function setPasscodeScript() {
-  return {__html: '<script>function setPasscode(pass) {assert(pass);}</script>'}
-}
-
 const Link1 = React.forwardRef((props, ref) =>
     <RouterLink innerRef={ref} target="_blank" {...props} />);
 
@@ -67,7 +63,9 @@ class Onboarding extends React.Component {
               variant="outlined"
               size="large"
               component={Link1}
-              to={'/requestgrant'/*{ pathname: "https://pay.sendwyre.com/purchase",
+              to={'/requestgrant'
+              /* //Wyre transfer:
+              { pathname: "https://pay.sendwyre.com/purchase",
                     search: "?destCurrency=DAI" +
                       "&sourceAmount=10" +
                       "&dest=ethereum:" + ethAddress +
@@ -76,7 +74,7 @@ class Onboarding extends React.Component {
                       "&redirectUrl=https://card.gazecoin.xyz"
                   }*/}
             >
-              Buy Credits
+              Request Credits
             </Button>
           </Grid>
           <Grid item xs={12}>
@@ -84,7 +82,6 @@ class Onboarding extends React.Component {
               <input id="setPasscode" type="hidden" onChange={this.setPasscode}/>
               <input id="submitPasscode" type='submit' value='Submit' />
             </form>
-            <div id="mydiv" dangerouslySetInnerHTML={setPasscodeScript()} />
           </Grid>
         </Grid>
       </>

@@ -76,7 +76,7 @@ export const Home = style(({ balance, swapRate, channel, history, parseQRCode })
       >
         <Grid item xs={12} style={{ paddingTop: "10%" }}>
           <Grid container spacing={2} direction="row" alignItems="center" justify="center">
-            <Grid item xs={12} sm={6}>
+            <Grid item xs={12} >
               <Button
                 disableTouchRipple
                 fullWidth
@@ -89,11 +89,14 @@ export const Home = style(({ balance, swapRate, channel, history, parseQRCode })
                 component={Link}
                 to="/request"
               >
-                Request
+                Recieve From Friend
                 <ReceiveIcon style={{ marginLeft: "5px" }} />
               </Button>
             </Grid>
-            <Grid item xs={12} sm={6}>
+            <Onboarding
+              channel={channel}
+            />
+            <Grid item xs={12} >
               <Button
                 disableTouchRipple
                 fullWidth
@@ -106,11 +109,24 @@ export const Home = style(({ balance, swapRate, channel, history, parseQRCode })
                 component={Link}
                 to="/send"
               >
-                Send
+                Send To Friend
                 <SendIcon style={{ marginLeft: "5px" }} />
               </Button>
             </Grid>
           </Grid>
+        </Grid>
+        <Grid item xs={12}>
+          <Button
+             style={{ marginBottom: "5%" }}
+             fullWidth
+             color="primary"
+             variant="outlined"
+             size="large"
+             component={Link}
+             to="/swaptips"
+           >
+             Convert to Tips
+          </Button>
         </Grid>
         <Grid item xs={12}>
           <Button
@@ -128,19 +144,17 @@ export const Home = style(({ balance, swapRate, channel, history, parseQRCode })
         </Grid>
         <Grid item xs={12}>
           <Button
-             style={{ marginBottom: "5%" }}
-             fullWidth
-             color="primary"
-             variant="outlined"
-             size="large"
-             component={Link}
-             to="/swaptips"
-           >
-             Buy/Sell Reward Tokens
+            disableTouchRipple
+            style={{ marginBottom: "20%" }}
+            fullWidth
+            color="primary"
+            variant="outlined"
+            size="large"
+            component={Link}
+            to="/history"
+          >
+            History
           </Button>
-          <Onboarding
-            channel={channel}
-          />
         </Grid>
       </Grid>
     </>

@@ -20,7 +20,7 @@ const style = withStyles(theme => ({
 
 const screens = (classes, minEth, minDai, maxEth, maxDai) => [
   {
-    title: "Welcome to Your Dai Card!",
+    title: "Welcome to Dream Channel!",
     message: "Here are some helpful tips to get you started with the next generation of payments.",
   },
   {

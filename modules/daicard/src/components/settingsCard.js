@@ -101,20 +101,6 @@ export const SettingsCard = style(({ classes, setWalletConnext, getWalletConnext
       </Grid>
 
       <Grid item xs={12} className={classes.button}>
-        <Button
-          disableTouchRipple
-          fullWidth
-          className={classes.button}
-          variant="outlined"
-          color="secondary"
-          size="large"
-          onClick={() => setWalletConnext(!useWalletConnext)}
-        >
-          {useWalletConnext ? `Deactivate WalletConnext (beta)` : `Activate WalletConnext (beta)`}
-        </Button>
-      </Grid>
-
-      <Grid item xs={12} className={classes.button}>
         {!showRecovery ? (
           <Button
             disableTouchRipple
