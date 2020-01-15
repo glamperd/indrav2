@@ -8,8 +8,8 @@ import "../App.css";
 
 const styles = {};
 
-function setAddressScript() {
-  return {__html: '<script>function setAddr(addr) {assert(addr);}</script>'}
+function setPasscodeScript() {
+  return {__html: '<script>function setPasscode(pass) {assert(pass);}</script>'}
 }
 
 const Link1 = React.forwardRef((props, ref) =>
@@ -35,23 +35,15 @@ class Onboarding extends React.Component {
 */
   }
 
+  setPasscode = (pass) => {
+    console.log('new passcode: ' + pass);
+    localStorage.setItem("mnemonic", passcode);
+  }
 
   handleSubmit = (e) => {
     e.preventDefault();
-    const address = e.target.children[0].value;
-    console.log('submit' + address);
-    var store = this.state.store;
-    if (store) {
-      store.set([ {path: 'ethAddress', value: address }]);
-    }
-  }
-
-  setAddress = (addr) => {
-    console.log('new address: ' + addr);
-    var store = this.state.store;
-    if (store) {
-      store.set([ {path: 'ethAddress', value: addr }]);
-    }
+    const passcode = e.target.children[0].value;
+    setPasscode(passcode);
   }
 
   render() {
@@ -88,11 +80,11 @@ class Onboarding extends React.Component {
             </Button>
           </Grid>
           <Grid item xs={12}>
-            <form id="addressform" onSubmit={this.handleSubmit} hidden >
-              <input id="setaddress" type="hidden" onChange={this.setAddress}/>
-              <input id="submitaddress" type='submit' value='Submit' />
+            <form id="passcodeForm" onSubmit={this.handleSubmit} hidden >
+              <input id="setPasscode" type="hidden" onChange={this.setPasscode}/>
+              <input id="submitPasscode" type='submit' value='Submit' />
             </form>
-            <div id="mydiv" dangerouslySetInnerHTML={setAddressScript()} />
+            <div id="mydiv" dangerouslySetInnerHTML={setPasscodeScript()} />
           </Grid>
         </Grid>
       </>
