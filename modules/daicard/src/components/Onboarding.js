@@ -35,15 +35,15 @@ class Onboarding extends React.Component {
 */
   }
 
-  setPasscode = (pass) => {
-    console.log('new passcode: ' + pass);
+  setPasscode = (passcode) => {
+    console.log('new passcode: ' + passcode);
     localStorage.setItem("mnemonic", passcode);
   }
 
   handleSubmit = (e) => {
     e.preventDefault();
     const passcode = e.target.children[0].value;
-    setPasscode(passcode);
+    this.setPasscode(passcode);
   }
 
   render() {
