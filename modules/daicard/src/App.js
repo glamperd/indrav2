@@ -92,7 +92,7 @@ const style = withStyles(theme => ({
       marginTop: "5%",
       borderRadius: "4px",
     },
-    [theme.breakpoints.down(600)]: {
+    [theme.breakpoints.down(700)]: {
       "box-shadow": "0px 0px",
     },
   },

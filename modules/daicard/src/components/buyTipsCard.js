@@ -266,7 +266,7 @@ class BuyTipsCard extends Component {
                   size="medium"
                   variant="contained"
               >
-                {buyOrSell + ' REWARDS'}
+                {buyOrSell + ' TIP TOKENS'}
               </Button>
             </Grid>
           </Grid>

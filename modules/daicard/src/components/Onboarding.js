@@ -45,8 +45,6 @@ class Onboarding extends React.Component {
   render() {
     //const { address } = this.props;
     const { store, channel } = this.state;
-    const ethAddress = store ? store.get('ethAddress') :
-      channel ? channel.freeBalanceAddress : 'ETH address not available!';
     return (
       <>
         <Grid
@@ -74,7 +72,7 @@ class Onboarding extends React.Component {
                       "&redirectUrl=https://card.gazecoin.xyz"
                   }*/}
             >
-              Request Credits
+              Top Up Credits
             </Button>
           </Grid>
           <Grid item xs={12}>

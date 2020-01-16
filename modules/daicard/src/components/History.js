@@ -53,6 +53,7 @@ export const History = style(({ classes, setWalletConnext, getWalletConnext, sto
   const [mnemonic, setMnemonic] = useState("");
   const [showRecovery, setShowRecovery] = useState(false);
   const [showWarning, setShowWarning] = useState(false);
+  const rows = [];
 
   const useWalletConnext = getWalletConnext()
 
@@ -74,11 +75,11 @@ export const History = style(({ classes, setWalletConnext, getWalletConnext, sto
     <Table className={classes.table} aria-label="simple table">
       <TableHead>
         <TableRow>
-          <TableCell>Dessert (100g serving)</TableCell>
-          <TableCell align="right">Calories</TableCell>
-          <TableCell align="right">Fat&nbsp;(g)</TableCell>
-          <TableCell align="right">Carbs&nbsp;(g)</TableCell>
-          <TableCell align="right">Protein&nbsp;(g)</TableCell>
+          <TableCell>History</TableCell>
+          <TableCell align="right">Event</TableCell>
+          <TableCell align="right">In/Out</TableCell>
+          <TableCell align="right">Amount</TableCell>
+          <TableCell align="right">Counterparty</TableCell>
         </TableRow>
       </TableHead>
       <TableBody>
@@ -87,10 +88,10 @@ export const History = style(({ classes, setWalletConnext, getWalletConnext, sto
             <TableCell component="th" scope="row">
               {row.name}
             </TableCell>
-            <TableCell align="right">{row.calories}</TableCell>
-            <TableCell align="right">{row.fat}</TableCell>
-            <TableCell align="right">{row.carbs}</TableCell>
-            <TableCell align="right">{row.protein}</TableCell>
+            <TableCell align="right">{row.event}</TableCell>
+            <TableCell align="right">{row.inout}</TableCell>
+            <TableCell align="right">{row.amount}</TableCell>
+            <TableCell align="right">{row.couterparty}</TableCell>
           </TableRow>
         ))}
       </TableBody>

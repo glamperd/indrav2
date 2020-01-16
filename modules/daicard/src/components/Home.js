@@ -1,13 +1,13 @@
-import { Button, Fab, Grid, Modal, withStyles } from "@material-ui/core";
+import { Button, Grid,  withStyles } from "@material-ui/core";
 import { SaveAlt as ReceiveIcon, Send as SendIcon } from "@material-ui/icons";
-import QRIcon from "mdi-material-ui/QrcodeScan";
+//import QRIcon from "mdi-material-ui/QrcodeScan";
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 
 import "../App.css";
 
 import { ChannelCard } from "./channelCard";
-import { QRScan } from "./qrCode";
+//import { QRScan } from "./qrCode";
 import Onboarding from "./Onboarding";
 
 import { initWalletConnect } from "../utils";
@@ -17,25 +17,25 @@ const style = withStyles({});
 export const Home = style(({ balance, swapRate, channel, history, parseQRCode }) => {
   const [scanModal, setScanModal] = useState(false);
 
-  const scanQRCode = data => {
-    setScanModal(false);
-    if (channel && data.startsWith("wc:")) {
-      localStorage.setItem(`wcUri`, data)
-      initWalletConnect(data, channel);
-    } else {
-      const url = parseQRCode(data)
-      history.push(url)
-    }
-  };
+  // const scanQRCode = data => {
+  //   setScanModal(false);
+  //   if (channel && data.startsWith("wc:")) {
+  //     localStorage.setItem(`wcUri`, data)
+  //     initWalletConnect(data, channel);
+  //   } else {
+  //     const url = parseQRCode(data)
+  //     history.push(url)
+  //   }
+  // };
 
   return (
     <>
-      <Grid container direction="row" style={{ marginBottom: "-7.5%" }}>
+      <Grid container direction="row" style={{ marginBottom: "5%" }}>
         <Grid item xs={12} style={{ flexGrow: 1 }}>
           <ChannelCard balance={balance} swapRate={swapRate} />
         </Grid>
       </Grid>
-      <Grid container direction="column">
+{/*      <Grid container direction="column">
         <Grid item xs={12} style={{ marginRight: "5%", marginLeft: "80%" }}>
           <Fab
             style={{
@@ -68,6 +68,7 @@ export const Home = style(({ balance, swapRate, channel, history, parseQRCode })
           </Modal>
         </Grid>
       </Grid>
+      */ }
       <Grid
         container
         spacing={1}
@@ -89,7 +90,7 @@ export const Home = style(({ balance, swapRate, channel, history, parseQRCode })
                 component={Link}
                 to="/request"
               >
-                Recieve From Friend
+                Receive From Friend
                 <ReceiveIcon style={{ marginLeft: "5px" }} />
               </Button>
             </Grid>
