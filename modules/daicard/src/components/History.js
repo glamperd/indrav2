@@ -10,6 +10,7 @@ import {
   Grid,
   InputAdornment,
   Paper,
+  Hidden,
   Table,
   TableBody,
   TableCell,
@@ -20,17 +21,24 @@ import {
   withStyles,
 } from "@material-ui/core";
 import { ArrowRight as SubmitIcon, Settings as SettingsIcon } from "@material-ui/icons";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, Fragment } from "react";
+import { fromWei } from '../utils/bn';
 
 const style = withStyles(theme => ({
   table: {
-    minWidth: 650,
+    minWidth: 450,
   },
 }));
 
-export const History = style(({ classes, ethProvider, paymentsAddress, nftAddress }) => {
+const knownAddresses = {
+  DreamChannel: '0x627306090abaB3A6e1400e9345bC60c78a8BEf57',
+  Payments: '0xb90FCfD094c60B180Df2bC4a346907F9882D3e7D',
+};
+
+export const History = style(({ classes, ethProvider, paymentsAddress, nftAddress, daiContract }) => {
   let [rows, setRows] = useState([]);
   let [isLoading, setIsLoading] = useState(true);
+  let [balances, setBalances] = useState({});
 
   const getTransactionsForAccount = async (account) => {
 
@@ -50,9 +58,19 @@ export const History = style(({ classes, ethProvider, paymentsAddress, nftAddres
              hash: e.hash,
              tofrom: account == e.from ? 'from' : 'to',
              counterparty: account == e.from ? e.to : e.from,
-             value: e.value.toString(),
-             time: block.timestamp + " " + new Date(block.timestamp * 1000).toGMTString(),
+             value: Number(fromWei(e.value)).toFixed(4),
+             time: new Date(block.timestamp * 1000).toGMTString(),
              gas: e.gas,
+           };
+           // Decorate with recognisable events and addresses
+           if (row.counterparty === knownAddresses.DreamChannel) {
+             row.event = 'Top-up';
+             row.counterparty = 'DreamChannel';
+           } else if (row.counterparty === knownAddresses.Payments) {
+             row.event = row.tofrom === 'from' ? 'Deposit' : 'Withdraw';
+             row.counterparty = 'Payments';
+           } else {
+             row.event = row.tofrom === 'to' ? 'Received' : 'Sent';
            }
            temprows.push(row);
          }
@@ -73,6 +91,21 @@ export const History = style(({ classes, ethProvider, paymentsAddress, nftAddres
 
        // Get tx list for NFT address(es) - etherscan API
        setRows(tempRows);
+
+       let bals = {payments:{}, nft:{}};
+       // Get ETH balance
+       let bal = await ethProvider.getBalance(paymentsAddress);
+       bals.payments.eth = bal ? Number(fromWei(bal)).toFixed(4).toString() : '0';
+       bal = await ethProvider.getBalance(nftAddress);
+       bals.nft.eth = bal ? Number(fromWei(bal)).toFixed(4).toString() : '0';
+       // Get DAI balance
+       bal = await daiContract.functions.balanceOf(paymentsAddress);
+       bals.payments.dai = bal ? Number(fromWei(bal)).toFixed(2).toString() : '0';
+       // Get GZE balance
+       //bals.payments.gze = await gzeContract.methods.balanceOf(paymentsAddress).call();
+       bals.payments.gze = '0';
+       setBalances(bals);
+
        setIsLoading(false);
      };
 
@@ -81,30 +114,47 @@ export const History = style(({ classes, ethProvider, paymentsAddress, nftAddres
 
   return (
     <Container component={Paper}>
-    {isLoading ? (<div>Loading...</div>) : (
-    <Table className={classes.table} aria-label="history table">
-      <TableHead>
-        <TableRow>
-        <TableCell align="right">Hash</TableCell>
-          <TableCell align="right">Time</TableCell>
-          <TableCell align="right">To/From</TableCell>
-          <TableCell align="right">Amount</TableCell>
-          <TableCell align="right">Counterparty</TableCell>
-        </TableRow>
-      </TableHead>
-      <TableBody>
-        {rows.map(row => (
-            <TableRow key={row.hash || 'x'} >
-              <TableCell component="th" scope="row">{row.hash}</TableCell>
-              <TableCell align="right">{row.time}</TableCell>
-              <TableCell align="right">{row.tofrom}</TableCell>
-              <TableCell align="right">{row.value}</TableCell>
-              <TableCell align="right">{row.counterparty}</TableCell>
+      {isLoading ? (<CircularProgress variant="indeterminate" />) : (
+      <Fragment>
+        <Table className={classes.table} aria-label="history table">
+          <TableHead>
+            <TableRow>
+              <TableCell align="right">Time</TableCell>
+              <TableCell align="right">Event</TableCell>
+              <TableCell align="right">Amount</TableCell>
+              <TableCell align="left">Counterparty</TableCell>
             </TableRow>
-        ))}
-      </TableBody>
-    </Table>
-    )}
-  </Container>
+          </TableHead>
+          <TableBody>
+            {rows.map(row => (
+                <TableRow key={row.hash} >
+                  <TableCell align="right">{row.time}</TableCell>
+                  <TableCell align="left">{row.event}</TableCell>
+                  <TableCell align="right">{row.value}</TableCell>
+                  <TableCell align="left">{row.counterparty}</TableCell>
+                </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+        <Grid container spacing={3}>
+          <Grid item xs>
+            <div>Balances:</div>
+          </Grid>
+          <Grid item xs>
+            <div>{'Ξ' + balances.payments.eth}</div>
+          </Grid>
+          <Grid item xs>
+            <div>{'Ξ' + balances.nft.eth}</div>
+          </Grid>
+          <Grid item xs>
+            <div>{'\u25c8' + balances.payments.dai}</div>
+          </Grid>
+          <Grid item xs>
+            <div>{'GZE' + balances.payments.gze }</div>
+          </Grid>
+        </Grid>
+      </Fragment>
+      )}
+    </Container>
   );
 });

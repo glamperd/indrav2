@@ -51,7 +51,7 @@ export const ChannelCard = withStyles(styles)(props => {
               <span>{split(balance.channel.token.toDAI()).part}</span>
             </Typography>
             <Typography style={{display: 'inline-block'}} variant="h5" className={classes.row}>
-              {"   CREDITS"}
+              &nbsp;{"CREDITS"}
             </Typography>
           </span>
           {/* <span style={{fontSize: 64}}>&nbsp;&nbsp;&nbsp;</span> */}
@@ -76,7 +76,7 @@ export const ChannelCard = withStyles(styles)(props => {
               <span>{split(balance.channel.tipToken.toTIP()).whole}</span>
             </Typography>
             <Typography style={{display: 'inline-block'}} variant="h5" className={classes.row}>
-              {"   TIP TOKENS"}
+              &nbsp;{"TIP TOKENS"}
             </Typography>
           </span>
           {/* <Typography style={{ color: 'white' }}> On-Chain </Typography>
