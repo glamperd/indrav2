@@ -43,8 +43,6 @@ class Onboarding extends React.Component {
   }
 
   render() {
-    //const { address } = this.props;
-    const { store, channel } = this.state;
     return (
       <>
         <Grid

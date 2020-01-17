@@ -30,6 +30,7 @@ import { SupportCard } from "./components/supportCard";
 import { WithdrawSaiDialog } from "./components/withdrawSai";
 import BuyTipsCard from "./components/buyTipsCard";
 import RequestGrant from "./components/RequestGrant";
+import { History } from "./components/History";
 import { rootMachine } from "./state";
 import {
   cleanWalletConnect,
@@ -848,9 +849,11 @@ class App extends React.Component {
             <Route
               path="/history"
               render={props => (
-                <SupportCard
+                <History
                   {...props}
-                  channel={channel}
+                  paymentsAddress={channel ? channel.freeBalanceAddress : undefined }
+                  nftAddress={associatedAddress}
+                  ethProvider={ethProvider}
                 />
               )}
             />
