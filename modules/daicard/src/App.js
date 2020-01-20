@@ -62,6 +62,8 @@ const urls = {
       : chainId.toString() === "4"
       ? "https://connext-rinkeby.pisa.watch"
       : undefined,
+  nftEthProviderUrl:
+    process.env.REACT_APP_NFT_ETH_PROVIDER_URL_OVERRIDE,
 };
 
 // Constants for channel max/min - this is also enforced on the hub
@@ -132,6 +134,7 @@ class App extends React.Component {
         },
       },
       ethProvider: new eth.providers.JsonRpcProvider(urls.ethProviderUrl),
+      nftEthProvider: new eth.providers.JsonRpcProvider(urls.nftEthProviderUrl),
       machine: interpret(rootMachine),
       maxDeposit: null,
       minDeposit: null,
@@ -186,7 +189,7 @@ class App extends React.Component {
 
   // Channel doesn't get set up until after provider is set
   async componentDidMount() {
-    const { ethProvider, machine } = this.state;
+    const { ethProvider, nftEthProvider, machine } = this.state;
     machine.start();
     machine.onTransition(state => {
       this.setState({ state });
@@ -307,6 +310,11 @@ class App extends React.Component {
       tokenArtifacts.abi,
       wallet || ethProvider
     );
+    const gzeToken = new Contract(
+      channel.config.contractAddresses.GazeToken,
+      tokenArtifacts.abi,
+      nftEthProvider
+    );
     const swapRate = await channel.getLatestSwapRate(AddressZero, token.address);
 
     console.log(`Client created successfully!`);
@@ -362,6 +370,7 @@ class App extends React.Component {
       swapRate,
       token,
       tipToken,
+      gzeToken,
       tokenProfile,
       tipTokenProfile,
     });
@@ -681,6 +690,7 @@ class App extends React.Component {
       balance,
       channel,
       ethProvider,
+      nftEthProvider,
       swapRate,
       machine,
       maxDeposit,
@@ -689,6 +699,7 @@ class App extends React.Component {
       saiBalance,
       token,
       tipToken,
+      gzeToken,
       wallet,
       associatedAddress,
     } = this.state;
@@ -854,7 +865,9 @@ class App extends React.Component {
                   paymentsAddress={channel ? channel.freeBalanceAddress : undefined }
                   nftAddress={associatedAddress}
                   ethProvider={ethProvider}
+                  nftEthProvider={nftEthProvider}
                   daiContract={token}
+                  gzeContract={gzeToken}
                 />
               )}
             />
