@@ -8,6 +8,7 @@ import {
   DialogContentText,
   DialogTitle,
   Grid,
+  IconButton,
   InputAdornment,
   Paper,
   Hidden,
@@ -20,16 +21,38 @@ import {
   Typography,
   withStyles,
 } from "@material-ui/core";
-import { ArrowRight as SubmitIcon, Settings as SettingsIcon } from "@material-ui/icons";
+import { ArrowRight as SubmitIcon, Settings as SettingsIcon, OpenInBrowser as OpenInBrowserIcon } from "@material-ui/icons";
 import React, { useEffect, useState, Fragment } from "react";
 import { fromWei } from '../utils/bn';
 
 const style = withStyles(theme => ({
   table: {
-    minWidth: 450,
+    //minWidth: 450,
+    paddingTop: '0px',
+    paddingLeft: '0px',
+    paddingRight: '0px',
+    backgroundColor: "#000000",
+    color: "#f0f0f0",
   },
-  tableCell: {
-    
+  cell: {
+    borderBottom: '0px',
+    color: "#f0f0f0",
+  },
+  paper: {
+    paddingTop: "30px",
+    backgroundColor: "#000",
+    color: "#f0f0f0",
+  },
+  footer: {
+    paddingTop: "20px",
+    backgroundColor: "#626262",
+    color: "#f0f0f0",
+  },
+  root: {
+    display: 'flex',
+    '& > * + *': {
+      marginLeft: theme.spacing(2),
+    },
   },
 }));
 
@@ -64,7 +87,7 @@ export const History = style(({ classes, ethProvider, nftEthProvider, paymentsAd
              tofrom: account == e.from ? 'from' : 'to',
              counterparty: account == e.from ? e.to : e.from,
              value: Number(fromWei(e.value)).toFixed(4),
-             time: new Date(block.timestamp * 1000).toLocaleDateString('en-US'),
+             time: new Date(block.timestamp * 1000).toLocaleString(),
              gas: e.gas,
            };
            // Decorate with recognisable events and addresses
@@ -99,8 +122,7 @@ export const History = style(({ classes, ethProvider, nftEthProvider, paymentsAd
           tofrom: address == tx.from ? 'from' : 'to',
           counterparty: address == tx.from ? tx.to : tx.from,
           value: Number(fromWei(tx.value)).toFixed(4),
-          time: new Date(tx.timestamp * 1000).toLocaleString(),
-          // 'en-US', {year: '2-digit', hour: 'numeric', minute: 'numeric' }
+          time: new Date(tx.timestamp * 1000).toLocaleString('en-US',{dateStyle: 'short', timeStyle: 'short'}),
           gas: tx.gas,
           contract: tx.contractAddress,
         };
@@ -115,20 +137,20 @@ export const History = style(({ classes, ethProvider, nftEthProvider, paymentsAd
 
   const embellishRow = (row) => {
     if (row.counterparty === knownAddresses.DreamChannel) {
-      row.event = 'Top-up';
-      row.counterparty = 'DreamChannel';
+      row.event = 'Top-up from DreamChannel';
     } else if (row.counterparty === knownAddresses.Payments) {
-      row.event = row.tofrom === 'from' ? 'Deposit' : 'Withdraw';
-      row.counterparty = 'Payments';
+      row.event = row.tofrom === 'from' ? 'Deposit to ' : 'Withdraw from ';
+      row.event += 'Payments';
     } else {
-      row.event = row.tofrom === 'to' ? 'Received' : 'Sent';
+      row.event = row.tofrom === 'to' ? 'Received from ' : 'Sent to ';
+      row.event += row.counterparty.slice(0,6) + '...';
     }
     return row;
   }
 
   const columnHeader = (text) => {
     return (
-      <Typography variant="subtitle2">{text}</Typography>
+      <Typography variant="overline">{text}</Typography>
     );
   }
 
@@ -174,30 +196,42 @@ export const History = style(({ classes, ethProvider, nftEthProvider, paymentsAd
   }, []);
 
   return (
-    <Container component={Paper}>
-      {isLoading ? (<CircularProgress variant="indeterminate" style={{'padding-top':'100px'}}/>) : (
-      <Fragment>
-        <Table className={classes.table} aria-label="history table" style={{'padding-top':'20px'}}>
+    <Container component={Paper} className={classes.paper}>
+      {isLoading ? (
+        <Container className={classes.root}>
+          <CircularProgress variant="indeterminate" />
+        </Container>
+      ) : (
+      <Fragment >
+        <Typography variant="h6">Transaction History</Typography>
+        <Table className={classes.table} aria-label="history table" >
           <TableHead>
             <TableRow>
-              <TableCell align="right" padding='none'>{columnHeader('Time')}</TableCell>
-              <TableCell align="right" padding='none'>{columnHeader('Event')}</TableCell>
-              <TableCell align="right" padding='none'>{columnHeader('Amount')}</TableCell>
-              <TableCell align="left" padding='none'>{columnHeader('Counterparty')}</TableCell>
+              <TableCell align="center" padding='none' className={classes.cell}>{columnHeader('Time')}</TableCell>
+              <TableCell align="center" padding='none' className={classes.cell}>{columnHeader('Event')}</TableCell>
+              <TableCell align="right" padding='none' className={classes.cell}>{columnHeader('Amount')}</TableCell>
+              <TableCell align="left" padding='none' className={classes.cell}></TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
             {rows.map(row => (
                 <TableRow key={row.hash} >
-                  <TableCell align="right" padding='none'>{cell(row.time)}</TableCell>
-                  <TableCell align="left" padding='none'>{cell(row.event)}</TableCell>
-                  <TableCell align="right" padding='none'>{cell(row.value)}</TableCell>
-                  <TableCell align="left" padding='none'>{cell(row.counterparty)}</TableCell>
+                  <TableCell align="left" padding='none' className={classes.cell}>{cell(row.time)}</TableCell>
+                  <TableCell align="left" padding='none' className={classes.cell}>{cell(row.event)}</TableCell>
+                  <TableCell align="right" padding='none' className={classes.cell}>{cell(row.value)}</TableCell>
+                  <TableCell align="left" padding='none' className={classes.cell}>
+                    <IconButton size='small'
+                      href={"http://ropsten.etherscan.io/tx/" + row.hash}
+                      style={{ color: '#ffffff' }}
+                    >
+                      <OpenInBrowserIcon />
+                    </IconButton>
+                  </TableCell>
                 </TableRow>
             ))}
           </TableBody>
         </Table>
-        <Paper className={classes.paper}>
+        <Paper className={classes.footer}>
           <Grid container spacing={3}>
             <Grid item xs>
               <div>Balances:</div>

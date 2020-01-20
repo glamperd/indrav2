@@ -98,6 +98,8 @@ const style = withStyles(theme => ({
     [theme.breakpoints.down(700)]: {
       "box-shadow": "0px 0px",
     },
+    //backgroundColor: "#222222",
+    //foregroundColor: "#EEEEEE",
   },
   app: {
     display: "flex",
@@ -105,7 +107,7 @@ const style = withStyles(theme => ({
     alignItems: "center",
     flexGrow: 1,
     fontFamily: ["proxima-nova", "sans-serif"],
-    backgroundColor: "#FFF",
+    backgroundColor: "#686868",
     width: "100%",
     margin: "0px",
   },
