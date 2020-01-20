@@ -87,7 +87,7 @@ export const History = style(({ classes, ethProvider, nftEthProvider, paymentsAd
              tofrom: account == e.from ? 'from' : 'to',
              counterparty: account == e.from ? e.to : e.from,
              value: Number(fromWei(e.value)).toFixed(4),
-             time: new Date(block.timestamp * 1000).toLocaleString(),
+             time: new Date(block.timestamp * 1000).toLocaleString('en-US',{dateStyle: 'short', timeStyle: 'short'}),
              gas: e.gas,
            };
            // Decorate with recognisable events and addresses
@@ -198,9 +198,9 @@ export const History = style(({ classes, ethProvider, nftEthProvider, paymentsAd
   return (
     <Container component={Paper} className={classes.paper}>
       {isLoading ? (
-        <Container className={classes.root}>
+        <div className={classes.root}>
           <CircularProgress variant="indeterminate" />
-        </Container>
+        </div>
       ) : (
       <Fragment >
         <Typography variant="h6">Transaction History</Typography>
