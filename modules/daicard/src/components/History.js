@@ -124,7 +124,7 @@ export const History = style(({ classes, ethProvider, nftEthProvider, paymentsAd
   const getAccountHistoryWithApi = async (address) => {
     // Ropsten API
     let temprows=[];
-    const url = 'http://api-ropsten.etherscan.io/api?module=account&action=txlist'
+    const url = 'https://api-ropsten.etherscan.io/api?module=account&action=txlist'
       + '&address=' + address
       + '&startblock=' + SEARCH_START_BLOCK
       + '&endblock=99999999&sort=asc'
