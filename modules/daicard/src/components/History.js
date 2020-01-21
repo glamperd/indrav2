@@ -2,26 +2,18 @@ import {
   Button,
   CircularProgress,
   Container,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogContentText,
-  DialogTitle,
   Grid,
   IconButton,
-  InputAdornment,
   Paper,
-  Hidden,
   Table,
   TableBody,
   TableCell,
   TableHead,
   TableRow,
-  TextField,
   Typography,
   withStyles,
 } from "@material-ui/core";
-import { ArrowRight as SubmitIcon, Settings as SettingsIcon, OpenInBrowser as OpenInBrowserIcon } from "@material-ui/icons";
+import { OpenInBrowser as OpenInBrowserIcon } from "@material-ui/icons";
 import React, { useEffect, useState, Fragment } from "react";
 import { fromWei } from '../utils/bn';
 
@@ -62,14 +54,21 @@ const knownAddresses = {
 };
 
 const SEARCH_START_BLOCK = 6990000;
+const DAI_SYMBOL = '\u25c8';
+const ETH_SYMBOL = 'Ξ';
+const ONE_SYMBOL = '\u2460';
+const TWO_SYMBOL = '\u2461';
+const P_SYMBOL = '\u24C5';
 
-export const History = style(({ classes, ethProvider, nftEthProvider, paymentsAddress, nftAddress, daiContract, gzeContract }) => {
+export const History = style(({ classes, ethProvider, nftEthProvider, paymentsAddress, nftAddress, daiContract, tipContract, gzeContract, channel }) => {
   let [rows, setRows] = useState([]);
   let [isLoading, setIsLoading] = useState(true);
   let [balances, setBalances] = useState({});
 
+  // Get layer 1 transactions for an address. The method is
+  // to use the provider node, get each block (from a starting block)
+  // and scan the block for transactions. This may be slow.
   const getTransactionsForAccount = async (account, provider, startBlock) => {
-
     const latestBlock = await provider.getBlockNumber();
     console.log('latest block is ', latestBlock);
     let temprows = [];
@@ -80,15 +79,17 @@ export const History = style(({ classes, ethProvider, nftEthProvider, paymentsAd
      var block = await provider.getBlock(i, true);
      if (block && block.transactions ) {
        block.transactions.forEach( function(e) {
-         if (account == e.from || account == e.to) {
-           console.log('found tx in ', i);
+         if (account === e.from || account == e.to) {
+           //console.log('found tx in ', i);
            let row = {
              hash: e.hash,
-             tofrom: account == e.from ? 'from' : 'to',
-             counterparty: account == e.from ? e.to : e.from,
-             value: Number(fromWei(e.value)).toFixed(4),
-             time: new Date(block.timestamp * 1000).toLocaleString('en-US',{dateStyle: 'short', timeStyle: 'short'}),
+             tofrom: account === e.from ? 'from' : 'to',
+             counterparty: account === e.from ? e.to : e.from,
+             value: ETH_SYMBOL + Number(fromWei(e.value)).toFixed(4),
+             time: new Date(block.timestamp * 1000),
              gas: e.gas,
+             showLink: false,
+             source: ONE_SYMBOL,
            };
            // Decorate with recognisable events and addresses
            row = embellishRow(row);
@@ -100,6 +101,7 @@ export const History = style(({ classes, ethProvider, nftEthProvider, paymentsAd
     return temprows;
   }
 
+  // Get transactions for an address using the etherscan API.
   const getAccountHistoryWithApi = async (address) => {
     // Ropsten API
     let temprows=[];
@@ -115,16 +117,18 @@ export const History = style(({ classes, ethProvider, nftEthProvider, paymentsAd
       return [];
     }
     let txList = await res.json();
-    if (txList.status='1') {
+    if (txList.status==='1') {
       txList.result.forEach (tx => {
         let row = {
           hash: tx.hash,
-          tofrom: address == tx.from ? 'from' : 'to',
-          counterparty: address == tx.from ? tx.to : tx.from,
-          value: Number(fromWei(tx.value)).toFixed(4),
-          time: new Date(tx.timestamp * 1000).toLocaleString('en-US',{dateStyle: 'short', timeStyle: 'short'}),
+          tofrom: address === tx.from ? 'from' : 'to',
+          counterparty: address === tx.from ? tx.to : tx.from,
+          value: ETH_SYMBOL+Number(fromWei(tx.value)).toFixed(4),
+          time: new Date(tx.timestamp * 1000),
           gas: tx.gas,
           contract: tx.contractAddress,
+          showLink: true,
+          source: TWO_SYMBOL,
         };
         row = embellishRow(row);
         temprows.push(row);
@@ -135,6 +139,46 @@ export const History = style(({ classes, ethProvider, nftEthProvider, paymentsAd
     return temprows;
   }
 
+  // Get transfers on layer 2 using the Connext API.
+  const getL2TransferHistory = async () => {
+    let temprows = [];
+    const l2History = await channel.getTransferHistory();
+    //console.log('l2 history', l2History);
+    l2History.forEach(transfer => {
+      let val = Number(fromWei(transfer.amount)).toFixed(4);
+      let prefix = (transfer.assetId === tipContract.address) ? 'Tip' : DAI_SYMBOL;
+      val = prefix + val;
+      let time = new Date(transfer.createdAt);
+      let toFrom, cp;
+      if (channel.publicIdentifier === transfer.senderPublicIdentifier) {
+        toFrom = 'from';
+        cp = transfer.receiverPublicIdentifier;
+      } else {
+        toFrom = 'to';
+        cp = transfer.senderPublicIdentifier;
+      }
+      let row = {
+        hash: transfer.id,
+        tofrom: toFrom,
+        counterparty: cp,
+        value: val,
+        time: time,
+        assetId: transfer.assetId,
+        meta: transfer.meta,
+        showLink: false,
+        source: P_SYMBOL,
+      };
+      row = embellishRow(row);
+      temprows.push(row);
+
+    });
+    return temprows;
+  }
+
+  const formatTime = (time) => {
+    return time.toLocaleString('en-US',{dateStyle: 'short', timeStyle: 'short'});
+  }
+
   const embellishRow = (row) => {
     if (row.counterparty === knownAddresses.DreamChannel) {
       row.event = 'Top-up from DreamChannel';
@@ -143,9 +187,26 @@ export const History = style(({ classes, ethProvider, nftEthProvider, paymentsAd
       row.event += 'Payments';
     } else {
       row.event = row.tofrom === 'to' ? 'Received from ' : 'Sent to ';
-      row.event += row.counterparty.slice(0,6) + '...';
+      row.event += row.counterparty.slice(0,8) + '...';
     }
     return row;
+  }
+
+  const getBalances = async () => {
+    // Balances
+    let bals = {payments:{}, nft:{}};
+    // Get ETH balance
+    let bal = await ethProvider.getBalance(paymentsAddress);
+    bals.payments.eth = bal ? Number(fromWei(bal)).toFixed(4).toString() : '0';
+    bal = await nftEthProvider.getBalance(nftAddress);
+    bals.nft.eth = bal ? Number(fromWei(bal)).toFixed(4).toString() : '0';
+    // Get DAI balance
+    bal = await daiContract.functions.balanceOf(paymentsAddress);
+    bals.payments.dai = bal ? Number(fromWei(bal)).toFixed(2).toString() : '0';
+    // Get GZE balance
+    bals.payments.gze = await gzeContract.functions.balanceOf(paymentsAddress);
+    bals.payments.gze = '0';
+    setBalances(bals);
   }
 
   const columnHeader = (text) => {
@@ -171,23 +232,24 @@ export const History = style(({ classes, ethProvider, nftEthProvider, paymentsAd
 
        // Get tx list for NFT address(es) - etherscan API
        let nftRows = await getAccountHistoryWithApi(nftAddress);
-       //tempRows.concat(nftRows);
+       tempRows = tempRows.concat(nftRows);
+
+       // Layer 2 transfer history
+       let l2Rows = await getL2TransferHistory();
+       tempRows = tempRows.concat(l2Rows);
+       // Sort by time
+       tempRows = tempRows.sort((rowA, rowB) => {
+         return rowA.time - rowB.time;
+       });
+       tempRows.forEach((row) => {
+         row.time = formatTime(row.time);
+       });
+
        setRows(tempRows);
 
+
        // Balances
-       let bals = {payments:{}, nft:{}};
-       // Get ETH balance
-       let bal = await ethProvider.getBalance(paymentsAddress);
-       bals.payments.eth = bal ? Number(fromWei(bal)).toFixed(4).toString() : '0';
-       bal = await nftEthProvider.getBalance(nftAddress);
-       bals.nft.eth = bal ? Number(fromWei(bal)).toFixed(4).toString() : '0';
-       // Get DAI balance
-       bal = await daiContract.functions.balanceOf(paymentsAddress);
-       bals.payments.dai = bal ? Number(fromWei(bal)).toFixed(2).toString() : '0';
-       // Get GZE balance
-       bals.payments.gze = await gzeContract.functions.balanceOf(paymentsAddress);
-       bals.payments.gze = '0';
-       setBalances(bals);
+       await getBalances();
 
        setIsLoading(false);
      };
@@ -207,6 +269,7 @@ export const History = style(({ classes, ethProvider, nftEthProvider, paymentsAd
         <Table className={classes.table} aria-label="history table" >
           <TableHead>
             <TableRow>
+              <TableCell align="right" padding='none' className={classes.cell}> </TableCell>
               <TableCell align="center" padding='none' className={classes.cell}>{columnHeader('Time')}</TableCell>
               <TableCell align="center" padding='none' className={classes.cell}>{columnHeader('Event')}</TableCell>
               <TableCell align="right" padding='none' className={classes.cell}>{columnHeader('Amount')}</TableCell>
@@ -215,38 +278,48 @@ export const History = style(({ classes, ethProvider, nftEthProvider, paymentsAd
           </TableHead>
           <TableBody>
             {rows.map(row => (
-                <TableRow key={row.hash} >
-                  <TableCell align="left" padding='none' className={classes.cell}>{cell(row.time)}</TableCell>
-                  <TableCell align="left" padding='none' className={classes.cell}>{cell(row.event)}</TableCell>
-                  <TableCell align="right" padding='none' className={classes.cell}>{cell(row.value)}</TableCell>
-                  <TableCell align="left" padding='none' className={classes.cell}>
-                    <IconButton size='small'
+              <TableRow key={row.hash} >
+                <TableCell align="right" padding='none' className={classes.cell}>{cell(row.source)}</TableCell>
+                <TableCell align="left" padding='none' className={classes.cell}>{cell(row.time)}</TableCell>
+                <TableCell align="left" padding='none' className={classes.cell}>{cell(row.event)}</TableCell>
+                <TableCell align="right" padding='none' className={classes.cell}>{cell(row.value)}</TableCell>
+                <TableCell align="left" padding='none' className={classes.cell}>
+                  { row.showLink ?
+                    (<IconButton size='small'
                       href={"http://ropsten.etherscan.io/tx/" + row.hash}
                       style={{ color: '#ffffff' }}
                     >
                       <OpenInBrowserIcon />
-                    </IconButton>
-                  </TableCell>
-                </TableRow>
+                    </IconButton>)
+                    : ' '
+                  }
+                </TableCell>
+              </TableRow>
             ))}
           </TableBody>
         </Table>
         <Paper className={classes.footer}>
-          <Grid container spacing={3}>
-            <Grid item xs>
+          <Grid container spacing={0} direction="row" alignItems="flex-start">
+            <Grid item xs={3}>
               <div>Balances:</div>
             </Grid>
-            <Grid item xs>
-              <div>{'Ξ' + balances.payments.eth}</div>
+            <Grid item xs={6} container spacing={0} direction="column">
+              <Grid item xs={6}>
+                <Typography variant='caption' >Address 1</Typography>
+              </Grid>
+              <Grid item xs={6}>
+                <div>{ETH_SYMBOL + balances.payments.eth}</div>
+                <div>{DAI_SYMBOL + balances.payments.dai}</div>
+                <div>{'GZE' + balances.payments.gze }</div>
+              </Grid>
             </Grid>
-            <Grid item xs>
-              <div>{'Ξ' + balances.nft.eth}</div>
-            </Grid>
-            <Grid item xs>
-              <div>{'\u25c8' + balances.payments.dai}</div>
-            </Grid>
-            <Grid item xs>
-              <div>{'GZE' + balances.payments.gze }</div>
+            <Grid item xs={3} container spacing={0} direction="column">
+              <Grid item xs={3}>
+                <Typography variant='caption' >Address 2</Typography>
+              </Grid>
+              <Grid item xs={3}>
+                <div>{ETH_SYMBOL + balances.nft.eth}</div>
+              </Grid>
             </Grid>
           </Grid>
         </Paper>

@@ -869,7 +869,9 @@ class App extends React.Component {
                   ethProvider={ethProvider}
                   nftEthProvider={nftEthProvider}
                   daiContract={token}
+                  tipContract={tipToken}
                   gzeContract={gzeToken}
+                  channel={channel}
                 />
               )}
             />
