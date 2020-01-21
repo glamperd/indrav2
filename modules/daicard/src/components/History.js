@@ -279,7 +279,7 @@ export const History = style(({ classes, ethProvider, nftEthProvider, paymentsAd
           <TableBody>
             {rows.map(row => (
               <TableRow key={row.hash} >
-                <TableCell align="right" padding='none' className={classes.cell}>{cell(row.source)}</TableCell>
+                <TableCell align="right" padding='none' className={classes.cell} style={{ color: 'green' }}>{cell(row.source)}</TableCell>
                 <TableCell align="left" padding='none' className={classes.cell}>{cell(row.time)}</TableCell>
                 <TableCell align="left" padding='none' className={classes.cell}>{cell(row.event)}</TableCell>
                 <TableCell align="right" padding='none' className={classes.cell}>{cell(row.value)}</TableCell>
@@ -299,27 +299,30 @@ export const History = style(({ classes, ethProvider, nftEthProvider, paymentsAd
           </TableBody>
         </Table>
         <Paper className={classes.footer}>
-          <Grid container spacing={0} direction="row" alignItems="flex-start">
-            <Grid item xs={3}>
-              <div>Balances:</div>
+          <Grid container spacing={0}>
+            <Grid item xs>
+              <Typography variant='subtitle1'>Balances:</Typography>
             </Grid>
-            <Grid item xs={6} container spacing={0} direction="column">
-              <Grid item xs={6}>
+            <Grid item xs={6} container direction="column" alignItems="stretch">
+              <Grid item xs >
                 <Typography variant='caption' >Address 1</Typography>
               </Grid>
-              <Grid item xs={6}>
-                <div>{ETH_SYMBOL + balances.payments.eth}</div>
-                <div>{DAI_SYMBOL + balances.payments.dai}</div>
-                <div>{'GZE' + balances.payments.gze }</div>
+              <Grid item xs={6} container justify="space-evenly" wrap="nowrap"
+                style={{ maxWidth: 'none' }}>
+                <Grid item xs>
+                  {ETH_SYMBOL + balances.payments.eth}
+                </Grid>
+                <Grid item xs>
+                  {DAI_SYMBOL + balances.payments.dai}
+                </Grid>
+                <Grid item xs>
+                  {'GZE' + balances.payments.gze }
+                </Grid>
               </Grid>
             </Grid>
-            <Grid item xs={3} container spacing={0} direction="column">
-              <Grid item xs={3}>
-                <Typography variant='caption' >Address 2</Typography>
-              </Grid>
-              <Grid item xs={3}>
-                <div>{ETH_SYMBOL + balances.nft.eth}</div>
-              </Grid>
+            <Grid item >
+              <Typography variant='caption' >Address 2</Typography>
+              <div>{ETH_SYMBOL + balances.nft.eth}</div>
             </Grid>
           </Grid>
         </Paper>
