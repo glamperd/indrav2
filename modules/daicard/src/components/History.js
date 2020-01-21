@@ -30,6 +30,14 @@ const style = withStyles(theme => ({
     borderBottom: '0px',
     color: "#f0f0f0",
   },
+  cellPositive: {
+    borderBottom: '0px',
+    color: "#66ff66",
+  },
+  cellNegative: {
+    borderBottom: '0px',
+    color: "#ff6666",
+  },
   paper: {
     paddingTop: "30px",
     backgroundColor: "#000",
@@ -81,15 +89,26 @@ export const History = style(({ classes, ethProvider, nftEthProvider, paymentsAd
        block.transactions.forEach( function(e) {
          if (account === e.from || account == e.to) {
            //console.log('found tx in ', i);
+           let toFrom, cp, sign;
+           if (account === e.from) {
+             toFrom = 'from';
+             cp = e.to;
+             sign = false;
+           } else {
+             toFrom = 'to';
+             cp = e.from;
+             sign = true;
+           }
            let row = {
              hash: e.hash,
-             tofrom: account === e.from ? 'from' : 'to',
-             counterparty: account === e.from ? e.to : e.from,
+             tofrom: toFrom,
+             counterparty: cp,
              value: ETH_SYMBOL + Number(fromWei(e.value)).toFixed(4),
              time: new Date(block.timestamp * 1000),
              gas: e.gas,
              showLink: false,
              source: ONE_SYMBOL,
+             isCredit: sign,
            };
            // Decorate with recognisable events and addresses
            row = embellishRow(row);
@@ -119,16 +138,27 @@ export const History = style(({ classes, ethProvider, nftEthProvider, paymentsAd
     let txList = await res.json();
     if (txList.status==='1') {
       txList.result.forEach (tx => {
+        let toFrom, cp, sign;
+        if (address === tx.from) {
+          toFrom = 'from';
+          cp = tx.to;
+          sign = false;
+        } else {
+          toFrom = 'to';
+          cp = tx.from;
+          sign = true;
+        }
         let row = {
           hash: tx.hash,
-          tofrom: address === tx.from ? 'from' : 'to',
-          counterparty: address === tx.from ? tx.to : tx.from,
+          tofrom: toFrom,
+          counterparty: cp,
           value: ETH_SYMBOL+Number(fromWei(tx.value)).toFixed(4),
           time: new Date(tx.timestamp * 1000),
           gas: tx.gas,
           contract: tx.contractAddress,
           showLink: true,
           source: TWO_SYMBOL,
+          isCredit: sign,
         };
         row = embellishRow(row);
         temprows.push(row);
@@ -149,13 +179,15 @@ export const History = style(({ classes, ethProvider, nftEthProvider, paymentsAd
       let prefix = (transfer.assetId === tipContract.address) ? 'Tip' : DAI_SYMBOL;
       val = prefix + val;
       let time = new Date(transfer.createdAt);
-      let toFrom, cp;
+      let toFrom, cp, sign;
       if (channel.publicIdentifier === transfer.senderPublicIdentifier) {
         toFrom = 'from';
         cp = transfer.receiverPublicIdentifier;
+        sign = false;
       } else {
         toFrom = 'to';
         cp = transfer.senderPublicIdentifier;
+        sign = true;
       }
       let row = {
         hash: transfer.id,
@@ -167,6 +199,7 @@ export const History = style(({ classes, ethProvider, nftEthProvider, paymentsAd
         meta: transfer.meta,
         showLink: false,
         source: P_SYMBOL,
+        isCredit: sign,
       };
       row = embellishRow(row);
       temprows.push(row);
@@ -282,7 +315,10 @@ export const History = style(({ classes, ethProvider, nftEthProvider, paymentsAd
                 <TableCell align="right" padding='none' className={classes.cell} style={{ color: 'green' }}>{cell(row.source)}</TableCell>
                 <TableCell align="left" padding='none' className={classes.cell}>{cell(row.time)}</TableCell>
                 <TableCell align="left" padding='none' className={classes.cell}>{cell(row.event)}</TableCell>
-                <TableCell align="right" padding='none' className={classes.cell}>{cell(row.value)}</TableCell>
+                <TableCell align="right" padding='none'
+                  className={(row.isCredit) ? classes.cellPositive : classes.cellNegative}>
+                  {cell(row.value)}
+                </TableCell>
                 <TableCell align="left" padding='none' className={classes.cell}>
                   { row.showLink ?
                     (<IconButton size='small'
