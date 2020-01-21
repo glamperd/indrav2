@@ -53,12 +53,13 @@ const style = withStyles(theme => ({
     '& > * + *': {
       marginLeft: theme.spacing(2),
     },
+    color: "white",
   },
 }));
 
 const knownAddresses = {
-  DreamChannel: '0x627306090abaB3A6e1400e9345bC60c78a8BEf57',
-  Payments: '0xb90FCfD094c60B180Df2bC4a346907F9882D3e7D',
+  DreamChannel: process.env.DC_FUNDING_ADDRESS || '0x627306090abaB3A6e1400e9345bC60c78a8BEf57',
+  Payments: process.env.CONNEXT_MULTISIG_ADDRESS || '0xb90FCfD094c60B180Df2bC4a346907F9882D3e7D',
 };
 
 const SEARCH_START_BLOCK = 6990000;
@@ -128,8 +129,19 @@ export const History = style(({ classes, ethProvider, nftEthProvider, paymentsAd
       + '&address=' + address
       + '&startblock=' + SEARCH_START_BLOCK
       + '&endblock=99999999&sort=asc'
-      + '&apikey=YAJXVIAAS1XJHTC1RPYYPDNI2HQVPR8BF3'
-    let res = await fetch(url);
+      + '&apikey=YAJXVIAAS1XJHTC1RPYYPDNI2HQVPR8BF3';
+    const options = {
+      method: 'GET',
+      mode: 'cors',
+      headers: {
+        'Content-Type': 'application/json',
+      //'Access-Control-Allow-Origin': '*',
+      //'Access-Control-Allow-Methods': 'GET, OPTIONS, POST, HEAD, PUT',
+      //'Access-Control-Allow-Headers': 'Content-Type, Access-Control-Allow-Headers, Access-Control-Allow-Origin, Access-Control-Request-Method, Access-Control-Request-Headers, Origin, Accept, Authorization, X-Requested-With',
+      //'Access-Control-Request-Headers': 'Content-Type, Access-Control-Allow-Headers, Access-Control-Allow-Origin, Access-Control-Request-Method, Access-Control-Request-Headers, Origin, Accept, Authorization, X-Requested-With',
+      }
+    };
+    let res = await fetch(url, options);
     //console.log('response ', res);
     if (!res.ok) {
       console.log('API call not successful', res);
@@ -153,7 +165,7 @@ export const History = style(({ classes, ethProvider, nftEthProvider, paymentsAd
           tofrom: toFrom,
           counterparty: cp,
           value: ETH_SYMBOL+Number(fromWei(tx.value)).toFixed(4),
-          time: new Date(tx.timestamp * 1000),
+          time: new Date(tx.timeStamp * 1000),
           gas: tx.gas,
           contract: tx.contractAddress,
           showLink: true,
@@ -322,7 +334,7 @@ export const History = style(({ classes, ethProvider, nftEthProvider, paymentsAd
                 <TableCell align="left" padding='none' className={classes.cell}>
                   { row.showLink ?
                     (<IconButton size='small'
-                      href={"http://ropsten.etherscan.io/tx/" + row.hash}
+                      href={"https://ropsten.etherscan.io/tx/" + row.hash}
                       style={{ color: '#ffffff' }}
                     >
                       <OpenInBrowserIcon />

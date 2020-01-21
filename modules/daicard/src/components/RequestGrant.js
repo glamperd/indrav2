@@ -11,12 +11,19 @@ class RequestGrant extends React.Component {
     e.preventDefault();
     const {ethaddress, associatedAddress} = this.props;
     console.log('have ethaddress: ', ethaddress);
+    const options = {
+      method: 'GET',
+      mode: 'cors',
+      headers: {
+        'Content-Type': 'application/json',
+      }
+    };
     // Send
-    fetch('https://adbot.gazecoin.xyz/requestgrant/' + ethaddress + '/P');
+    fetch('https://adbot.gazecoin.xyz/requestgrant/' + ethaddress + '/P', options);
 
 
     if (associatedAddress) {
-      fetch('https://adbot.gazecoin.xyz/requestgrant/' + associatedAddress + '/N');
+      fetch('https://adbot.gazecoin.xyz/requestgrant/' + associatedAddress + '/N', options);
     }
   }
 
