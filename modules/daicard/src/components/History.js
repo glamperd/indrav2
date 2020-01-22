@@ -135,10 +135,6 @@ export const History = style(({ classes, ethProvider, nftEthProvider, paymentsAd
       mode: 'cors',
       headers: {
         'Content-Type': 'application/json',
-      //'Access-Control-Allow-Origin': '*',
-      //'Access-Control-Allow-Methods': 'GET, OPTIONS, POST, HEAD, PUT',
-      //'Access-Control-Allow-Headers': 'Content-Type, Access-Control-Allow-Headers, Access-Control-Allow-Origin, Access-Control-Request-Method, Access-Control-Request-Headers, Origin, Accept, Authorization, X-Requested-With',
-      //'Access-Control-Request-Headers': 'Content-Type, Access-Control-Allow-Headers, Access-Control-Allow-Origin, Access-Control-Request-Method, Access-Control-Request-Headers, Origin, Accept, Authorization, X-Requested-With',
       }
     };
     let res = await fetch(url, options);
@@ -268,6 +264,13 @@ export const History = style(({ classes, ethProvider, nftEthProvider, paymentsAd
 
   useEffect(() => {
      const fetchRows = async () => {
+       console.log('process.env ', process.env);
+       if (channel.config.contractAddresses.FundingAccount) {
+         knownAddresses.DreamChannel = channel.config.contractAddresses.FundingAccount.address;
+       }
+       if (channel.config.contractAddresses.ConnextDeposits) {
+         knownAddresses.Payments = channel.config.contractAddresses.ConnextDeposits.address;
+       }
        setIsLoading(true);
        let tempRows = [];
        // Get tx list for payments address(es) - web3 block scan

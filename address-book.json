@@ -341,6 +341,12 @@
     },
     "GazeToken": {
       "address": "0xA579f55467d230AfC54520e6e7F0CEB5ECC3f1A0"
+    },
+    "FundingAccount": {
+      "address": "0xf17f52151EbEF6C7334FAD080c5704D77216b732"
+    },
+    "ConnextDeposits": {
+      "address": "0x927DDfE61f25d7Ff71e18d5F96a973B1dbD20B1f"
     }
   }
 }
