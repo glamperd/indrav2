@@ -53,12 +53,14 @@ export const SettingsCard = style(({ classes, setWalletConnext, getWalletConnext
     setIsBurning(true);
     store && await store.reset(); // remove anything in the store related to the old channel
     localStorage.removeItem("mnemonic", mnemonic);
+    window.open('uniwebview://action?mnemonic=' + mnemonic, "unitymsg");
     window.location.reload();
   };
 
   const recoverAddressFromMnemonic = async () => {
     store && await store.reset(); // remove anything in the store related to the old channel
     localStorage.setItem("mnemonic", mnemonic);
+    window.open('uniwebview://action?mnemonic=' + mnemonic, "unitymsg");
     window.location.reload();
   };
 
