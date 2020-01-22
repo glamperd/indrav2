@@ -344,9 +344,6 @@
     },
     "FundingAccount": {
       "address": "0xf17f52151EbEF6C7334FAD080c5704D77216b732"
-    },
-    "ConnextDeposits": {
-      "address": "0x2153e2099531dE5b46133DDb9F9e9E58D805f36A"
     }
   }
 }

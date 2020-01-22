@@ -59,7 +59,6 @@ const style = withStyles(theme => ({
 
 const knownAddresses = {
   DreamChannel: process.env.DC_FUNDING_ADDRESS || '0x627306090abaB3A6e1400e9345bC60c78a8BEf57',
-  Payments: process.env.CONNEXT_MULTISIG_ADDRESS || '0xb90FCfD094c60B180Df2bC4a346907F9882D3e7D',
 };
 
 const SEARCH_START_BLOCK = 6990000;
@@ -223,7 +222,7 @@ export const History = style(({ classes, ethProvider, nftEthProvider, paymentsAd
   const embellishRow = (row) => {
     if (row.counterparty.toLowerCase() === knownAddresses.DreamChannel) {
       row.event = 'Top-up from DreamChannel';
-    } else if (row.counterparty.toLowerCase() === knownAddresses.Payments) {
+    } else if (row.counterparty.toLowerCase() === channel.opts.multisigAddress.toLowerCase()) {
       row.event = row.tofrom === 'from' ? 'Deposit to ' : 'Withdraw from ';
       row.event += 'Payments';
     } else {
@@ -266,9 +265,6 @@ export const History = style(({ classes, ethProvider, nftEthProvider, paymentsAd
      const fetchRows = async () => {
        if (channel.config.contractAddresses.FundingAccount) {
          knownAddresses.DreamChannel = channel.config.contractAddresses.FundingAccount.toLowerCase();
-       };
-       if (channel.config.contractAddresses.ConnextDeposits) {
-         knownAddresses.Payments = channel.config.contractAddresses.ConnextDeposits.toLowerCase();
        };
        setIsLoading(true);
        let tempRows = [];
