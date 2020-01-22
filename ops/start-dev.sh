@@ -139,6 +139,8 @@ services:
     entrypoint: npm start
     environment:
       NODE_ENV: development
+      DC_FUNDING_ADDRESS: 0xf17f52151EbEF6C7334FAD080c5704D77216b732
+      CONNEXT_MULTISIG_ADDRESS: 0x927DDfE61f25d7Ff71e18d5F96a973B1dbD20B1f
     networks:
       - $project
     volumes:
