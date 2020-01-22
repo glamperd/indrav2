@@ -834,6 +834,7 @@ class App extends React.Component {
                   network={network}
                   refreshBalances={this.refreshBalances.bind(this)}
                   token={token}
+                  associatedAddress={associatedAddress}
                 />
               )}
             />

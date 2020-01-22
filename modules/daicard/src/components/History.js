@@ -38,6 +38,13 @@ const style = withStyles(theme => ({
     borderBottom: '0px',
     color: "#ff6666",
   },
+  placeholder: {
+    width: "100%",
+    height: "400px",
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   paper: {
     paddingTop: "30px",
     backgroundColor: "#000",
@@ -68,7 +75,7 @@ const ONE_SYMBOL = '\u2460';
 const TWO_SYMBOL = '\u2461';
 const P_SYMBOL = '\u24C5';
 
-export const History = style(({ classes, ethProvider, nftEthProvider, paymentsAddress, nftAddress, daiContract, tipContract, gzeContract, channel }) => {
+export const History = style(({ classes, ethProvider, nftEthProvider, paymentsAddress, nftAddress, daiContract, tipContract, gzeContract, channel, history }) => {
   let [rows, setRows] = useState([]);
   let [isLoading, setIsLoading] = useState(true);
   let [balances, setBalances] = useState({});
@@ -303,9 +310,9 @@ export const History = style(({ classes, ethProvider, nftEthProvider, paymentsAd
   return (
     <Container component={Paper} className={classes.paper}>
       {isLoading ? (
-        <div className={classes.root}>
-          <CircularProgress variant="indeterminate" />
-        </div>
+        <Container fixed className={classes.placeholder}>
+          <CircularProgress variant="indeterminate" style={{ color: '#ffffff' }}/>
+        </Container>
       ) : (
       <Fragment >
         <Typography variant="h6">Transaction History</Typography>
@@ -349,7 +356,8 @@ export const History = style(({ classes, ethProvider, nftEthProvider, paymentsAd
             <Grid item xs>
               <Typography variant='subtitle1'>Balances:</Typography>
             </Grid>
-            <Grid item xs={6} container direction="column" alignItems="stretch">
+            <Grid item xs={6} container direction="column" alignItems="stretch"
+              style={{ flexWrap: 'nowrap' }}>
               <Grid item xs >
                 <Typography variant='caption' >Address 1</Typography>
               </Grid>
@@ -372,6 +380,22 @@ export const History = style(({ classes, ethProvider, nftEthProvider, paymentsAd
             </Grid>
           </Grid>
         </Paper>
+        <Container fixed style={{marginTop: '30px'}}>
+          <Button
+            disableTouchRipple
+            variant="outlined"
+            style={{
+              background: "#FFF",
+              border: "1px solid #F22424",
+              color: "#F22424",
+              width: "15%",
+            }}
+            size="medium"
+            onClick={() => history.push("/")}
+          >
+            Back
+          </Button>
+        </Container>
       </Fragment>
       )}
     </Container>

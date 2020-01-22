@@ -16,7 +16,7 @@ const style = withStyles(theme => ({
   },
   button: {
     backgroundColor: "#3C0E5E",
-    color: "#FFF",
+    color: "#EEEEEE",
     fontSize: "smaller",
   },
   modal: {
@@ -32,10 +32,10 @@ const style = withStyles(theme => ({
 }));
 
 export const CashoutCard = style(({
-  balance, channel, classes, ethProvider, history, machine, refreshBalances, swapRate, token,
+  balance, channel, classes, ethProvider, history, machine, refreshBalances, swapRate, token, associatedAddress,
 }) => {
     const [withdrawing, setWithdrawing] = useState(false);
-    const [recipient, setRecipient] = useAddress(null, ethProvider);
+    const [recipient, setRecipient] = useAddress(associatedAddress, ethProvider);
 
     const cashoutTokens = async () => {
       const value = recipient.value;
