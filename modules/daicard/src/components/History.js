@@ -221,9 +221,9 @@ export const History = style(({ classes, ethProvider, nftEthProvider, paymentsAd
   }
 
   const embellishRow = (row) => {
-    if (row.counterparty === knownAddresses.DreamChannel) {
+    if (row.counterparty.toLowerCase() === knownAddresses.DreamChannel) {
       row.event = 'Top-up from DreamChannel';
-    } else if (row.counterparty === knownAddresses.Payments) {
+    } else if (row.counterparty.toLowerCase() === knownAddresses.Payments) {
       row.event = row.tofrom === 'from' ? 'Deposit to ' : 'Withdraw from ';
       row.event += 'Payments';
     } else {
@@ -264,12 +264,11 @@ export const History = style(({ classes, ethProvider, nftEthProvider, paymentsAd
 
   useEffect(() => {
      const fetchRows = async () => {
-       console.log('process.env ', process.env);
        if (channel.config.contractAddresses.FundingAccount) {
-         knownAddresses.DreamChannel = channel.config.contractAddresses.FundingAccount;
+         knownAddresses.DreamChannel = channel.config.contractAddresses.FundingAccount.toLowerCase();
        };
        if (channel.config.contractAddresses.ConnextDeposits) {
-         knownAddresses.Payments = channel.config.contractAddresses.ConnextDeposits;
+         knownAddresses.Payments = channel.config.contractAddresses.ConnextDeposits.toLowerCase();
        };
        setIsLoading(true);
        let tempRows = [];
