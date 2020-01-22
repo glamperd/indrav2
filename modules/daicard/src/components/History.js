@@ -266,11 +266,11 @@ export const History = style(({ classes, ethProvider, nftEthProvider, paymentsAd
      const fetchRows = async () => {
        console.log('process.env ', process.env);
        if (channel.config.contractAddresses.FundingAccount) {
-         knownAddresses.DreamChannel = channel.config.contractAddresses.FundingAccount.address;
-       }
+         knownAddresses.DreamChannel = channel.config.contractAddresses.FundingAccount;
+       };
        if (channel.config.contractAddresses.ConnextDeposits) {
-         knownAddresses.Payments = channel.config.contractAddresses.ConnextDeposits.address;
-       }
+         knownAddresses.Payments = channel.config.contractAddresses.ConnextDeposits;
+       };
        setIsLoading(true);
        let tempRows = [];
        // Get tx list for payments address(es) - web3 block scan
