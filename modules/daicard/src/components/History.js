@@ -62,6 +62,11 @@ const style = withStyles(theme => ({
       marginLeft: theme.spacing(2),
     },
     color: "white",
+    '& .MuiInputBase-input': {
+      'Mui-disabled': {
+        color: 'white',
+      }
+    }
   },
 }));
 
@@ -357,11 +362,11 @@ export const History = style(({ classes, ethProvider, nftEthProvider, paymentsAd
           </TableBody>
         </Table>
         <Paper className={classes.footer}>
-          <Grid container spacing={0} direction='row'>
+          <Grid container spacing={0} direction='row' alignItems='center'>
             <Grid item xs={2}>
               <Typography variant='caption'>Balances:</Typography>
             </Grid>
-            <Grid item xs={6} style={{ color: 'white' }} >
+            <Grid item xs={6} >
               <TextField
                 fullWidth
                 id="outlined-number"
@@ -371,10 +376,11 @@ export const History = style(({ classes, ethProvider, nftEthProvider, paymentsAd
                 type="text"
                 margin="normal"
                 variant="outlined"
-                style={{ color: 'white' }}
+                InputProps={{ style:{ color: 'white' } }}
+                InputLabelProps={{ style:{ color: 'white' } }}
               />
             </Grid>
-            <Grid item xs={3} style={{ color: 'white' }} >
+            <Grid item xs={3} >
               <TextField
                 fullWidth
                 id="outlined-number"
@@ -384,7 +390,8 @@ export const History = style(({ classes, ethProvider, nftEthProvider, paymentsAd
                 type="text"
                 margin="normal"
                 variant="outlined"
-                style={{ color: 'white' }}
+                InputProps={{ style:{ color: 'white' } }}
+                InputLabelProps={{ style:{ color: 'white' } }}
               />
             </Grid>
           </Grid>
