@@ -227,7 +227,11 @@ export const History = style(({ classes, ethProvider, nftEthProvider, paymentsAd
   }
 
   const embellishRow = (row) => {
-    if (row.counterparty.toLowerCase() === knownAddresses.DreamChannel) {
+    if (!row.counterparty && row.source === P_SYMBOL) {
+      row.event = "Link"
+    } else if (!row.counterparty) {
+      row.event = "Contract event " + row.contractAddress ? row.contractAddress.slice(0,8) : "";
+    } else if (row.counterparty.toLowerCase() === knownAddresses.DreamChannel) {
       row.event = 'Top-up from DreamChannel';
     } else if (row.counterparty.toLowerCase() === channel.opts.multisigAddress.toLowerCase()) {
       row.event = row.tofrom === 'from' ? 'Deposit to ' : 'Withdraw from ';

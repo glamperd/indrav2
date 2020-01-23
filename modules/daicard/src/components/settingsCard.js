@@ -269,6 +269,9 @@ export const SettingsCard = style(({ classes, setWalletConnext, getWalletConnext
           Back
         </Button>
       </Grid>
+      <Grid item xs={12}>
+        <div>{navigator.userAgent}</div>
+      </Grid>
     </Grid>
   );
 });
