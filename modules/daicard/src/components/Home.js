@@ -132,7 +132,7 @@ export const Home = style(({ balance, swapRate, channel, history, parseQRCode })
         <Grid item xs={12}>
           <Button
             disableTouchRipple
-            style={{ marginBottom: "20%" }}
+            style={{ marginBottom: "5%" }}
             fullWidth
             color="primary"
             variant="outlined"
@@ -146,7 +146,7 @@ export const Home = style(({ balance, swapRate, channel, history, parseQRCode })
         <Grid item xs={12}>
           <Button
             disableTouchRipple
-            style={{ marginBottom: "20%" }}
+            style={{ marginBottom: "5%" }}
             fullWidth
             color="primary"
             variant="outlined"

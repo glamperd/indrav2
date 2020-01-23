@@ -270,7 +270,7 @@ export const SettingsCard = style(({ classes, setWalletConnext, getWalletConnext
         </Button>
       </Grid>
       <Grid item xs={12}>
-        <div>{navigator.userAgent}</div>
+        <div>{navigator.userAgent + ' appName=' + navigator.appName}</div>
       </Grid>
     </Grid>
   );
