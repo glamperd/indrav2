@@ -209,7 +209,7 @@ class BuyTipsCard extends Component {
               <span>{this.props.balance.channel.tipToken.toTIP().format()}</span>
             </Typography>
             <Typography variant="body2">
-              REWARDS
+              TIPS
             </Typography>
           </Grid>
         </Grid>
@@ -243,7 +243,7 @@ class BuyTipsCard extends Component {
             <TextField
               fullWidth
               id="outlined-number"
-              label="Reward Tokens"
+              label="Tip Tokens"
               value={1000}
               disabled={true}
               type="number"

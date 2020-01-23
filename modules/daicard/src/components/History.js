@@ -10,6 +10,7 @@ import {
   TableCell,
   TableHead,
   TableRow,
+  TextField,
   Typography,
   withStyles,
 } from "@material-ui/core";
@@ -356,31 +357,35 @@ export const History = style(({ classes, ethProvider, nftEthProvider, paymentsAd
           </TableBody>
         </Table>
         <Paper className={classes.footer}>
-          <Grid container spacing={0}>
-            <Grid item xs>
-              <Typography variant='subtitle1'>Balances:</Typography>
+          <Grid container spacing={0} direction='row'>
+            <Grid item xs={2}>
+              <Typography variant='caption'>Balances:</Typography>
             </Grid>
-            <Grid item xs={6} container direction="column" alignItems="stretch"
-              style={{ flexWrap: 'nowrap' }}>
-              <Grid item xs >
-                <Typography variant='caption' >Address 1</Typography>
-              </Grid>
-              <Grid item xs={6} container justify="space-evenly" wrap="nowrap"
-                style={{ maxWidth: 'none' }}>
-                <Grid item xs>
-                  {ETH_SYMBOL + balances.payments.eth}
-                </Grid>
-                <Grid item xs>
-                  {DAI_SYMBOL + balances.payments.dai}
-                </Grid>
-                <Grid item xs>
-                  {'GZE' + balances.payments.gze }
-                </Grid>
-              </Grid>
+            <Grid item xs={6} style={{ color: 'white' }} >
+              <TextField
+                fullWidth
+                id="outlined-number"
+                label="Address 1"
+                value={ETH_SYMBOL + balances.payments.eth + ' ' + DAI_SYMBOL + balances.payments.dai + ' GZE' + balances.payments.gze}
+                disabled={true}
+                type="text"
+                margin="normal"
+                variant="outlined"
+                style={{ color: 'white' }}
+              />
             </Grid>
-            <Grid item >
-              <Typography variant='caption' >Address 2</Typography>
-              <div>{ETH_SYMBOL + balances.nft.eth}</div>
+            <Grid item xs={3} style={{ color: 'white' }} >
+              <TextField
+                fullWidth
+                id="outlined-number"
+                label="Address 2"
+                value={ETH_SYMBOL + balances.nft.eth }
+                disabled={true}
+                type="text"
+                margin="normal"
+                variant="outlined"
+                style={{ color: 'white' }}
+              />
             </Grid>
           </Grid>
         </Paper>
