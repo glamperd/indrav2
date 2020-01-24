@@ -258,11 +258,11 @@ export const History = style(({ classes, ethProvider, nftEthProvider, paymentsAd
     bal = await nftEthProvider.getBalance(nftAddress);
     bals.nft.eth = bal ? Number(fromWei(bal)).toFixed(4).toString() : '0';
     // Get DAI balance
-    bal = await daiContract.functions.balanceOf(paymentsAddress);
-    bals.payments.dai = bal ? Number(fromWei(bal)).toFixed(2).toString() : '0';
+    bal = await daiContract.functions.balanceOf(nftAddress);
+    bals.nft.dai = bal ? Number(fromWei(bal)).toFixed(2).toString() : '0';
     // Get GZE balance
     bals.payments.gze = await gzeContract.functions.balanceOf(paymentsAddress);
-    bals.payments.gze = '0';
+    //bals.payments.gze = '0';
     setBalances(bals);
   }
 
@@ -366,12 +366,12 @@ export const History = style(({ classes, ethProvider, nftEthProvider, paymentsAd
             <Grid item xs={2}>
               <Typography variant='caption'>Balances:</Typography>
             </Grid>
-            <Grid item xs={6} >
+            <Grid item xs={4} >
               <TextField
                 fullWidth
                 id="outlined-number"
                 label="Address 1"
-                value={ETH_SYMBOL + balances.payments.eth + ' ' + DAI_SYMBOL + balances.payments.dai + ' GZE' + balances.payments.gze}
+                value={ETH_SYMBOL + balances.payments.eth + ' GZE' + balances.payments.gze}
                 disabled={true}
                 type="text"
                 margin="normal"
@@ -380,12 +380,12 @@ export const History = style(({ classes, ethProvider, nftEthProvider, paymentsAd
                 InputLabelProps={{ style:{ color: 'white' } }}
               />
             </Grid>
-            <Grid item xs={3} >
+            <Grid item xs={4} >
               <TextField
                 fullWidth
                 id="outlined-number"
                 label="Address 2"
-                value={ETH_SYMBOL + balances.nft.eth }
+                value={ETH_SYMBOL + balances.nft.eth + ' ' + DAI_SYMBOL + balances.nft.dai }
                 disabled={true}
                 type="text"
                 margin="normal"
