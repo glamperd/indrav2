@@ -78,7 +78,7 @@ export class ConfigService implements OnModuleInit {
     const chainId = (await this.getEthNetwork()).chainId.toString();
     const ethAddressBook = JSON.parse(this.get("INDRA_ETH_CONTRACT_ADDRESSES"));
     const tokenAddress = (token && token === 'TIP') ?
-        ethAddressBook[chainId].TipToken.address :
+        ethAddressBook[chainId].Token2.address :
         ethAddressBook[chainId].Token.address
     return getAddress(tokenAddress);
   }
@@ -184,7 +184,7 @@ export class ConfigService implements OnModuleInit {
       case tokenAddress:
         return {
           amountToCollateralize: parseEther("10"),
-          assetId: AddressZero,
+          assetId: tokenAddress,
           channels: [],
           id: 0,
           minimumMaintainedCollateral: parseEther("5"),
@@ -192,7 +192,7 @@ export class ConfigService implements OnModuleInit {
       case tipTokenAddress:
         return {
           amountToCollateralize: parseEther("1000"),
-          assetId: AddressZero,
+          assetId: tipTokenAddress,
           channels: [],
           id: 0,
           minimumMaintainedCollateral: parseEther("100"),

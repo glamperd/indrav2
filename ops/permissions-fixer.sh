@@ -1,5 +1,4 @@
 #!/bin/bash
-echo "hi"
 set -e
 this_user="`id -u`:`id -g`"
 user="$1"
