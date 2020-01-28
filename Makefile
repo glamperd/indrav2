@@ -11,7 +11,9 @@ SHELL=/bin/bash
 commit=$(shell git rev-parse HEAD | head -c 8)
 release=$(shell cat package.json | grep '"version"' | awk -F '"' '{print $$4}')
 solc_version=$(shell cat package.json | grep '"solc"' | awk -F '"' '{print $$4}')
-backwards_compatible_version=2.3.20 #$(shell echo $(release) | cut -d '.' -f 1).0.0
+
+# version that will be tested against for backwards compatibility checks
+backwards_compatible_version=$(shell echo $(release) | cut -d '.' -f 1).0.1
 
 # Pool of images to pull cached layers from during docker build steps
 cache_from=$(shell if [[ -n "${GITHUB_WORKFLOW}" ]]; then echo "--cache-from=$(project)_database:$(commit),$(project)_database,$(project)_ethprovider:$(commit),$(project)_ethprovider,$(project)_node:$(commit),$(project)_node,$(project)_proxy:$(commit),$(project)_proxy,$(project)_relay:$(commit),$(project)_relay,$(project)_bot:$(commit),$(project)_bot,$(project)_builder"; else echo ""; fi)
@@ -20,20 +22,17 @@ cache_from=$(shell if [[ -n "${GITHUB_WORKFLOW}" ]]; then echo "--cache-from=$(p
 cwd=$(shell pwd)
 wincwd="C:\dev\workspace\indra_v2.3.22"
 bot=$(cwd)/modules/payment-bot
-cf-adjudicator-contracts=$(cwd)/modules/cf-adjudicator-contracts
-cf-apps=$(cwd)/modules/cf-apps
 cf-core=$(cwd)/modules/cf-core
-cf-funding-protocol-contracts=$(cwd)/modules/cf-funding-protocol-contracts
 client=$(cwd)/modules/client
 contracts=$(cwd)/modules/contracts
 daicard=$(cwd)/modules/daicard
 dashboard=$(cwd)/modules/dashboard
 database=$(cwd)/modules/database
-ethprovider=$(cwd)/ops/ethprovider
 messaging=$(cwd)/modules/messaging
 node=$(cwd)/modules/node
-proxy=$(cwd)/modules/proxy
+proxy=$(cwd)/ops/proxy
 ssh-action=$(cwd)/ops/ssh-action
+store=$(cwd)/modules/store
 tests=$(cwd)/modules/test-runner
 types=$(cwd)/modules/types
 
@@ -50,7 +49,8 @@ ifeq ($(is_win), true)
 else
   volcwd=$(cwd)
 endif
-docker_run=docker run --name=$(project)_builder --tty --rm --volume=$(volcwd):/root $(project)_builder $(id)
+interactive=$(shell if [[ -t 0 && -t 2 ]]; then echo "--interactive"; else echo ""; fi)
+docker_run=docker run --name=$(project)_builder $(interactive) --tty --rm --volume=$(volcwd):/root $(project)_builder $(id)
 
 startTime=$(flags)/.startTime
 totalTime=$(flags)/.totalTime
@@ -65,7 +65,7 @@ $(shell mkdir -p .makeflags $(node)/dist)
 
 default: dev
 all: dev staging release
-dev: database ethprovider node client payment-bot-staging indra-proxy test-runner-staging ws-tcp-relay
+dev: database node client payment-bot-js indra-proxy test-runner-js ws-tcp-relay
 staging: daicard-proxy database ethprovider indra-proxy-prod node-staging payment-bot-staging test-runner-staging ws-tcp-relay
 release: daicard-proxy database ethprovider indra-proxy-prod node-release payment-bot-release test-runner-release ws-tcp-relay
 
@@ -134,7 +134,7 @@ quick-reset:
 	bash ops/db.sh 'truncate table onchain_transaction cascade;'
 	bash ops/db.sh 'truncate table payment_profile cascade;'
 	bash ops/db.sh 'truncate table peer_to_peer_transfer cascade;'
-	rm -rf $(bot)/.payment-bot-db/*
+	rm -rf $(bot)/.bot-store/*
 	touch modules/node/src/main.ts
 
 reset: stop
@@ -143,7 +143,7 @@ reset: stop
 	docker volume rm $(project)_database_dev 2> /dev/null || true
 	docker secret rm $(project)_database_dev 2> /dev/null || true
 	docker volume rm $(project)_chain_dev 2> /dev/null || true
-	rm -rf $(bot)/.payment-bot-db/*
+	rm -rf $(bot)/.bot-store/*
 	rm -rf $(flags)/deployed-contracts
 
 push-commit:
@@ -164,7 +164,7 @@ pull-release:
 pull-backwards-compatible:
 	bash ops/pull-images.sh $(backwards_compatible_version)
 
-deployed-contracts: ethprovider
+deployed-contracts: contracts
 	bash ops/deploy-contracts.sh ganache
 	touch $(flags)/$@
 
@@ -197,7 +197,7 @@ test-cf: cf-core
 test-client: builder client
 	bash ops/test/client.sh
 
-test-contracts: contracts
+test-contracts: contracts types
 	bash ops/test/contracts.sh
 
 test-daicard:
@@ -241,34 +241,37 @@ database: node-modules $(shell find $(database) $(find_options))
 	docker tag $(project)_database $(project)_database:$(commit)
 	$(log_finish) && mv -f $(totalTime) $(flags)/$@
 
-ethprovider: contracts cf-adjudicator-contracts cf-funding-protocol-contracts cf-apps $(shell find $(ethprovider) $(find_options))
+ethprovider: contracts $(shell find $(contracts)/ops $(find_options))
 	$(log_start)
-	docker build --file $(ethprovider)/Dockerfile $(cache_from) --tag $(project)_ethprovider .
+	docker build --file $(contracts)/ops/Dockerfile $(cache_from) --tag $(project)_ethprovider .
 	docker tag $(project)_ethprovider $(project)_ethprovider:$(commit)
 	$(log_finish) && mv -f $(totalTime) $(flags)/$@
 
 node-release: node $(node)/ops/Dockerfile $(node)/ops/entry.sh
 	$(log_start)
+	$(docker_run) "MODE=release cd modules/node && npm run build-bundle"
 	docker build --file $(node)/ops/Dockerfile $(cache_from) --tag $(project)_node .
 	docker tag $(project)_node $(project)_node:$(commit)
 	$(log_finish) && mv -f $(totalTime) $(flags)/$@
 
 node-staging: node $(node)/ops/Dockerfile $(node)/ops/entry.sh
 	$(log_start)
-	$(docker_run) "cd modules/node && npm run build-bundle"
+	$(docker_run) "MODE=staging cd modules/node && npm run build-bundle"
 	docker build --file $(node)/ops/Dockerfile $(cache_from) --tag $(project)_node .
 	docker tag $(project)_node $(project)_node:$(commit)
 	$(log_finish) && mv -f $(totalTime) $(flags)/$@
 
-payment-bot-release: payment-bot-js $(shell find $(bot)/ops $(find_options))
+payment-bot-release: $(shell find $(bot)/src $(bot)/ops $(find_options))
 	$(log_start)
-	docker build --file $(bot)/ops/release.dockerfile $(cache_from) --tag $(project)_bot .
+	$(docker_run) "MODE=release cd modules/payment-bot && npm run build-bundle"
+	docker build --file $(bot)/ops/Dockerfile $(cache_from) --tag $(project)_bot .
 	docker tag $(project)_bot $(project)_bot:$(commit)
 	$(log_finish) && mv -f $(totalTime) $(flags)/$@
 
-payment-bot-staging: payment-bot-js $(shell find $(bot)/ops $(find_options))
+payment-bot-staging: $(shell find $(bot)/src $(bot)/ops $(find_options))
 	$(log_start)
-	docker build --file $(bot)/ops/staging.dockerfile $(cache_from) --tag $(project)_bot .
+	$(docker_run) "MODE=staging cd modules/payment-bot && npm run build-bundle"
+	docker build --file $(bot)/ops/Dockerfile $(cache_from) --tag $(project)_bot .
 	docker tag $(project)_bot $(project)_bot:$(commit)
 	$(log_finish) && mv -f $(totalTime) $(flags)/$@
 
@@ -288,16 +291,17 @@ ssh-action: $(shell find $(ssh-action) $(find_options))
 	$(log_finish) && mv -f $(totalTime) $(flags)/$@
 
 test-runner: test-runner-staging
-test-runner-release: node-modules $(shell find $(tests)/src $(tests)/ops $(find_options))
+
+test-runner-release: node-modules client $(shell find $(tests)/src $(tests)/ops $(find_options))
 	$(log_start)
 	$(docker_run) "export MODE=release; cd modules/test-runner && npm run build-bundle"
-	docker build --file $(tests)/ops/release.dockerfile $(cache_from) --tag $(project)_test_runner:$(commit) .
+	docker build --file $(tests)/ops/Dockerfile $(cache_from) --tag $(project)_test_runner:$(commit) .
 	$(log_finish) && mv -f $(totalTime) $(flags)/$@
 
-test-runner-staging: node-modules $(shell find $(tests)/src $(tests)/ops $(find_options))
+test-runner-staging: node-modules client $(shell find $(tests)/src $(tests)/ops $(find_options))
 	$(log_start)
 	$(docker_run) "export MODE=staging; cd modules/test-runner && npm run build-bundle"
-	docker build --file $(tests)/ops/staging.dockerfile $(cache_from) --tag $(project)_test_runner .
+	docker build --file $(tests)/ops/Dockerfile $(cache_from) --tag $(project)_test_runner .
 	docker tag $(project)_test_runner $(project)_test_runner:$(commit)
 	$(log_finish) && mv -f $(totalTime) $(flags)/$@
 
@@ -308,39 +312,16 @@ ws-tcp-relay: ops/ws-tcp-relay.dockerfile
 	$(log_finish) && mv -f $(totalTime) $(flags)/$@
 
 ########################################
-# Contracts
-
-cf-adjudicator-contracts: node-modules $(shell find $(cf-adjudicator-contracts)/contracts $(cf-adjudicator-contracts)/waffle.json $(find_options))
-	$(log_start)
-	$(docker_run) "cd modules/cf-adjudicator-contracts && npm run build"
-	$(log_finish) && mv -f $(totalTime) $(flags)/$@
-
-cf-apps: node-modules cf-adjudicator-contracts $(shell find $(cf-apps)/contracts $(cf-apps)/waffle.json $(find_options))
-	$(log_start)
-	$(docker_run) "cd modules/cf-apps && npm run build"
-	$(log_finish) && mv -f $(totalTime) $(flags)/$@
-
-cf-core: node-modules types cf-adjudicator-contracts cf-apps cf-funding-protocol-contracts $(shell find $(cf-core)/src $(cf-core)/test $(cf-core)/tsconfig.json $(find_options))
-	$(log_start)
-	$(docker_run) "cd modules/cf-core && npm run build:ts"
-	$(log_finish) && mv -f $(totalTime) $(flags)/$@
-
-cf-funding-protocol-contracts: node-modules $(shell find $(cf-funding-protocol-contracts)/contracts $(cf-funding-protocol-contracts)/waffle.json $(find_options))
-	$(log_start)
-	$(docker_run) "cd modules/cf-funding-protocol-contracts && npm run build"
-	$(log_finish) && mv -f $(totalTime) $(flags)/$@
-
-contracts: node-modules $(shell find $(contracts)/contracts $(contracts)/waffle.json $(find_options))
-	$(log_start)
-	$(docker_run) "cd modules/contracts && npm run build"
-	$(log_finish) && mv -f $(totalTime) $(flags)/$@
-
-########################################
 # JS & bundles
 
-client: cf-core contracts types messaging $(shell find $(client)/src $(client)/tsconfig.json $(find_options))
+client: cf-core contracts types messaging store $(shell find $(client)/src $(client)/tsconfig.json $(find_options))
 	$(log_start)
 	$(docker_run) "cd modules/client && npm run build"
+	$(log_finish) && mv -f $(totalTime) $(flags)/$@
+
+cf-core: node-modules types contracts $(shell find $(cf-core)/src $(cf-core)/test $(cf-core)/tsconfig.json $(find_options))
+	$(log_start)
+	$(docker_run) "cd modules/cf-core && npm run build:ts"
 	$(log_finish) && mv -f $(totalTime) $(flags)/$@
 
 daicard-prod: node-modules client $(shell find $(daicard)/src $(find_options))
@@ -363,9 +344,19 @@ node: cf-core contracts types messaging $(shell find $(node)/src $(node)/migrati
 	$(docker_run) "cd modules/node && npm run build"
 	$(log_finish) && mv -f $(totalTime) $(flags)/$@
 
-payment-bot-js: node-modules client types $(shell find $(bot)/src $(bot)/ops $(find_options))
+payment-bot-js: client $(shell find $(bot)/src $(bot)/ops $(find_options))
 	$(log_start)
 	$(docker_run) "cd modules/payment-bot && npm run build-bundle"
+	$(log_finish) && mv -f $(totalTime) $(flags)/$@
+
+store: node-modules types $(shell find $(store)/src $(find_options))
+	$(log_start)
+	$(docker_run) "cd modules/store && npm run build"
+	$(log_finish) && mv -f $(totalTime) $(flags)/$@
+
+test-runner-js: node-modules client $(shell find $(tests)/src $(tests)/ops $(find_options))
+	$(log_start)
+	$(docker_run) "cd modules/test-runner && npm run build-bundle"
 	$(log_finish) && mv -f $(totalTime) $(flags)/$@
 
 types: node-modules $(shell find $(types)/src $(find_options))
@@ -375,6 +366,16 @@ types: node-modules $(shell find $(types)/src $(find_options))
 
 ########################################
 # Common Prerequisites
+
+contracts: node-modules $(shell find $(contracts)/contracts $(contracts)/test $(find_options))
+	$(log_start)
+	$(docker_run) "cd modules/contracts && npm run build"
+	$(log_finish) && mv -f $(totalTime) $(flags)/$@
+
+contracts-native: node-modules $(shell find $(contracts)/contracts $(contracts)/waffle.native.json $(find_options))
+	$(log_start)
+	$(docker_run) "cd modules/contracts && npm run build-native"
+	$(log_finish) && mv -f $(totalTime) $(flags)/$@
 
 node-modules: builder package.json $(shell ls modules/**/package.json)
 	$(log_start)

@@ -4,7 +4,6 @@ import {
   DefaultApp,
   SupportedApplication,
   SupportedApplications,
-  SupportedNetworks,
 } from "@connext/types";
 import { Injectable, OnModuleInit } from "@nestjs/common";
 import { Wallet } from "ethers";
@@ -23,9 +22,9 @@ type PostgresConfig = {
   username: string;
 };
 
-const singleAssetTwoPartyCoinTransferEncoding = `tuple(address to, uint256 amount)[2]`;
+const singleAssetTwoPartyCoinTransferEncoding = "tuple(address to, uint256 amount)[2]";
 
-const multiAssetMultiPartyCoinTransferEncoding = `tuple(address to, uint256 amount)[][]`;
+const multiAssetMultiPartyCoinTransferEncoding = "tuple(address to, uint256 amount)[][]";
 
 @Injectable()
 export class ConfigService implements OnModuleInit {
@@ -83,6 +82,11 @@ export class ConfigService implements OnModuleInit {
     return getAddress(tokenAddress);
   }
 
+  // FIXME: should be easy to add tokens
+  async getSupportedTokenAddresses(): Promise<string[]> {
+    return [await this.getTokenAddress(), AddressZero];
+  }
+
   async getDefaultAppByName(name: SupportedApplication): Promise<DefaultApp> {
     const apps = await this.getDefaultApps();
     return apps.filter((app: DefaultApp) => app.name === name)[0];
@@ -96,7 +100,7 @@ export class ConfigService implements OnModuleInit {
         allowNodeInstall: false,
         appDefinitionAddress: addressBook[SupportedApplications.SimpleTransferApp],
         name: "SimpleTransferApp",
-        network: SupportedNetworks[ethNetwork.name.toLowerCase()],
+        chainId: ethNetwork.chainId,
         outcomeType: OutcomeType.SINGLE_ASSET_TWO_PARTY_COIN_TRANSFER,
         stateEncoding: `tuple(${singleAssetTwoPartyCoinTransferEncoding} coinTransfers)`,
       },
@@ -104,16 +108,16 @@ export class ConfigService implements OnModuleInit {
         allowNodeInstall: true,
         appDefinitionAddress: addressBook[SupportedApplications.SimpleTwoPartySwapApp],
         name: "SimpleTwoPartySwapApp",
-        network: SupportedNetworks[ethNetwork.name.toLowerCase()],
+        chainId: ethNetwork.chainId,
         outcomeType: OutcomeType.MULTI_ASSET_MULTI_PARTY_COIN_TRANSFER,
         stateEncoding: `tuple(${multiAssetMultiPartyCoinTransferEncoding} coinTransfers)`,
       },
       {
-        actionEncoding: `tuple(bytes32 preImage)`,
+        actionEncoding: "tuple(bytes32 preImage)",
         allowNodeInstall: true,
         appDefinitionAddress: addressBook[SupportedApplications.SimpleLinkedTransferApp],
         name: "SimpleLinkedTransferApp",
-        network: SupportedNetworks[ethNetwork.name.toLowerCase()],
+        chainId: ethNetwork.chainId,
         outcomeType: OutcomeType.SINGLE_ASSET_TWO_PARTY_COIN_TRANSFER,
         stateEncoding: `tuple(${singleAssetTwoPartyCoinTransferEncoding} coinTransfers, bytes32 linkedHash, uint256 amount, address assetId, bytes32 paymentId, bytes32 preImage)`,
       },
@@ -121,9 +125,10 @@ export class ConfigService implements OnModuleInit {
         allowNodeInstall: true,
         appDefinitionAddress: addressBook[SupportedApplications.CoinBalanceRefundApp],
         name: "CoinBalanceRefundApp",
-        network: SupportedNetworks[ethNetwork.name.toLowerCase()],
+        chainId: ethNetwork.chainId,
         outcomeType: OutcomeType.SINGLE_ASSET_TWO_PARTY_COIN_TRANSFER,
-        stateEncoding: `tuple(address recipient, address multisig, uint256 threshold, address tokenAddress)`,
+        stateEncoding:
+          "tuple(address recipient, address multisig, uint256 threshold, address tokenAddress)",
       },
     ];
   }

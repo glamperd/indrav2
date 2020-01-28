@@ -1,11 +1,12 @@
 import * as connext from "@connext/client";
+import { ConnextStore, PisaClientBackupAPI } from "@connext/store";
 import { CF_PATH, ConnextClientStorePrefix } from "@connext/types";
 import WalletConnectChannelProvider from "@walletconnect/channel-provider";
 import { Paper, withStyles, Grid } from "@material-ui/core";
 import { Contract, ethers as eth } from "ethers";
 import { AddressZero, Zero } from "ethers/constants";
 import { fromExtendedKey, fromMnemonic } from "ethers/utils/hdnode";
-import { formatEther, parseEther } from "ethers/utils";
+import { formatEther } from "ethers/utils";
 import interval from "interval-promise";
 import { PisaClient } from "pisa-client";
 import React from "react";
@@ -37,7 +38,6 @@ import {
   Currency,
   migrate,
   minBN,
-  storeFactory,
   toBN,
   tokenToWei,
   weiToToken,
@@ -227,15 +227,16 @@ class App extends React.Component {
       const pisaUrl = urls.pisaUrl(network.chainId);
       if (pisaUrl) {
         console.log(`Using external state backup service: ${pisaUrl}`);
-        store = storeFactory({
+        const backupService = new PisaClientBackupAPI({
           wallet,
           pisaClient: new PisaClient(
             pisaUrl,
             "0xa4121F89a36D1908F960C2c9F057150abDb5e1E3", // TODO: Don't hardcode
           ),
         });
+        store = new ConnextStore(window.localStorage, { backupService });
       } else {
-        store = storeFactory();
+        store = new ConnextStore(window.localStorage);
       }
 
       // If store has double prefixes, flush and restore
@@ -295,8 +296,6 @@ class App extends React.Component {
     }
     console.log(`Successfully connected channel`);
 
-    await channel.isAvailable();
-
     const token = new Contract(
       channel.config.contractAddresses.CreditToken,
       tokenArtifacts.abi,
@@ -324,18 +323,18 @@ class App extends React.Component {
       this.setState({ swapRate: res.swapRate });
     });
 
-    channel.on("RECIEVE_TRANSFER_STARTED", data => {
-      console.log("Received RECIEVE_TRANSFER_STARTED event: ", data);
+    channel.on("RECEIVE_TRANSFER_STARTED", data => {
+      console.log("Received RECEIVE_TRANSFER_STARTED event: ", data);
       machine.send("START_RECEIVE");
     });
 
-    channel.on("RECIEVE_TRANSFER_FINISHED", data => {
-      console.log("Received RECIEVE_TRANSFER_FINISHED event: ", data);
+    channel.on("RECEIVE_TRANSFER_FINISHED", data => {
+      console.log("Received RECEIVE_TRANSFER_FINISHED event: ", data);
       machine.send("SUCCESS_RECEIVE");
     });
 
-    channel.on("RECIEVE_TRANSFER_FAILED", data => {
-      console.log("Received RECIEVE_TRANSFER_FAILED event: ", data);
+    channel.on("RECEIVE_TRANSFER_FAILED", data => {
+      console.log("Received RECEIVE_TRANSFER_FAILED event: ", data);
       machine.send("ERROR_RECEIVE");
     });
 
@@ -614,9 +613,13 @@ class App extends React.Component {
     // of client eth deposit
     const weiToSwap = collateral.sub(tokensForWei).gte(Zero)
       ? availableWeiToSwap.toString() // sufficient collateral for entire swap
-      : tokenToWei(collateral, swapRate).toString() // insufficient, claim all hubs balance
+      : tokenToWei(collateral, swapRate).toString(); // insufficient, claim all hubs balance
 
-    console.log(`Attempting to swap ${formatEther(weiToSwap)} eth for ${formatEther(weiToToken(weiToSwap, swapRate))} dai at rate: ${swapRate}`);
+    console.log(
+      `Attempting to swap ${formatEther(weiToSwap)} eth for ${formatEther(
+        weiToToken(weiToSwap, swapRate),
+      )} dai at rate: ${swapRate}`,
+    );
     machine.send(["START_SWAP"]);
 
     await channel.swap({

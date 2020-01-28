@@ -1,23 +1,20 @@
-import { BigNumber } from "ethers/utils";
-
+import { AppInstanceJson } from "./app";
 import {
   AppActionBigNumber,
   AppRegistry,
   AppState,
   DefaultApp,
   SupportedApplication,
-  SupportedNetwork,
 } from "./app";
-import { ConnextEvent } from "./basic";
-import { AppInstanceJson, CFCoreTypes } from "./cf";
+import { BigNumber, Contract, JsonRpcProvider, Network } from "./basic";
 import { CFCoreChannel, ChannelAppSequences, ChannelState, PaymentProfile } from "./channel";
 import {
-  ChannelProvider,
   ChannelProviderConfig,
   ChannelProviderRpcMethod,
+  IChannelProvider,
   KeyGen,
-  StorePair,
 } from "./channelProvider";
+import { ConnextEvent } from "./events";
 import {
   CheckDepositRightsParameters,
   CheckDepositRightsResponse,
@@ -34,29 +31,43 @@ import {
   TransferParameters,
   WithdrawParameters,
 } from "./inputs";
+import { IMessagingService } from "./messaging";
 import {
   CreateChannelResponse,
   GetChannelResponse,
   GetConfigResponse,
+  INodeApiClient,
   RequestCollateralResponse,
   Transfer,
 } from "./node";
+import { ProtocolTypes } from "./protocol";
+import { IAsyncStorage, IBackupServiceAPI, Store } from "./store";
 
-export interface Store extends CFCoreTypes.IStoreService {
-  set(pairs: StorePair[], shouldBackup?: Boolean): Promise<void>;
-  restore(): Promise<StorePair[]>;
-}
+export type InternalClientOptions = ClientOptions & {
+  appRegistry: AppRegistry;
+  channelProvider: IChannelProvider;
+  config: GetConfigResponse;
+  ethProvider: JsonRpcProvider;
+  messaging: IMessagingService;
+  network: Network;
+  node: INodeApiClient;
+  store: Store;
+  token: Contract;
+};
 
 // channelProvider, mnemonic, and xpub+keyGen are all optional but one of them needs to be provided
 export interface ClientOptions {
   ethProviderUrl: string;
   nodeUrl?: string; // ws:// or nats:// urls are supported
-  channelProvider?: ChannelProvider;
+  channelProvider?: IChannelProvider;
   keyGen?: KeyGen;
   mnemonic?: string;
   xpub?: string;
   store?: Store;
   logLevel?: number;
+  asyncStorage?: IAsyncStorage;
+  messaging?: IMessagingService;
+  backupService?: IBackupServiceAPI;
 }
 
 export interface IConnextClient {
@@ -69,11 +80,11 @@ export interface IConnextClient {
   nodePublicIdentifier: string;
   publicIdentifier: string;
   signerAddress: string;
+  channelProvider: IChannelProvider;
 
   ////////////////////////////////////////
   // Methods
 
-  isAvailable: () => Promise<void>;
   restart(): Promise<void>;
 
   ///////////////////////////////////
@@ -94,7 +105,7 @@ export interface IConnextClient {
   channelProviderConfig(): Promise<ChannelProviderConfig>;
   requestDepositRights(
     params: RequestDepositRightsParameters,
-  ): Promise<CFCoreTypes.RequestDepositRightsResult>;
+  ): Promise<ProtocolTypes.RequestDepositRightsResult>;
   rescindDepositRights(
     params: RescindDepositRightsParameters,
   ): Promise<RescindDepositRightsResponse>;
@@ -105,10 +116,14 @@ export interface IConnextClient {
   // TODO: do we really need to expose all of these?
   getChannel(): Promise<GetChannelResponse>;
   getLinkedTransfer(paymentId: string): Promise<Transfer>;
-  getAppRegistry(appDetails?: {
-    name: SupportedApplication;
-    network: SupportedNetwork;
-  }): Promise<AppRegistry>;
+  getAppRegistry(
+    appDetails?:
+      | {
+          name: SupportedApplication;
+          chainId: number;
+        }
+      | { appDefinitionAddress: string },
+  ): Promise<AppRegistry>;
   getRegisteredAppDetails(appName: SupportedApplication): DefaultApp;
   createChannel(): Promise<CreateChannelResponse>;
   subscribeToSwapRates(from: string, to: string, callback: any): Promise<any>;
@@ -128,37 +143,37 @@ export interface IConnextClient {
 
   ///////////////////////////////////
   // CF MODULE EASY ACCESS METHODS
-  deployMultisig(): Promise<CFCoreTypes.DeployStateDepositHolderResult>;
-  getStateChannel(): Promise<CFCoreTypes.GetStateChannelResult>;
+  deployMultisig(): Promise<ProtocolTypes.DeployStateDepositHolderResult>;
+  getStateChannel(): Promise<ProtocolTypes.GetStateChannelResult>;
   providerDeposit(
     amount: BigNumber,
     assetId: string,
     notifyCounterparty: boolean,
-  ): Promise<CFCoreTypes.DepositResult>;
-  getFreeBalance(assetId?: string): Promise<CFCoreTypes.GetFreeBalanceStateResult>;
+  ): Promise<ProtocolTypes.DepositResult>;
+  getFreeBalance(assetId?: string): Promise<ProtocolTypes.GetFreeBalanceStateResult>;
   getAppInstances(multisigAddress?: string): Promise<AppInstanceJson[]>;
-  getAppInstanceDetails(appInstanceId: string): Promise<CFCoreTypes.GetAppInstanceDetailsResult>;
-  getAppState(appInstanceId: string): Promise<CFCoreTypes.GetStateResult>;
+  getAppInstanceDetails(appInstanceId: string): Promise<ProtocolTypes.GetAppInstanceDetailsResult>;
+  getAppState(appInstanceId: string): Promise<ProtocolTypes.GetStateResult>;
   getProposedAppInstances(
     multisigAddress?: string,
-  ): Promise<CFCoreTypes.GetProposedAppInstancesResult | undefined>;
+  ): Promise<ProtocolTypes.GetProposedAppInstancesResult | undefined>;
   getProposedAppInstance(
     appInstanceId: string,
-  ): Promise<CFCoreTypes.GetProposedAppInstanceResult | undefined>;
+  ): Promise<ProtocolTypes.GetProposedAppInstanceResult | undefined>;
   proposeInstallApp(
-    params: CFCoreTypes.ProposeInstallParams,
-  ): Promise<CFCoreTypes.ProposeInstallResult>;
-  installVirtualApp(appInstanceId: string): Promise<CFCoreTypes.InstallVirtualResult>;
-  installApp(appInstanceId: string): Promise<CFCoreTypes.InstallResult>;
-  rejectInstallApp(appInstanceId: string): Promise<CFCoreTypes.UninstallResult>;
+    params: ProtocolTypes.ProposeInstallParams,
+  ): Promise<ProtocolTypes.ProposeInstallResult>;
+  installVirtualApp(appInstanceId: string): Promise<ProtocolTypes.InstallVirtualResult>;
+  installApp(appInstanceId: string): Promise<ProtocolTypes.InstallResult>;
+  rejectInstallApp(appInstanceId: string): Promise<ProtocolTypes.UninstallResult>;
   takeAction(
     appInstanceId: string,
     action: AppActionBigNumber,
-  ): Promise<CFCoreTypes.TakeActionResult>;
+  ): Promise<ProtocolTypes.TakeActionResult>;
   updateState(
     appInstanceId: string,
     newState: AppState | any,
-  ): Promise<CFCoreTypes.UpdateStateResult>;
-  uninstallApp(appInstanceId: string): Promise<CFCoreTypes.UninstallResult>;
-  uninstallVirtualApp(appInstanceId: string): Promise<CFCoreTypes.UninstallVirtualResult>;
+  ): Promise<ProtocolTypes.UpdateStateResult>;
+  uninstallApp(appInstanceId: string): Promise<ProtocolTypes.UninstallResult>;
+  uninstallVirtualApp(appInstanceId: string): Promise<ProtocolTypes.UninstallVirtualResult>;
 }

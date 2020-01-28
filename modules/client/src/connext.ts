@@ -1,5 +1,10 @@
 import { IMessagingService } from "@connext/messaging";
-import { AppInstanceProposal, CF_PATH, LinkedTransferToRecipientParameters } from "@connext/types";
+import {
+  AppInstanceProposal,
+  CF_PATH,
+  IChannelProvider,
+  LinkedTransferToRecipientParameters,
+} from "@connext/types";
 import "core-js/stable";
 import { Contract, providers } from "ethers";
 import { AddressZero } from "ethers/constants";
@@ -8,7 +13,7 @@ import { fromMnemonic } from "ethers/utils/hdnode";
 import tokenAbi from "human-standard-token-abi";
 import "regenerator-runtime/runtime";
 
-import { ChannelProvider, createCFChannelProvider } from "./channelProvider";
+import { createCFChannelProvider } from "./channelProvider";
 import { ConditionalTransferController } from "./controllers/ConditionalTransferController";
 import { DepositController } from "./controllers/DepositController";
 import { RequestDepositRightsController } from "./controllers/RequestDepositRightsController";
@@ -18,7 +23,6 @@ import { WithdrawalController } from "./controllers/WithdrawalController";
 import { Logger, stringify, withdrawalKey, xpubToAddress } from "./lib";
 import { decryptWithPrivateKey } from "./lib/crypto";
 import { ConnextListener } from "./listener";
-import { NodeApiClient } from "./node";
 import {
   Address,
   AppActionBigNumber,
@@ -41,6 +45,7 @@ import {
   GetChannelResponse,
   GetConfigResponse,
   IConnextClient,
+  INodeApiClient,
   InternalClientOptions,
   KeyGen,
   makeChecksum,
@@ -54,7 +59,6 @@ import {
   ResolveLinkedTransferResponse,
   Store,
   SupportedApplication,
-  SupportedNetwork,
   SwapParameters,
   Transfer,
   TransferParameters,
@@ -68,7 +72,7 @@ const MAX_WITHDRAWAL_RETRIES = 3;
 
 export class ConnextClient implements IConnextClient {
   public appRegistry: AppRegistry;
-  public channelProvider: ChannelProvider;
+  public channelProvider: IChannelProvider;
   public config: GetConfigResponse;
   public ethProvider: providers.JsonRpcProvider;
   public freeBalanceAddress: string;
@@ -77,7 +81,7 @@ export class ConnextClient implements IConnextClient {
   public messaging: IMessagingService;
   public multisigAddress: Address;
   public network: Network;
-  public node: NodeApiClient;
+  public node: INodeApiClient;
   public nodePublicIdentifier: string;
   public publicIdentifier: string;
   public signerAddress: Address;
@@ -139,7 +143,7 @@ export class ConnextClient implements IConnextClient {
    * Creates a promise that returns when the channel is available,
    * ie. when the setup protocol or create channel call is completed
    */
-  public isAvailable = async (): Promise<void> => {
+  private isAvailable = async (): Promise<void> => {
     return new Promise(
       async (resolve: any, reject: any): Promise<any> => {
         // Wait for channel to be available
@@ -244,10 +248,14 @@ export class ConnextClient implements IConnextClient {
     return await this.node.fetchLinkedTransfer(paymentId);
   };
 
-  public getAppRegistry = async (appDetails?: {
-    name: SupportedApplication;
-    network: SupportedNetwork;
-  }): Promise<AppRegistry> => {
+  public getAppRegistry = async (
+    appDetails?:
+      | {
+          name: SupportedApplication;
+          chainId: number;
+        }
+      | { appDefinitionAddress: string },
+  ): Promise<AppRegistry> => {
     return await this.node.appRegistry(appDetails);
   };
 
@@ -862,15 +870,15 @@ export class ConnextClient implements IConnextClient {
 
   public getRegisteredAppDetails = (appName: SupportedApplication): DefaultApp => {
     const appInfo = this.appRegistry.filter((app: DefaultApp): boolean => {
-      return app.name === appName && app.network === this.network.name;
+      return app.name === appName && app.chainId === this.network.chainId;
     });
 
     if (!appInfo || appInfo.length === 0) {
-      throw new Error(`Could not find ${appName} app details on ${this.network.name} network`);
+      throw new Error(`Could not find ${appName} app details on chain ${this.network.chainId}`);
     }
 
     if (appInfo.length > 1) {
-      throw new Error(`Found multiple ${appName} app details on ${this.network.name} network`);
+      throw new Error(`Found multiple ${appName} app details on chain ${this.network.chainId}`);
     }
     return appInfo[0];
   };

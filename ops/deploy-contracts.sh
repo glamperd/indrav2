@@ -2,6 +2,8 @@
 set -e
 
 ETH_NETWORK="${1:-ganache}"
+mode="${MODE:-local}"
+
 version="${2:-latest}"
 
 dir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
@@ -15,9 +17,10 @@ fi
 
 registry="connextproject"
 
+commit="`git rev-parse HEAD | head -c 8`"
+release="`cat package.json | grep '"version":' | awk -F '"' '{print $4}'`"
 name=${project}_contract_deployer
 log="$home_dir/ops/ethprovider/ganache.log"
-image="${project}_ethprovider:$version"
 
 ########################################
 # Setup env vars
@@ -75,6 +78,15 @@ fi
 # TODO - restore this
 # touch $log
 
+if [[ "$ETH_NETWORK" != "ganache" ]]
+then SECRET_ENV="--env=ETH_MNEMONIC_FILE=/run/secrets/$ETH_MNEMONIC_FILE --secret=$ETH_MNEMONIC_FILE"
+fi
+
+if [[ -f address-book.json ]]
+then address_book="$cwd/address-book.json"
+else address_book="$cwd/modules/contracts/address-book.json"
+fi
+
 ########################################
 # Remove this deployer service when we're done
 
@@ -88,16 +100,42 @@ function cleanup {
   echo "Done!"
 }
 trap cleanup EXIT
+echo
 
 ########################################
 # Deploy contracts
 
-if [[ "$ETH_NETWORK" != "ganache" ]]
-then SECRET_ENV="--env=ETH_MNEMONIC_FILE=/run/secrets/$ETH_MNEMONIC_FILE --secret=$ETH_MNEMONIC_FILE"
+# If file descriptors 0-2 exist, then we're prob running via interactive shell instead of on CD/CI
+if [[ -t 0 && -t 1 && -t 2 ]]
+then interactive="--interactive --tty"
+else echo "Running in non-interactive mode"
 fi
 
-echo
-echo "Deploying contract deployer (image: $image)..."
+if [[ "$mode" == "local" ]]
+then
+
+  echo "Deploying $mode-mode contract deployer (image: builder)..."
+
+  exec docker run \
+    $interactive \
+    --entrypoint="bash" \
+    --name="$name" \
+    --env="ETH_MNEMONIC=$ETH_MNEMONIC" \
+    --env="ETH_NETWORK=$ETH_NETWORK" \
+    --env="ETH_PROVIDER=$ETH_PROVIDER" \
+    --mount="type=volume,source=${project}_chain_dev,target=/data" \
+    --mount="type=bind,source=$cwd,target=/root" \
+    --rm \
+    ${project}_builder -c "cd modules/contracts && bash ops/entry.sh deploy"
+
+elif [[ "$mode" == "release" ]]
+then image="${project}_ethprovider:$release"
+elif [[ "$mode" == "staging" ]]
+then image="${project}_ethprovider:$commit"
+else image="${project}_ethprovider:latest"
+fi
+
+echo "Deploying $mode-mode contract deployer (image: $image)..."
 
 if [[ "`docker image ls -q $image`" == "" ]]
 then
@@ -119,7 +157,6 @@ id="`
     --mount="type=volume,source=${project}_chain_dev,target=/data" \
     --mount="type=bind,source=$log,target=/root/ganache.log" \
     --mount="type=bind,source=$home_dir/address-book.json,target=/root/address-book.json" \
-    --network=host \
     --restart-condition="none" \
     $SECRET_ENV \
     --entrypoint "bash" \

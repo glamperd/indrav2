@@ -1,6 +1,6 @@
-import { DepositConfirmationMessage, NODE_EVENTS } from "@connext/cf-core";
 import {
   DefaultApp,
+  DepositConfirmationMessage,
   ResolveLinkedTransferResponse,
   SimpleLinkedTransferAppStateBigNumber,
   SimpleTransferAppStateBigNumber,
@@ -154,7 +154,7 @@ export class TransferService {
 
     return await this.linkedTransferRepository.addRecipientPublicIdentifierAndEncryptedPreImage(
       transfer,
-      recipientPublicIdentifier,
+      recipientChannel,
       encryptedPreImage,
     );
   }

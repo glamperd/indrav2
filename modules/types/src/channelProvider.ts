@@ -1,7 +1,52 @@
-import { CFCoreTypes, NetworkContext } from "./cf";
-import { Store } from "./client";
+import EventEmitter from "events";
 
-export type ChannelProvider = any;
+import { NetworkContext } from "./contracts";
+import { ProtocolTypes } from "./protocol";
+import { Store, StorePair } from "./store";
+
+export interface IChannelProvider extends EventEmitter {
+  ////////////////////////////////////////
+  // Properties
+
+  connected: boolean;
+  connection: IRpcConnection;
+  _config: ChannelProviderConfig | undefined;
+  _multisigAddress: string | undefined;
+  _signerAddress: string | undefined;
+
+  ////////////////////////////////////////
+  // Methods
+
+  enable(): Promise<ChannelProviderConfig>;
+  send(method: ChannelProviderRpcMethod | string, params: any): Promise<any>;
+  close(): void;
+
+  ///////////////////////////////////
+  // GETTERS / SETTERS
+  isSigner: boolean;
+  config: ChannelProviderConfig | undefined;
+  multisigAddress: string | undefined;
+  signerAddress: string | undefined;
+
+  ///////////////////////////////////
+  // LISTENER METHODS
+  on(event: string, listener: (...args: any[]) => void): any;
+  once(event: string, listener: (...args: any[]) => void): any;
+
+  ///////////////////////////////////
+  // SIGNING METHODS
+  signMessage(message: string): Promise<string>;
+
+  ///////////////////////////////////
+  // STORE METHODS
+  get(path: string): Promise<any>;
+  set(pairs: StorePair[], allowDelete?: Boolean): Promise<void>;
+  restoreState(path: string): Promise<void>;
+
+  ///////////////////////////////////
+  // PRIVATE METHODS
+  _send(method: ChannelProviderRpcMethod | string, params: any): Promise<any>;
+}
 
 export type ChannelProviderConfig = {
   freeBalanceAddress: string;
@@ -15,8 +60,8 @@ export type ChannelProviderConfig = {
 
 export interface CFChannelProviderOptions {
   ethProvider: any;
-  keyGen: CFCoreTypes.IPrivateKeyGenerator;
-  lockService?: CFCoreTypes.ILockService;
+  keyGen: ProtocolTypes.IPrivateKeyGenerator;
+  lockService?: ProtocolTypes.ILockService;
   messaging: any;
   networkContext: NetworkContext;
   nodeConfig: any;
@@ -24,9 +69,6 @@ export interface CFChannelProviderOptions {
   xpub: string;
   store: Store;
 }
-
-// TODO: replace any w interface of cfCore (using implementation directly -> circular dependency)
-export type RpcConnection = ChannelProvider | any;
 
 export const ConnextRpcMethods = {
   chan_config: "chan_config",
@@ -38,44 +80,28 @@ export const ConnextRpcMethods = {
 export type ConnextRpcMethod = keyof typeof ConnextRpcMethods;
 
 export const ChannelProviderRpcMethods = {
-  ...CFCoreTypes.RpcMethodNames,
+  ...ProtocolTypes.RpcMethodNames,
   ...ConnextRpcMethods,
 };
-export type ChannelProviderRpcMethod = ConnextRpcMethod | CFCoreTypes.RpcMethodName;
+export type ChannelProviderRpcMethod = ConnextRpcMethod | ProtocolTypes.RpcMethodName;
 
-export type StorePair = {
-  path: string;
-  value: any;
+export type JsonRpcRequest = {
+  id: number;
+  jsonrpc: "2.0";
+  method: string;
+  params: any;
 };
 
 export type KeyGen = (index: string) => Promise<string>;
 
-// export interface IChannelProvider {
-//   connection: RpcConnection;
-//   wallet: Wallet | undefined;
-//   _config: ChannelProviderConfig;
-//   _multisigAddress: string | undefined;
-//   _signerAddress: string | undefined;
-//   store: Store | undefined;
+export interface IRpcConnection extends EventEmitter {
+  ////////////////////////////////////////
+  // Properties
+  connected: boolean;
 
-//   enable(): Promise<ChannelProviderConfig>;
-//   send(method: CFCoreTypes.RpcMethodName | NewRpcMethodName, params: any): Promise<any>;
-
-//   on(event: string, listener: (...args: any[]) => void): RpcConnection;
-
-//   once(event: string, listener: (...args: any[]) => void): RpcConnection;
-
-//   signMessage(message: string): Promise<string>;
-
-//   get(path: string): Promise<any>;
-
-//   set(pairs: StorePair[], allowDelete?: Boolean): Promise<void>;
-
-//   restore(): Promise<{ path: string; value: any }[]>;
-
-//   reset(): Promise<void>;
-
-//   restoreState(path: string): Promise<void>;
-
-//   _send(methodName: CFCoreTypes.RpcMethodName, parameters: RpcParameters): Promise<any>;
-// }
+  ////////////////////////////////////////
+  // Methods
+  send(payload: JsonRpcRequest): Promise<any>;
+  open(): void;
+  close(): void;
+}
