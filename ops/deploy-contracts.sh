@@ -14,6 +14,7 @@ if [[ "`pwd`" =~ /mnt/c/(.*) ]]
 then home_dir=//c/${BASH_REMATCH[1]}
 else home_dir="`pwd`"
 fi
+cwd=$home_dir
 
 registry="connextproject"
 

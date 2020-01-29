@@ -220,7 +220,7 @@ services:
     ports:
       - "8545:8545"
     volumes:
-      - `pwd`:/root
+      - $home_dir:/root
       - chain_dev:/data
 
   database:
