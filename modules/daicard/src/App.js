@@ -297,12 +297,12 @@ class App extends React.Component {
     console.log(`Successfully connected channel`);
 
     const token = new Contract(
-      channel.config.contractAddresses.CreditToken,
+      channel.config.contractAddresses.Token,
       tokenArtifacts.abi,
       ethProvider,
     );
     const tipToken = new Contract(
-      channel.config.contractAddresses.RewardToken,
+      channel.config.contractAddresses.Token2,
       tokenArtifacts.abi,
       wallet || ethProvider
     );

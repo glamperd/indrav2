@@ -19,13 +19,19 @@ export class Currency {
     new Currency("FIN", amount, daiRate);
   public static WEI = (amount: any, daiRate?: any) =>
     new Currency("WEI", amount, daiRate);
+  public static TIP = (amount: any, daiRate?: any) =>
+    new Currency("TIP", amount, daiRate);
+  public static TEI = (amount: any, daiRate?: any) =>
+    new Currency("TEI", amount, daiRate);
 
   public typeToSymbol = {
     DAI: "$",
     DEI: "DEI ",
     ETH: eth.constants.EtherSymbol,
     FIN: "FIN ",
-    WEI: "WEI "
+    WEI: "WEI ",
+    TIP: "TIP ",
+    TEI: "TEI "
   };
 
   public defaultOptions = {
@@ -33,7 +39,9 @@ export class Currency {
     DEI: { commas: false, decimals: 0, symbol: false, round: true },
     ETH: { commas: false, decimals: 3, symbol: true, round: true },
     FIN: { commas: false, decimals: 3, symbol: false, round: true },
-    WEI: { commas: false, decimals: 0, symbol: false, round: true }
+    WEI: { commas: false, decimals: 0, symbol: false, round: true },
+    TIP: { commas: false, decimals: 0, symbol: true, round: true },
+    TEI: { commas: false, decimals: 0, symbol: false, round: true },
   };
 
   ////////////////////////////////////////
@@ -100,7 +108,7 @@ export class Currency {
   }
 
   public isTokenType(type?: any) {
-    return ["DAI", "DEI"].includes(type || this.type);
+    return ["DAI", "DEI", "TIP", "TEI"].includes(type || this.type);
   }
 
   public toBN() {
@@ -154,7 +162,9 @@ export class Currency {
       DEI: this.toRay(parseUnits(this.daiRate, 18).toString()),
       ETH: this.toRay("1"),
       FIN: this.toRay(parseUnits("1", 3).toString()),
-      WEI: this.toRay(parseUnits("1", 18).toString())
+      WEI: this.toRay(parseUnits("1", 18).toString()),
+      TIP: this.toRay(this.daiRate),
+      TEI: this.toRay(parseUnits(this.daiRate, 18).toString()),
     };
     if (
       (this.isEthType() && this.isEthType(currency)) ||
@@ -178,6 +188,8 @@ export class Currency {
   public toETH = (daiRate: any) => this._convert("ETH", daiRate);
   public toFIN = (daiRate: any) => this._convert("FIN", daiRate);
   public toWEI = (daiRate: any) => this._convert("WEI", daiRate);
+  public toTIP = (daiRate: any) => this._convert("TIP", daiRate);
+  public toTEI = (daiRate: any) => this._convert("TEI", daiRate);
 
   ////////////////////////////////////////
   // Private Methods
