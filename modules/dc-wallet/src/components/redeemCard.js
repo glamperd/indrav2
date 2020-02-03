@@ -124,13 +124,7 @@ export const RedeemCard = style(({ channel, classes, history, location, tokenPro
       if (freeTokenBalance[hubFreeBalanceAddress].lt(link.amount.wad)) {
         takeAction(`COLLATERALIZE`);
         setMessage(`Requesting ${link.amount.format()} of collateral`);
-        const collateralNeeded = link.amount.wad.sub(freeTokenBalance[hubFreeBalanceAddress]);
-        await channel.addPaymentProfile({
-          amountToCollateralize: collateralNeeded.toString(),
-          minimumMaintainedCollateral: link.amount.wad.toString(),
-          assetId: tokenProfile.assetId,
-        });
-        await channel.requestCollateral(tokenProfile.assetId);
+        await channel.requestCollateral(token.address);
       }
     } catch (e) {
       takeAction("ERROR");

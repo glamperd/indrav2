@@ -12,7 +12,6 @@ const style = withStyles(theme => ({
 }));
 
 export const DepositCard = style(({ address, history, maxDeposit, minDeposit }) => {
-  const minEth = minDeposit ? minDeposit.toETH().format() : "?.??";
   const maxEth = maxDeposit ? maxDeposit.toETH().format() : "?.??";
   const maxDai = maxDeposit ? maxDeposit.toDAI().format() : "?.??";
 
@@ -39,12 +38,7 @@ export const DepositCard = style(({ address, history, maxDeposit, minDeposit }) 
           <span> Send funds to this address to deposit. </span>
         </Typography>
         <Typography variant="body2">
-          <Tooltip disableFocusListener disableTouchListener title="Because gas">
-            <span>{`Deposit minimum of: ${minEth || "?.??"}.`}</span>
-          </Tooltip>
-        </Typography>
-        <Typography variant="body2">
-          <span>{`Up to ${maxEth || "?.??"} Eth 
+          <span>{`Up to ${maxEth || "?.??"} Eth
                     or ${maxDai ||
                       "?.??"} Dai will be deposited into the state channel, any leftovers will be kept on-chain`}</span>
         </Typography>
