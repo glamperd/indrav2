@@ -333,7 +333,7 @@ class App extends React.Component {
 
     console.log(`Client created successfully!`);
     console.log(` - Public Identifier: ${channel.publicIdentifier}`);
-    console.log(` - Account multisig address: ${channel.opts.multisigAddress}`);
+    console.log(` - Account multisig address: ${channel.multisigAddress}`);
     console.log(` - CF Account address: ${channel.signerAddress}`);
     console.log(` - Free balance address: ${channel.freeBalanceAddress}`);
     console.log(` - Token address: ${token.address}`);
@@ -537,7 +537,7 @@ class App extends React.Component {
           assetId: token.address.toLowerCase(),
         };
         console.log(
-          `Depositing ${depositParams.amount} tokens into channel: ${channel.opts.multisigAddress}`,
+          `Depositing ${depositParams.amount} tokens into channel: ${channel.multisigAddress}`,
         );
         const result = await channel.deposit(depositParams);
         await this.refreshBalances();
@@ -564,7 +564,7 @@ class App extends React.Component {
       }
 
       const amount = minBN([balance.onChain.ether.wad.sub(minDeposit.wad), nowMaxDeposit]);
-      console.log(`Depositing ${amount} wei into channel: ${channel.opts.multisigAddress}`);
+      console.log(`Depositing ${amount} wei into channel: ${channel.multisigAddress}`);
       const result = await channel.deposit({ amount: amount.toString() });
       await this.refreshBalances();
       console.log(`Successfully deposited ether! Result: ${JSON.stringify(result, null, 2)}`);

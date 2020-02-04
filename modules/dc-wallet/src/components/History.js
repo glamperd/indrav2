@@ -134,7 +134,7 @@ export const History = style(({ classes, ethProvider, nftEthProvider, paymentsAd
   }
 
   // Get transactions for an address using the etherscan API.
-  const getAccountHistoryWithApi = async (address) => {
+  const getAccountHistoryWithApi = async (address, acct) => {
     // Ropsten API
     let temprows=[];
     const url = 'https://api-ropsten.etherscan.io/api?module=account&action=txlist'
@@ -177,7 +177,7 @@ export const History = style(({ classes, ethProvider, nftEthProvider, paymentsAd
           gas: tx.gas,
           contract: tx.contractAddress,
           showLink: true,
-          source: TWO_SYMBOL,
+          source: acct === '1' ? ONE_SYMBOL : TWO_SYMBOL,
           isCredit: sign,
         };
         row = embellishRow(row);
@@ -239,7 +239,7 @@ export const History = style(({ classes, ethProvider, nftEthProvider, paymentsAd
       row.event = "Contract event " + row.contractAddress ? row.contractAddress.slice(0,8) : "";
     } else if (row.counterparty.toLowerCase() === knownAddresses.DreamChannel) {
       row.event = 'Top-up from DreamChannel';
-    } else if (row.counterparty.toLowerCase() === channel.opts.multisigAddress.toLowerCase()) {
+    } else if (row.counterparty.toLowerCase() === channel.multisigAddress.toLowerCase()) {
       row.event = row.tofrom === 'from' ? 'Deposit to ' : 'Withdraw from ';
       row.event += 'Payments';
     } else {
@@ -286,12 +286,16 @@ export const History = style(({ classes, ethProvider, nftEthProvider, paymentsAd
        setIsLoading(true);
        let tempRows = [];
        // Get tx list for payments address(es) - web3 block scan
-       console.log('Getting tx hist for ', paymentsAddress);
-       tempRows = await getTransactionsForAccount(paymentsAddress, ethProvider, 0);
-       //console.log('rows ', tempRows);
+       if (ethProvider) {
+         console.log('Getting tx hist for ', paymentsAddress);
+         tempRows = await getTransactionsForAccount(paymentsAddress, ethProvider, 0);
+         //console.log('rows ', tempRows);
+       } else {
+         tempRows = await getAccountHistoryWithApi(paymentsAddress, '1');
+       }
 
        // Get tx list for NFT address(es) - etherscan API
-       let nftRows = await getAccountHistoryWithApi(nftAddress);
+       let nftRows = await getAccountHistoryWithApi(nftAddress, '2');
        tempRows = tempRows.concat(nftRows);
 
        // Layer 2 transfer history

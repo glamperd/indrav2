@@ -29,7 +29,7 @@ then eth_rpc_url="https://rinkeby.infura.io/metamask"
 elif [[ "$INDRA_ETH_NETWORK" == "kovan" ]]
 then eth_rpc_url="https://kovan.infura.io/metamask"
 elif [[ "$INDRA_ETH_NETWORK" == "ropsten" ]]
-then eth_rpc_url="https://rpc.gazecoin.xyz"
+then eth_rpc_url="https://eth-ropsten.alchemyapi.io/jsonrpc/HxEg1dDqvI297deLt3jVNowBPYWWlZLo"
 elif [[ "$INDRA_ETH_NETWORK" == "ganache" ]]
 then
   eth_rpc_url="http://ethprovider:8545"
@@ -148,7 +148,7 @@ function new_secret {
 }
 new_secret "${project}_database_dev" "$project"
 
-eth_mnemonic_name="${project}_mnemonic_$ETH_NETWORK"
+eth_mnemonic_name="${project}_mnemonic_$INDRA_ETH_NETWORK"
 
 # Deploy with an attachable network so tests & the daicard can connect to individual components
 if [[ -z "`docker network ls -f name=$project | grep -w $project`" ]]
@@ -169,8 +169,8 @@ secrets:
   ${project}_database_dev:
     external: true
   # vvvv comment for ganache vvvvv
-  #$eth_mnemonic_name:
-  #  external: true
+  $eth_mnemonic_name:
+    external: true
 
 volumes:
   certs:
@@ -187,7 +187,7 @@ services:
       INDRA_ADMIN_TOKEN: $INDRA_ADMIN_TOKEN
       INDRA_ETH_CONTRACT_ADDRESSES: '$eth_contract_addresses'
       INDRA_ETH_MNEMONIC: $eth_mnemonic
-#      INDRA_ETH_MNEMONIC_FILE: /run/secrets/$eth_mnemonic_name
+      INDRA_ETH_MNEMONIC_FILE: /run/secrets/$eth_mnemonic_name
       INDRA_ETH_RPC_URL: $eth_rpc_url
       INDRA_LOG_LEVEL: $log_level
       INDRA_NATS_CLUSTER_ID:
@@ -207,7 +207,7 @@ services:
       - "$node_port:$node_port"
     secrets:
       - ${project}_database_dev
-#      - $eth_mnemonic_name
+      - $eth_mnemonic_name
     volumes:
       - $home_dir:/root
 
