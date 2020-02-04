@@ -159,7 +159,7 @@ export const History = style(({ classes, ethProvider, nftEthProvider, paymentsAd
     if (txList.status==='1') {
       txList.result.forEach (tx => {
         let toFrom, cp, sign;
-        if (address === tx.from) {
+        if (address.toLowerCase() === tx.from.toLowerCase()) {
           toFrom = 'from';
           cp = tx.to;
           sign = false;
@@ -286,7 +286,8 @@ export const History = style(({ classes, ethProvider, nftEthProvider, paymentsAd
        setIsLoading(true);
        let tempRows = [];
        // Get tx list for payments address(es) - web3 block scan
-       if (ethProvider) {
+       // Use for ganache
+       if (false) {
          console.log('Getting tx hist for ', paymentsAddress);
          tempRows = await getTransactionsForAccount(paymentsAddress, ethProvider, 0);
          //console.log('rows ', tempRows);

@@ -878,7 +878,7 @@ class App extends React.Component {
                   {...props}
                   paymentsAddress={channel ? channel.freeBalanceAddress : undefined }
                   nftAddress={associatedAddress}
-                  ethProvider={undefined/*ethProvider*/}
+                  ethProvider={ethProvider}
                   nftEthProvider={nftEthProvider}
                   daiContract={token}
                   tipContract={tipToken}
