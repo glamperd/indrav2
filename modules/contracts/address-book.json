@@ -165,6 +165,12 @@
     },
     "ProxyFactory": {
       "address": "0x396Abd23BDBFcd6ede56126b0f0df174cb8F002D"
+    },
+    "GazeToken": {
+      "address": "0xA579f55467d230AfC54520e6e7F0CEB5ECC3f1A0"
+    },
+    "FundingAccount": {
+      "address": "0xf17f52151EbEF6C7334FAD080c5704D77216b732"
     }
   },
   "4": {
@@ -402,6 +408,12 @@
       "address": "0x0d8cc4b8d15D4c3eF1d70af0071376fb26B5669b",
       "bytecode": "0xf97398131762b89df0289198fa30b8da8776d0afc8662aefc397a0b6b31ceb44",
       "txHash": "0xac65c7667ea1d25323df1853082a9c77e4d85518dceba020f3d14ce69ebdf098"
+    },
+    "GazeToken": {
+      "address": "0xA579f55467d230AfC54520e6e7F0CEB5ECC3f1A0"
+    },
+    "FundingAccount": {
+      "address": "0xf17f52151EbEF6C7334FAD080c5704D77216b732"
     }
   }
 }

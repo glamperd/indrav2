@@ -20,7 +20,8 @@ cache_from=$(shell if [[ -n "${GITHUB_WORKFLOW}" ]]; then echo "--cache-from=$(p
 
 # Get absolute paths to important dirs
 cwd=$(shell pwd)
-wincwd="C:\dev\workspace\indra_v2.3.22"
+wincwd=$(subst /,\,$(subst /mnt/c,C:,"${cwd}"))
+#wincwd="C:\dev\workspace\indra_v2.3.22"
 bot=$(cwd)/modules/payment-bot
 cf-core=$(cwd)/modules/cf-core
 client=$(cwd)/modules/client
@@ -69,13 +70,16 @@ dev: database node client payment-bot-js indra-proxy test-runner-js ws-tcp-relay
 staging: daicard-proxy database ethprovider indra-proxy-prod node-staging payment-bot-staging test-runner-staging ws-tcp-relay
 release: daicard-proxy database ethprovider indra-proxy-prod node-release payment-bot-release test-runner-release ws-tcp-relay
 
-start: start-daicard
+start: start-dcwallet
 
 start-headless: dev
 	INDRA_UI=headless bash ops/start-dev.sh
 
 start-daicard: dev
 	INDRA_UI=daicard bash ops/start-dev.sh
+
+start-dcwallet: dev
+	INDRA_UI=dcwallet bash ops/start-dev.sh
 
 start-dashboard: dev
 	INDRA_UI=dashboard bash ops/start-dev.sh
@@ -102,11 +106,15 @@ restart-daicard: dev
 	bash ops/stop.sh
 	INDRA_UI=daicard bash ops/start-dev.sh
 
+restart-dcwallet: dev
+	bash ops/stop.sh
+	INDRA_UI=dcwallet bash ops/start-dev.sh
+
 restart-dashboard: dev
 	bash ops/stop.sh
 	INDRA_UI=dashboard bash ops/start-dev.sh
 
-restart: restart-daicard
+restart: restart-dcwallet
 
 restart-prod:
 	bash ops/stop.sh

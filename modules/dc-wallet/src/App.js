@@ -75,7 +75,6 @@ const LOG_LEVEL = 5;
 const WITHDRAW_ESTIMATED_GAS = toBN("300000");
 const DEPOSIT_ESTIMATED_GAS = toBN("25000");
 const MAX_CHANNEL_VALUE = Currency.DAI("30");
-const CF_PATH = "m/44'/60'/0'/25446";
 
 // it is important to add a default payment
 // profile on initial load in the case the
@@ -112,10 +111,14 @@ const style = withStyles(theme => ({
   grid: {},
 }));
 
+const ethProvider = new eth.providers.JsonRpcProvider(urls.ethProviderUrl);
+const nftEthProvider = new eth.providers.JsonRpcProvider(urls.nftEthProviderUrl);
+
 class App extends React.Component {
   constructor(props) {
     super(props);
     const swapRate = "100.00";
+    const machine = interpret(rootMachine);
     console.log('ethProvider:', urls.ethProviderUrl);
     this.state = {
       balance: {
@@ -134,16 +137,15 @@ class App extends React.Component {
       },
       ethProvider: new eth.providers.JsonRpcProvider(urls.ethProviderUrl),
       nftEthProvider: new eth.providers.JsonRpcProvider(urls.nftEthProviderUrl),
-      machine: interpret(rootMachine),
+      machine,
       maxDeposit: null,
       minDeposit: null,
       network: {},
       useWalletConnext: false,
       saiBalance: Currency.DAI("0", swapRate),
-      state: {},
+      state: machine.initialState,
       swapRate,
       token: null,
-      tokenProfile: null,
       tipToken: null,
     };
     this.refreshBalances.bind(this);

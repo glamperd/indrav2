@@ -10,7 +10,7 @@ docker swarm init 2> /dev/null || true
 
 INDRA_ETH_NETWORK="${1:-ganache}"
 INDRA_ADMIN_TOKEN="${INDRA_ADMIN_TOKEN:-foo}"
-INDRA_UI="${INDRA_UI:-daicard}"
+INDRA_UI="${INDRA_UI:-dcwallet}"
 
 ####################
 # Internal Config
@@ -80,8 +80,10 @@ else
   then ui_working_dir=/root/modules/dashboard
   elif [[ "$INDRA_UI" == "daicard" ]]
   then ui_working_dir=/root/modules/daicard
+elif [[ "$INDRA_UI" == "dcwallet" ]]
+  then ui_working_dir=/root/modules/dc-wallet
   else
-    echo "INDRA_UI: Expected headless, dashboard, or daicard"
+    echo "INDRA_UI: Expected headless, dashboard, daicard, or dcwallet"
     exit 1
   fi
   number_of_services=$(( $number_of_services + 3 ))
