@@ -84,7 +84,7 @@ export class ConfigService implements OnModuleInit {
 
   // FIXME: should be easy to add tokens
   async getSupportedTokenAddresses(): Promise<string[]> {
-    return [await this.getTokenAddress(), AddressZero];
+    return [await this.getTokenAddress(), await this.getTokenAddress('TIP'), AddressZero];
   }
 
   async getDefaultAppByName(name: SupportedApplication): Promise<DefaultApp> {
