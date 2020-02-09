@@ -82,7 +82,7 @@ start-dcwallet: dev
 	INDRA_UI=dcwallet bash ops/start-dev.sh ropsten
 
 start-dashboard: dev
-	INDRA_UI=dashboard bash ops/start-dev.sh
+	INDRA_UI=dashboard bash ops/start-dev.sh ropsten
 
 start-test: start-test-staging
 start-test-staging:
