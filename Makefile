@@ -76,7 +76,7 @@ start-headless: dev
 	INDRA_UI=headless bash ops/start-dev.sh
 
 start-daicard: dev
-	INDRA_UI=daicard bash ops/start-dev.sh
+	INDRA_UI=daicard bash ops/start-dev.sh ropsten
 
 start-dcwallet: dev
 	INDRA_UI=dcwallet bash ops/start-dev.sh ropsten
