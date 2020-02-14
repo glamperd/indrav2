@@ -138,7 +138,7 @@ const sendGift = async (address, token) => {
 // First, setup signer & connect to eth provider
 
 ;(async function() {
-  let provider, balance, nonce, token;
+  let provider, balance, nonce, token, token2;
 
   if (process.env.ETH_PROVIDER) {
     provider = new eth.providers.JsonRpcProvider(process.env.ETH_PROVIDER);
@@ -188,6 +188,7 @@ const sendGift = async (address, token) => {
   // If this network has not token yet, deploy one
   if (chainId === ganacheId || !getSavedData(`Token`, `address`)) {
     token = await deployContract(`Token`, tokenArtifacts, []);
+    token2 = await deployContract('Token2', tokenArtifacts, []);
   }
 
   ////////////////////////////////////////
@@ -196,9 +197,13 @@ const sendGift = async (address, token) => {
   if (chainId === ganacheId) {
     await sendGift(eth.Wallet.fromMnemonic(mnemonic).address, token);
     await sendGift(eth.Wallet.fromMnemonic(mnemonic, `${CF_PATH}/0`).address, token);
+    await sendGift(eth.Wallet.fromMnemonic(mnemonic).address, token2)
+    await sendGift(eth.Wallet.fromMnemonic(mnemonic, cfPath).address, token2)
     for (const botMnemonic of botMnemonics) {
       await sendGift(eth.Wallet.fromMnemonic(botMnemonic).address, token);
       await sendGift(eth.Wallet.fromMnemonic(botMnemonic, `${CF_PATH}/0`).address, token);
+      await sendGift(eth.Wallet.fromMnemonic(botMnemonic).address, token2)
+      await sendGift(eth.Wallet.fromMnemonic(botMnemonic, cfPath).address, token2)
     }
   }
 
