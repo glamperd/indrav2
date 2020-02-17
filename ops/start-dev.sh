@@ -80,7 +80,7 @@ else
   then ui_working_dir=/root/modules/dashboard
   elif [[ "$INDRA_UI" == "daicard" ]]
   then ui_working_dir=/root/modules/daicard
-elif [[ "$INDRA_UI" == "dcwallet" ]]
+  elif [[ "$INDRA_UI" == "dcwallet" ]]
   then ui_working_dir=/root/modules/dc-wallet
   else
     echo "INDRA_UI: Expected headless, dashboard, daicard, or dcwallet"
