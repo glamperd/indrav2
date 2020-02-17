@@ -100,7 +100,7 @@ export const History = style(({ classes, ethProvider, nftEthProvider, paymentsAd
      var block = await provider.getBlock(i, true);
      if (block && block.transactions ) {
        block.transactions.forEach( function(e) {
-         if (account === e.from || account === e.to) {
+         if (account === e.from || account == e.to) {
            //console.log('found tx in ', i);
            let toFrom, cp, sign;
            if (account === e.from) {

@@ -8,13 +8,14 @@
 		"start-test": "make start-test",
 		"build": "react-scripts build",
 		"eject": "react-scripts eject",
-    "logs": "bash ops/logs.sh",
-    "format": "prettier --write \"src/**/*.js\""
+		"logs": "bash ops/logs.sh",
+		"format": "prettier --write \"src/**/*.js\""
 	},
 	"dependencies": {
-    "@connext/client": "4.0.5",
+		"@connext/client": "4.0.5",
 		"@connext/store": "4.0.5",
-    "@connext/types": "4.0.5",
+		"@connext/types": "4.0.5",
+		"@counterfactual/types": "0.0.45",
 		"@material-ui/core": "4.8.2",
 		"@material-ui/icons": "4.5.1",
 		"@walletconnect/browser": "1.0.0-beta.41",
@@ -38,7 +39,7 @@
 		"react-qr-reader": "2.2.1",
 		"react-router-dom": "5.1.2",
 		"react-scripts": "3.3.0",
-  	"xstate": "4.7.5"
+		"xstate": "4.7.5"
 	},
 	"devDependencies": {
 		"@connext/types": "4.0.5",

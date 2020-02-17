@@ -38,7 +38,7 @@ const SectionGrid = styled(Grid)({
 })
 
 const address = {
-  mainnet: "0xF80fd6F5eF91230805508bB28d75248024E50F6F", //,
+  mainnet: "0xf3f722f6ca6026fb7cc9b63523bbc6a73d3aad39", //"0xF80fd6F5eF91230805508bB28d75248024E50F6F", //,
   staging: "0x5307B4F67ca8746562A4a9fdEb0714033008Ef4A",
   // rinkeby: "0xDA3CCBa9F3e3a9fE7D0Ed9F699Ca2BEF78Ba7A6c",
 };
@@ -154,7 +154,7 @@ const StatsSummary = ({ classes, messaging }) => {
         const hourDifference = (Date.now() - createdDate.getTime()) / 3600000;
         if (hourDifference <= 24) {
           pastDayTotal++;
-        }
+        } 
         if (hourDifference <= 168) {
           pastWeekTotal++;
         }

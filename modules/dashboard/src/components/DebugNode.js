@@ -27,7 +27,7 @@ const StatTypography = styled(Typography)({
 });
 
 const address = {
-  mainnet: "0xF80fd6F5eF91230805508bB28d75248024E50F6F",
+  mainnet: "0xf3f722f6ca6026fb7cc9b63523bbc6a73d3aad39",
   staging: "0x5307B4F67ca8746562A4a9fdEb0714033008Ef4A",
   rinkeby: "0xDA3CCBa9F3e3a9fE7D0Ed9F699Ca2BEF78Ba7A6c",
 };
@@ -35,7 +35,6 @@ const address = {
 function DebugNode({ classes }) {
   const [ethBalances, setEthBalances] = useState(null);
   const [daiBalances, setDaiBalances] = useState(null);
-  const [tipBalances, setTipBalances] = useState(null);
 
   useEffect(() => {
     async function getBalances(addressArr) {
@@ -44,7 +43,6 @@ function DebugNode({ classes }) {
           async address =>
             await axios.get(
               "http://api.ethplorer.io/getAddressInfo/" + address + "?apiKey=freekey",
-              { mode: 'no-cors', }
             ),
         ),
       );
@@ -65,23 +63,11 @@ function DebugNode({ classes }) {
           ? balances[2].data.tokens[0].balance / 1000000000000000000
           : 0,
       };
-      var tip = {
-        mainnet: balances[0].data.tokens
-          ? balances[0].data.tokens[1].balance / 1000000000000000000
-          : 0,
-        staging: balances[1].data.tokens
-          ? balances[1].data.tokens[1].balance / 1000000000000000000
-          : 0,
-        rinkeby: balances[2].data.tokens
-          ? balances[2].data.tokens[1].balance / 1000000000000000000
-          : 0,
-      };
 
       setEthBalances(eth);
       setDaiBalances(dai);
-      setTipBalances(tip);
 
-      return { eth, dai, tip };
+      return { eth, dai };
     }
     getBalances(Object.values(address));
   }, []);
@@ -97,11 +83,8 @@ function DebugNode({ classes }) {
           Dai Balance: {daiBalances ? daiBalances.mainnet : "loading..."}
         </StatTypography>
         <StatTypography>
-          Tip Balance: {tipBalances ? tipBalances.mainnet : "loading..."}
-        </StatTypography>
-        <StatTypography>
           Public Identifier:
-          xpub6E3tjd9js7QMrBtYo7f157D7MwauL6MWdLzKekFaRBb3bvaQnUPjHKJcdNhiqSjhmwa6TcTjV1wSDTgvz52To2ZjhGMiQFbYie2N2LZpNx6
+          xpub6Di1bLRzeR8icvPKfZxir23fE54AhgWn6bxeuDD4yGWtgHK59LDQgojdyNqtjeg134svT126JzrKR9vjn1UWdUFzTHzNMER9QpS8UuQ9L8m
         </StatTypography>
       </StatGrid>
 
