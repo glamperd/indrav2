@@ -193,7 +193,7 @@ export const History = style(({ classes, ethProvider, nftEthProvider, paymentsAd
   const getL2TransferHistory = async () => {
     let temprows = [];
     const l2History = await channel.getTransferHistory();
-    //console.log('l2 history', l2History);
+    console.log('l2 history', l2History);
     l2History.forEach(transfer => {
       let val = Number(fromWei(transfer.amount)).toFixed(4);
       let prefix = (transfer.assetId === tipContract.address) ? 'Tip' : DAI_SYMBOL;
@@ -257,9 +257,11 @@ export const History = style(({ classes, ethProvider, nftEthProvider, paymentsAd
     bals.payments.eth = bal ? Number(fromWei(bal)).toFixed(4).toString() : '0';
     bal = await nftEthProvider.getBalance(nftAddress);
     bals.nft.eth = bal ? Number(fromWei(bal)).toFixed(4).toString() : '0';
-    // Get DAI balance
+    // Get DAI balances
     bal = await daiContract.functions.balanceOf(nftAddress);
     bals.nft.dai = bal ? Number(fromWei(bal)).toFixed(2).toString() : '0';
+    bal = await daiContract.functions.balanceOf(paymentsAddress);
+    bals.payments.dai = bal ? Number(fromWei(bal)).toFixed(2).toString() : '0';
     // Get GZE balance
     bals.payments.gze = await gzeContract.functions.balanceOf(paymentsAddress);
     //bals.payments.gze = '0';
@@ -286,8 +288,7 @@ export const History = style(({ classes, ethProvider, nftEthProvider, paymentsAd
        setIsLoading(true);
        let tempRows = [];
        // Get tx list for payments address(es) - web3 block scan
-       // Use for ganache
-       if (false) {
+       if (false) { // Ganache
          console.log('Getting tx hist for ', paymentsAddress);
          tempRows = await getTransactionsForAccount(paymentsAddress, ethProvider, 0);
          //console.log('rows ', tempRows);
@@ -311,7 +312,6 @@ export const History = style(({ classes, ethProvider, nftEthProvider, paymentsAd
        });
 
        setRows(tempRows);
-
 
        // Balances
        await getBalances();
@@ -355,6 +355,7 @@ export const History = style(({ classes, ethProvider, nftEthProvider, paymentsAd
                   { row.showLink ?
                     (<IconButton size='small'
                       href={"https://ropsten.etherscan.io/tx/" + row.hash}
+                      target='_blank'
                       style={{ color: '#ffffff' }}
                     >
                       <OpenInBrowserIcon />
@@ -374,7 +375,7 @@ export const History = style(({ classes, ethProvider, nftEthProvider, paymentsAd
             <Grid item xs={4} >
               <TextField
                 fullWidth
-                id="outlined-number"
+                id="outlined-number-1"
                 label="Address 1"
                 value={ETH_SYMBOL + balances.payments.eth + ' GZE' + balances.payments.gze}
                 disabled={true}
@@ -388,7 +389,7 @@ export const History = style(({ classes, ethProvider, nftEthProvider, paymentsAd
             <Grid item xs={4} >
               <TextField
                 fullWidth
-                id="outlined-number"
+                id="outlined-number-2"
                 label="Address 2"
                 value={ETH_SYMBOL + balances.nft.eth + ' ' + DAI_SYMBOL + balances.nft.dai }
                 disabled={true}

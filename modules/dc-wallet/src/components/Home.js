@@ -94,9 +94,6 @@ export const Home = style(({ balance, swapRate, channel, history, parseQRCode })
                 <ReceiveIcon style={{ marginLeft: "5px" }} />
               </Button>
             </Grid>
-            <Onboarding
-              channel={channel}
-            />
             <Grid item xs={12} >
               <Button
                 disableTouchRipple
@@ -116,6 +113,9 @@ export const Home = style(({ balance, swapRate, channel, history, parseQRCode })
             </Grid>
           </Grid>
         </Grid>
+        <Onboarding
+          channel={channel}
+        />
         <Grid item xs={12}>
           <Button
              style={{ marginBottom: "5%" }}
