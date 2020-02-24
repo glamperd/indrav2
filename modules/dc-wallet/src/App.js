@@ -39,7 +39,6 @@ import {
   Currency,
   migrate,
   minBN,
-  storeFactory,
   toBN,
   tokenToWei,
   weiToToken,

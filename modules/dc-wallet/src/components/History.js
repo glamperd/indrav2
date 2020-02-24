@@ -72,6 +72,7 @@ const style = withStyles(theme => ({
 
 const knownAddresses = {
   DreamChannel: process.env.DC_FUNDING_ADDRESS || '0x627306090abaB3A6e1400e9345bC60c78a8BEf57',
+  NftAssetsContract: '0xaba8a9c00cafac16ab60cf409a10d81431ab8681',
 };
 
 const SEARCH_START_BLOCK = 6990000;
@@ -193,7 +194,8 @@ export const History = style(({ classes, ethProvider, nftEthProvider, paymentsAd
   const getL2TransferHistory = async () => {
     let temprows = [];
     const l2History = await channel.getTransferHistory();
-    console.log('l2 history', l2History);
+    //console.log('l2 history', l2History);
+    let idx = 0;
     l2History.forEach(transfer => {
       let val = Number(fromWei(transfer.amount)).toFixed(4);
       let prefix = (transfer.assetId === tipContract.address) ? 'Tip' : DAI_SYMBOL;
@@ -210,7 +212,7 @@ export const History = style(({ classes, ethProvider, nftEthProvider, paymentsAd
         sign = true;
       }
       let row = {
-        hash: transfer.id,
+        hash: 'l2.' + (idx++),
         tofrom: toFrom,
         counterparty: cp,
         value: val,
@@ -242,6 +244,8 @@ export const History = style(({ classes, ethProvider, nftEthProvider, paymentsAd
     } else if (row.counterparty.toLowerCase() === channel.multisigAddress.toLowerCase()) {
       row.event = row.tofrom === 'from' ? 'Deposit to ' : 'Withdraw from ';
       row.event += 'Payments';
+    } else if (row.counterparty.toLowerCase() === knownAddresses.NftAssetsContract) {
+      row.event = 'Asset purchase fee';
     } else {
       row.event = row.tofrom === 'to' ? 'Received from ' : 'Sent to ';
       row.event += row.counterparty.slice(0,8) + '...';
