@@ -86,7 +86,7 @@ else
     echo "INDRA_UI: Expected headless, dashboard, daicard, or dcwallet"
     exit 1
   fi
-  number_of_services=$(( $number_of_services + 3 ))
+  number_of_services=$(( $number_of_services + 4 ))
   proxy_mode="dev"
   proxy_ui_url="http://ui:3000"
   ui_services="
@@ -121,6 +121,16 @@ else
     volumes:
       - $home_dir:/root
     working_dir: $ui_working_dir
+  dashboard:
+    image: $ui_image
+    entrypoint: npm start
+    environment:
+      NODE_ENV: development
+    networks:
+      - $project
+    volumes:
+      - $home_dir:/root
+    working_dir: /root/modules/dashboard
   "
 fi
 
