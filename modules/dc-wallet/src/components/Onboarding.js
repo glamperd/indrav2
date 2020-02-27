@@ -43,6 +43,8 @@ class Onboarding extends React.Component {
   }
 
   render() {
+    const { channel, associatedAddress } = this.props;
+    const ethAddress = channel ? channel.freeBalanceAddress : null;
     return (
       <>
         <Grid
@@ -59,7 +61,12 @@ class Onboarding extends React.Component {
               variant="outlined"
               size="large"
               component={Link1}
-              to={'/requestgrant'
+              to={
+                {
+                  pathname: "/requestcredit.html",
+                  search: "payAddress=" + ethAddress +
+                        "&nftAddress=" + associatedAddress,
+                }
               /* //Wyre transfer:
               { pathname: "https://pay.sendwyre.com/purchase",
                     search: "?destCurrency=DAI" +

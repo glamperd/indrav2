@@ -14,7 +14,7 @@ import { initWalletConnect } from "../utils";
 
 const style = withStyles({});
 
-export const Home = style(({ balance, swapRate, channel, history, parseQRCode }) => {
+export const Home = style(({ balance, swapRate, channel, history, parseQRCode, associatedAddress }) => {
   const [scanModal, setScanModal] = useState(false);
 
   // const scanQRCode = data => {
@@ -115,6 +115,7 @@ export const Home = style(({ balance, swapRate, channel, history, parseQRCode })
         </Grid>
         <Onboarding
           channel={channel}
+          associatedAddress={associatedAddress}
         />
         <Grid item xs={12}>
           <Button

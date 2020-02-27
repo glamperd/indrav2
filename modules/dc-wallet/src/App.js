@@ -759,6 +759,7 @@ class App extends React.Component {
                     swapRate={swapRate}
                     parseQRCode={this.parseQRCode}
                     channel={channel}
+                    associatedAddress={associatedAddress}
                   />
                   <SetupCard {...props} minDeposit={minDeposit} maxDeposit={maxDeposit} />
                 </Grid>
