@@ -17,7 +17,7 @@
       }
     </style>
     <script>
-      function handleSubmit (e) {
+      async function handleSubmit (e) {
         //e.preventDefault();
         var search = window.location.search;
         //console.log(window.location.search);
@@ -44,8 +44,10 @@
             fetch('https://adbot.gazecoin.xyz/requestgrant/' + associatedAddress + '/N', options);
           }
         }
+        alert('Your request has been submitted');
+        await new Promise(resolve => setTimeout(resolve, 2000));
+        window.close();
       }
-
     </script>
   </head>
   <body>
