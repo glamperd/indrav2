@@ -76,13 +76,13 @@ start-headless: dev
 	INDRA_UI=headless bash ops/start-dev.sh
 
 start-daicard: dev
-	INDRA_UI=daicard bash ops/start-dev.sh ropsten
+	INDRA_UI=daicard bash ops/start-dev.sh
 
 start-dcwallet: dev
-	INDRA_UI=dcwallet bash ops/start-dev.sh ropsten
+	INDRA_UI=dcwallet bash ops/start-dev.sh
 
 start-dashboard: dev
-	INDRA_UI=dashboard bash ops/start-dev.sh ropsten
+	INDRA_UI=dashboard bash ops/start-dev.sh 
 
 start-test: start-test-staging
 start-test-staging:
@@ -92,8 +92,8 @@ start-test-release:
 	INDRA_ETH_PROVIDER=http://localhost:8545 INDRA_MODE=test-release bash ops/start-prod.sh
 
 start: dev
-#	bash ops/start-dev.sh ganache
-	bash ops/start-dev.sh ropsten
+	bash ops/start-dev.sh ganache
+#	bash ops/start-dev.sh ropsten
 
 stop:
 	bash ops/stop.sh

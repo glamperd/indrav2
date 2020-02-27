@@ -405,9 +405,9 @@
       "txHash": "0xac65c7667ea1d25323df1853082a9c77e4d85518dceba020f3d14ce69ebdf098"
     },
     "Token2": {
-      "address": "0x9F544a3Fc3D1045e6ec49D4ecEF6dCD700457165",
+      "address": "0x0d8cc4b8d15D4c3eF1d70af0071376fb26B5669b",
       "bytecode": "0xf97398131762b89df0289198fa30b8da8776d0afc8662aefc397a0b6b31ceb44",
-      "txHash": "0xeddf4c8338b54f67ad8f4b38a92872042b54765c0a9e6320729f70615c125c6a"
+      "txHash": "0xac65c7667ea1d25323df1853082a9c77e4d85518dceba020f3d14ce69ebdf098"
     },
     "GazeToken": {
       "address": "0xA579f55467d230AfC54520e6e7F0CEB5ECC3f1A0"

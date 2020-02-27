@@ -160,6 +160,17 @@ new_secret "${project}_database_dev" "$project"
 
 eth_mnemonic_name="${project}_mnemonic_$INDRA_ETH_NETWORK"
 
+if [[ "$INDRA_ETH_NETWORK" != "ganache" ]]
+then
+  eth_secret=" $eth_mnemonic_name
+    external: true"
+  eth_secret_name="- $eth_mnemonic_name"
+else
+  eth_secret=""
+  eth_secret_name=""
+fi
+echo "ETH secret: $eth_secret"
+
 # Deploy with an attachable network so tests & the daicard can connect to individual components
 if [[ -z "`docker network ls -f name=$project | grep -w $project`" ]]
 then
@@ -178,9 +189,7 @@ networks:
 secrets:
   ${project}_database_dev:
     external: true
-  # vvvv comment for ganache vvvvv
-  $eth_mnemonic_name:
-    external: true
+  $eth_secret
 
 volumes:
   certs:
@@ -217,7 +226,7 @@ services:
       - "$node_port:$node_port"
     secrets:
       - ${project}_database_dev
-      - $eth_mnemonic_name
+      $eth_secret_name
     volumes:
       - $home_dir:/root
 
