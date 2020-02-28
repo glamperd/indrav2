@@ -102,6 +102,7 @@ else
       - $project
     ports:
       - "$port:80"
+      - "$dash_port:81"
     volumes:
       - certs:/etc/letsencrypt
   relay:
@@ -131,6 +132,8 @@ else
     volumes:
       - $home_dir:/root
     working_dir: /root/modules/dashboard
+    ports:
+      - "8081:3000"
   "
 fi
 
