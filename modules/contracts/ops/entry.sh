@@ -16,7 +16,7 @@ then
     --host="0.0.0.0" \
     --mnemonic="$ETH_MNEMONIC" \
     --networkId="4447" \
-    --port="8545" \
+    --port="8546" \
     --defaultBalanceEther="1000000000" # default 1bil ETH to each account $$$
 elif [[ "$1" == "deploy" ]]
 then
@@ -30,10 +30,10 @@ then
       --host="0.0.0.0" \
       --mnemonic="$ETH_MNEMONIC" \
       --networkId="4447" \
-      --port="8545" \
+      --port="8546" \
       --defaultBalanceEther="1000000000" \
        > $dir/.ganache.log &
-    bash /wait-for.sh localhost:8545
+    bash /wait-for.sh localhost:8546
   fi
   touch $dir/address-book.json
   node $dir/ops/migrate-contracts.js
