@@ -165,7 +165,8 @@ eth_mnemonic_name="${project}_mnemonic_$INDRA_ETH_NETWORK"
 
 if [[ "$INDRA_ETH_NETWORK" != "ganache" ]]
 then
-  eth_secret=" $eth_mnemonic_name
+  eth_secret="
+  $eth_mnemonic_name
     external: true"
   eth_secret_name="- $eth_mnemonic_name"
 else
