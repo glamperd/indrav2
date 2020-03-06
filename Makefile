@@ -79,7 +79,7 @@ start-daicard: dev
 	INDRA_UI=daicard bash ops/start-dev.sh
 
 start-dcwallet: dev
-	INDRA_UI=dcwallet bash ops/start-dev.sh
+	INDRA_UI=dcwallet bash ops/start-dev.sh ropsten
 
 start-dashboard: dev
 	INDRA_UI=dashboard bash ops/start-dev.sh 
