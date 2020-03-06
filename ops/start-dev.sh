@@ -32,7 +32,7 @@ elif [[ "$INDRA_ETH_NETWORK" == "ropsten" ]]
 then eth_rpc_url="https://eth-ropsten.alchemyapi.io/jsonrpc/HxEg1dDqvI297deLt3jVNowBPYWWlZLo"
 elif [[ "$INDRA_ETH_NETWORK" == "ganache" ]]
 then
-  eth_rpc_url="http://ethprovider:8545"
+  eth_rpc_url="http://ethprovider:8546"
   make deployed-contracts
 fi
 
