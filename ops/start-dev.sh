@@ -133,7 +133,7 @@ else
       - $home_dir:/root
     working_dir: /root/modules/dashboard
     ports:
-      - "8081:3000"
+      - "8088:3000"
   "
 fi
 
