@@ -1,9 +1,20 @@
-<mxfile modified="2020-09-24T02:14:18.889Z" host="app.diagrams.net" agent="5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/85.0.4183.102 Safari/537.36 Edg/85.0.564.51" etag="XmyIh3dSlAX3cDRIUDZN" version="13.7.5" type="github">
+<mxfile modified="2020-09-24T02:58:03.099Z" host="app.diagrams.net" agent="5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/85.0.4183.102 Safari/537.36 Edg/85.0.564.51" etag="n8HX1H_oM0SAtjjepNof" version="13.7.5" type="github">
   <diagram id="Ht1M8jgEwFfnCIfOTk4-" name="Page-1">
     <mxGraphModel dx="1180" dy="2350" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="827" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
+        <mxCell id="3GUSIG28P1bqkNb9e1wR-77" style="edgeStyle=orthogonalEdgeStyle;rounded=1;jumpStyle=sharp;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.75;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;endArrow=classic;endFill=1;fontColor=#000000;startArrow=classicThin;startFill=1;strokeColor=#B5739D;" edge="1" parent="1" source="3GUSIG28P1bqkNb9e1wR-50" target="3GUSIG28P1bqkNb9e1wR-70">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1005" y="-700" />
+              <mxPoint x="1075" y="-700" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="3GUSIG28P1bqkNb9e1wR-50" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;dashed=1;" vertex="1" parent="1">
+          <mxGeometry x="720" y="-846.5" width="380" height="119" as="geometry" />
+        </mxCell>
         <mxCell id="3GUSIG28P1bqkNb9e1wR-44" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;dashed=1;" vertex="1" parent="1">
           <mxGeometry x="80" y="-839" width="380" height="119" as="geometry" />
         </mxCell>
@@ -17,7 +28,7 @@
           </mxGeometry>
         </mxCell>
         <mxCell id="UEzPUAAOIrF-is8g5C7q-175" value="AWS Instance - Payments" style="points=[[0,0],[0.25,0],[0.5,0],[0.75,0],[1,0],[1,0.25],[1,0.5],[1,0.75],[1,1],[0.75,1],[0.5,1],[0.25,1],[0,1],[0,0.75],[0,0.5],[0,0.25]];outlineConnect=0;gradientColor=none;html=1;whiteSpace=wrap;fontSize=12;fontStyle=0;shape=mxgraph.aws4.group;grIcon=mxgraph.aws4.group_aws_cloud_alt;strokeColor=#232F3E;fillColor=none;verticalAlign=top;align=left;spacingLeft=30;fontColor=#232F3E;dashed=0;labelBackgroundColor=#ffffff;" parent="1" vertex="1">
-          <mxGeometry x="219" y="-690" width="730" height="410" as="geometry" />
+          <mxGeometry x="219" y="-690" width="730" height="440" as="geometry" />
         </mxCell>
         <mxCell id="UEzPUAAOIrF-is8g5C7q-195" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;startArrow=none;startFill=0;endArrow=open;endFill=0;strokeColor=#808080;strokeWidth=2;exitX=0.75;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" parent="1" source="3GUSIG28P1bqkNb9e1wR-1" target="3GUSIG28P1bqkNb9e1wR-3" edge="1">
           <mxGeometry relative="1" as="geometry">
@@ -51,18 +62,22 @@
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
         <mxCell id="3GUSIG28P1bqkNb9e1wR-11" value="Apache httpd routing&lt;br&gt;*.gazecoin.xyz" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
-          <mxGeometry x="530" y="-680.5" width="390" height="30" as="geometry" />
+          <mxGeometry x="490" y="-680.5" width="430" height="30" as="geometry" />
         </mxCell>
         <mxCell id="3GUSIG28P1bqkNb9e1wR-16" value="Ethereum Layer 1 Node (geth)" style="shape=ext;double=1;rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
           <mxGeometry x="800" y="-610.5" width="120" height="80" as="geometry" />
         </mxCell>
         <mxCell id="3GUSIG28P1bqkNb9e1wR-18" value="Ethereum" style="outlineConnect=0;fontColor=#232F3E;gradientColor=#F78E04;gradientDirection=north;fillColor=#D05C17;strokeColor=#ffffff;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=12;fontStyle=0;aspect=fixed;shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.blockchain;" vertex="1" parent="1">
-          <mxGeometry x="990" y="-610.5" width="78" height="78" as="geometry" />
+          <mxGeometry x="980" y="-410.5" width="170.5" height="170.5" as="geometry" />
         </mxCell>
         <mxCell id="3GUSIG28P1bqkNb9e1wR-19" value="" style="endArrow=classic;startArrow=classic;html=1;fontColor=#000000;exitX=1;exitY=0.5;exitDx=0;exitDy=0;" edge="1" parent="1" source="3GUSIG28P1bqkNb9e1wR-16" target="3GUSIG28P1bqkNb9e1wR-18">
           <mxGeometry width="50" height="50" relative="1" as="geometry">
             <mxPoint x="560" y="-480.5" as="sourcePoint" />
             <mxPoint x="610" y="-530.5" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="970" y="-570" />
+              <mxPoint x="970" y="-330" />
+            </Array>
           </mxGeometry>
         </mxCell>
         <mxCell id="3GUSIG28P1bqkNb9e1wR-20" value="card.gazecoin.xyz node.js server" style="shape=ext;double=1;rounded=0;whiteSpace=wrap;html=1;fontColor=#000000;" vertex="1" parent="1">
@@ -74,7 +89,7 @@
             <mxPoint x="610" y="-530.5" as="targetPoint" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="3GUSIG28P1bqkNb9e1wR-24" value="" style="endArrow=classic;startArrow=classic;html=1;fontColor=#000000;entryX=0.775;entryY=0.967;entryDx=0;entryDy=0;entryPerimeter=0;exitX=0.5;exitY=0;exitDx=0;exitDy=0;" edge="1" parent="1" source="3GUSIG28P1bqkNb9e1wR-16" target="3GUSIG28P1bqkNb9e1wR-11">
+        <mxCell id="3GUSIG28P1bqkNb9e1wR-24" value="" style="endArrow=classic;startArrow=classic;html=1;fontColor=#000000;entryX=0.863;entryY=1.017;entryDx=0;entryDy=0;entryPerimeter=0;exitX=0.5;exitY=0;exitDx=0;exitDy=0;" edge="1" parent="1" source="3GUSIG28P1bqkNb9e1wR-16" target="3GUSIG28P1bqkNb9e1wR-11">
           <mxGeometry width="50" height="50" relative="1" as="geometry">
             <mxPoint x="560" y="-480.5" as="sourcePoint" />
             <mxPoint x="610" y="-530.5" as="targetPoint" />
@@ -91,7 +106,7 @@
             <mxPoint x="560" y="-500.5" as="sourcePoint" />
             <mxPoint x="780" y="-650.5" as="targetPoint" />
             <Array as="points">
-              <mxPoint x="725" y="-395" />
+              <mxPoint x="705" y="-395" />
             </Array>
           </mxGeometry>
         </mxCell>
@@ -100,7 +115,7 @@
             <mxPoint x="560" y="-500.5" as="sourcePoint" />
             <mxPoint x="780" y="-650.5" as="targetPoint" />
             <Array as="points">
-              <mxPoint x="725" y="-345" />
+              <mxPoint x="705" y="-345" />
             </Array>
           </mxGeometry>
         </mxCell>
@@ -130,8 +145,8 @@
             <mxPoint x="560" y="-500.5" as="sourcePoint" />
             <mxPoint x="610" y="-550.5" as="targetPoint" />
             <Array as="points">
-              <mxPoint x="700" y="-520.5" />
-              <mxPoint x="700" y="-570.5" />
+              <mxPoint x="690" y="-520" />
+              <mxPoint x="690" y="-570" />
             </Array>
           </mxGeometry>
         </mxCell>
@@ -139,7 +154,7 @@
           <mxGeometry x="207" y="-825" width="78" height="76" as="geometry" />
         </mxCell>
         <mxCell id="3GUSIG28P1bqkNb9e1wR-39" value="Unity user" style="outlineConnect=0;fontColor=#232F3E;gradientColor=none;fillColor=#232F3E;strokeColor=none;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=12;fontStyle=0;aspect=fixed;pointerEvents=1;shape=mxgraph.aws4.user;" vertex="1" parent="1">
-          <mxGeometry x="960" y="-827" width="78" height="78" as="geometry" />
+          <mxGeometry x="1010" y="-827" width="78" height="78" as="geometry" />
         </mxCell>
         <mxCell id="3GUSIG28P1bqkNb9e1wR-40" value="Web user" style="outlineConnect=0;fontColor=#232F3E;gradientColor=none;fillColor=#232F3E;strokeColor=none;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=12;fontStyle=0;aspect=fixed;pointerEvents=1;shape=mxgraph.aws4.user;" vertex="1" parent="1">
           <mxGeometry x="108" y="-827" width="78" height="78" as="geometry" />
@@ -161,7 +176,7 @@
         <mxCell id="3GUSIG28P1bqkNb9e1wR-43" value="Connext Client" style="rounded=0;whiteSpace=wrap;html=1;fontColor=#000000;" vertex="1" parent="1">
           <mxGeometry x="310" y="-779" width="120" height="30" as="geometry" />
         </mxCell>
-        <mxCell id="3GUSIG28P1bqkNb9e1wR-45" value="" style="endArrow=classic;startArrow=classic;html=1;fontColor=#000000;exitX=1;exitY=0.75;exitDx=0;exitDy=0;" edge="1" parent="1" source="3GUSIG28P1bqkNb9e1wR-43">
+        <mxCell id="3GUSIG28P1bqkNb9e1wR-45" value="" style="endArrow=classic;startArrow=classic;html=1;fontColor=#000000;exitX=1;exitY=0.75;exitDx=0;exitDy=0;fillColor=#e1d5e7;strokeColor=#00CC00;" edge="1" parent="1" source="3GUSIG28P1bqkNb9e1wR-43">
           <mxGeometry width="50" height="50" relative="1" as="geometry">
             <mxPoint x="560" y="-490" as="sourcePoint" />
             <mxPoint x="480" y="-558" as="targetPoint" />
@@ -177,6 +192,153 @@
         <mxCell id="3GUSIG28P1bqkNb9e1wR-46" value="L2 requests:&lt;br&gt;- create channel&lt;br&gt;&lt;div style=&quot;text-align: left&quot;&gt;- send payment&lt;/div&gt;&lt;div style=&quot;text-align: left&quot;&gt;- add collateral&lt;/div&gt;" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontColor=#000000;" vertex="1" connectable="0" parent="3GUSIG28P1bqkNb9e1wR-45">
           <mxGeometry x="-0.1086" y="1" relative="1" as="geometry">
             <mxPoint x="4" y="-22" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="3GUSIG28P1bqkNb9e1wR-47" value="web3.js/ethers.js" style="rounded=0;whiteSpace=wrap;html=1;fontColor=#000000;" vertex="1" parent="1">
+          <mxGeometry x="310" y="-827" width="120" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="3GUSIG28P1bqkNb9e1wR-48" value="" style="endArrow=classic;startArrow=classic;html=1;fontColor=#000000;exitX=1;exitY=0.5;exitDx=0;exitDy=0;fillColor=#e1d5e7;strokeColor=#00CC00;entryX=0.25;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="3GUSIG28P1bqkNb9e1wR-47" target="3GUSIG28P1bqkNb9e1wR-16">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="440" y="-746.5" as="sourcePoint" />
+            <mxPoint x="860" y="-810" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="690" y="-810" />
+              <mxPoint x="690" y="-710" />
+              <mxPoint x="830" y="-710" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="3GUSIG28P1bqkNb9e1wR-49" value="L1 requests:&lt;br&gt;&lt;div&gt;- get balance&lt;/div&gt;&lt;div&gt;- deposit to L2&lt;/div&gt;&lt;div&gt;- withdraw from L2&lt;/div&gt;" style="edgeLabel;html=1;align=left;verticalAlign=middle;resizable=0;points=[];fontColor=#000000;" vertex="1" connectable="0" parent="3GUSIG28P1bqkNb9e1wR-48">
+          <mxGeometry x="-0.1086" y="1" relative="1" as="geometry">
+            <mxPoint x="-61" y="0.010000000000001785" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="3GUSIG28P1bqkNb9e1wR-51" value="" style="outlineConnect=0;fontColor=#232F3E;gradientColor=#F34482;gradientDirection=north;fillColor=#BC1356;strokeColor=#ffffff;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=12;fontStyle=0;aspect=fixed;shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.ar_vr;" vertex="1" parent="1">
+          <mxGeometry x="962" y="-827" width="48" height="48" as="geometry" />
+        </mxCell>
+        <mxCell id="3GUSIG28P1bqkNb9e1wR-52" value="Connext Client javascript" style="rounded=0;whiteSpace=wrap;html=1;fontColor=#000000;" vertex="1" parent="1">
+          <mxGeometry x="730" y="-779" width="90" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="3GUSIG28P1bqkNb9e1wR-53" value="Nethereum" style="rounded=0;whiteSpace=wrap;html=1;fontColor=#000000;" vertex="1" parent="1">
+          <mxGeometry x="730" y="-827" width="140" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="3GUSIG28P1bqkNb9e1wR-56" value="" style="endArrow=classic;startArrow=classic;html=1;fontColor=#000000;exitX=0;exitY=0.5;exitDx=0;exitDy=0;fillColor=#e1d5e7;entryX=0.375;entryY=-0.006;entryDx=0;entryDy=0;entryPerimeter=0;strokeColor=#B5739D;" edge="1" source="3GUSIG28P1bqkNb9e1wR-53" parent="1" target="3GUSIG28P1bqkNb9e1wR-16">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="698" y="-789" as="sourcePoint" />
+            <mxPoint x="1088" y="-653" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="700" y="-812" />
+              <mxPoint x="700" y="-720" />
+              <mxPoint x="845" y="-720" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="3GUSIG28P1bqkNb9e1wR-54" value="" style="endArrow=classic;startArrow=classic;html=1;fontColor=#000000;exitX=0;exitY=0.5;exitDx=0;exitDy=0;fillColor=#e1d5e7;strokeColor=#B5739D;" edge="1" source="3GUSIG28P1bqkNb9e1wR-52" parent="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="818" y="-532.5" as="sourcePoint" />
+            <mxPoint x="490" y="-560" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="510" y="-764" />
+              <mxPoint x="510" y="-610" />
+              <mxPoint x="490" y="-600" />
+              <mxPoint x="490" y="-560" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="3GUSIG28P1bqkNb9e1wR-58" value="js/.net interop" style="rounded=0;whiteSpace=wrap;html=1;fontColor=#000000;" vertex="1" parent="1">
+          <mxGeometry x="820" y="-779" width="50" height="29" as="geometry" />
+        </mxCell>
+        <mxCell id="3GUSIG28P1bqkNb9e1wR-59" value="Payments&lt;br&gt;Library (.net)" style="rounded=0;whiteSpace=wrap;html=1;fontColor=#000000;" vertex="1" parent="1">
+          <mxGeometry x="880" y="-827" width="70" height="77" as="geometry" />
+        </mxCell>
+        <mxCell id="3GUSIG28P1bqkNb9e1wR-60" value="" style="endArrow=classic;startArrow=classic;html=1;fontColor=#000000;entryX=0;entryY=0.25;entryDx=0;entryDy=0;exitX=1;exitY=0.75;exitDx=0;exitDy=0;strokeColor=#0000FF;" edge="1" parent="1" source="3GUSIG28P1bqkNb9e1wR-1" target="3GUSIG28P1bqkNb9e1wR-26">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="560" y="-530" as="sourcePoint" />
+            <mxPoint x="610" y="-580" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="610" y="-500" />
+              <mxPoint x="610" y="-358" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="3GUSIG28P1bqkNb9e1wR-61" value="Payment&lt;br&gt;&amp;nbsp;requests" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontColor=#000000;" vertex="1" connectable="0" parent="3GUSIG28P1bqkNb9e1wR-60">
+          <mxGeometry x="0.0298" relative="1" as="geometry">
+            <mxPoint y="-30.5" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="3GUSIG28P1bqkNb9e1wR-62" value="GazeTips&lt;br&gt;bot" style="shape=ext;double=1;rounded=0;whiteSpace=wrap;html=1;fontColor=#000000;" vertex="1" parent="1">
+          <mxGeometry x="800" y="-310.5" width="120" height="40.5" as="geometry" />
+        </mxCell>
+        <mxCell id="3GUSIG28P1bqkNb9e1wR-63" value="" style="endArrow=classic;startArrow=classic;html=1;fontColor=#000000;entryX=0.5;entryY=1;entryDx=0;entryDy=0;exitX=0;exitY=0.5;exitDx=0;exitDy=0;" edge="1" parent="1" source="3GUSIG28P1bqkNb9e1wR-62" target="3GUSIG28P1bqkNb9e1wR-11">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="560" y="-540" as="sourcePoint" />
+            <mxPoint x="610" y="-590" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="705" y="-290" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="3GUSIG28P1bqkNb9e1wR-64" value="" style="endArrow=classic;startArrow=classic;html=1;fontColor=#000000;entryX=0;entryY=0.25;entryDx=0;entryDy=0;strokeColor=#CC00CC;" edge="1" parent="1" target="3GUSIG28P1bqkNb9e1wR-62">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="505" y="-490" as="sourcePoint" />
+            <mxPoint x="810" y="-348" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="620" y="-490" />
+              <mxPoint x="620" y="-300" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="3GUSIG28P1bqkNb9e1wR-66" value="" style="shape=image;html=1;verticalAlign=top;verticalLabelPosition=bottom;labelBackgroundColor=#ffffff;imageAspect=0;aspect=fixed;image=https://cdn0.iconfinder.com/data/icons/social-flat-rounded-rects/512/telegram-128.png;fontColor=#000000;" vertex="1" parent="1">
+          <mxGeometry x="890" y="-200" width="50" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="3GUSIG28P1bqkNb9e1wR-67" value="" style="shape=image;html=1;verticalAlign=top;verticalLabelPosition=bottom;labelBackgroundColor=#ffffff;imageAspect=0;aspect=fixed;image=https://cdn0.iconfinder.com/data/icons/free-social-media-set/24/discord-128.png;fontColor=#000000;" vertex="1" parent="1">
+          <mxGeometry x="812" y="-200" width="59" height="59" as="geometry" />
+        </mxCell>
+        <mxCell id="3GUSIG28P1bqkNb9e1wR-68" value="" style="endArrow=classic;startArrow=classic;html=1;strokeColor=#CC00CC;fontColor=#000000;exitX=0.367;exitY=0.975;exitDx=0;exitDy=0;exitPerimeter=0;" edge="1" parent="1" source="3GUSIG28P1bqkNb9e1wR-62" target="3GUSIG28P1bqkNb9e1wR-67">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="560" y="-440" as="sourcePoint" />
+            <mxPoint x="610" y="-490" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="3GUSIG28P1bqkNb9e1wR-69" value="" style="endArrow=classic;startArrow=classic;html=1;strokeColor=#CC00CC;fontColor=#000000;exitX=0.75;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="3GUSIG28P1bqkNb9e1wR-62" target="3GUSIG28P1bqkNb9e1wR-66">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="854.04" y="-261.0124999999998" as="sourcePoint" />
+            <mxPoint x="852.2454794179828" y="-190" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="890" y="-220" />
+              <mxPoint x="915" y="-220" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="3GUSIG28P1bqkNb9e1wR-70" value="World Assets" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;align=left;horizontal=1;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry x="1000" y="-670" width="150" height="210" as="geometry" />
+        </mxCell>
+        <mxCell id="3GUSIG28P1bqkNb9e1wR-71" value="" style="shape=datastore;whiteSpace=wrap;html=1;fontColor=#000000;" vertex="1" parent="1">
+          <mxGeometry x="1045" y="-630.5" width="60" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="3GUSIG28P1bqkNb9e1wR-72" value="ERC721 tokens" style="rounded=0;whiteSpace=wrap;html=1;fontColor=#000000;" vertex="1" parent="1">
+          <mxGeometry x="1010" y="-400" width="120" height="29.5" as="geometry" />
+        </mxCell>
+        <mxCell id="3GUSIG28P1bqkNb9e1wR-73" value="GazeCoin tokens" style="rounded=0;whiteSpace=wrap;html=1;fontColor=#000000;" vertex="1" parent="1">
+          <mxGeometry x="1020" y="-270" width="120" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="3GUSIG28P1bqkNb9e1wR-74" value="ETH accounts" style="rounded=0;whiteSpace=wrap;html=1;fontColor=#000000;" vertex="1" parent="1">
+          <mxGeometry x="987" y="-300" width="101" height="20.5" as="geometry" />
+        </mxCell>
+        <mxCell id="3GUSIG28P1bqkNb9e1wR-75" value="Ethereum node" style="rounded=0;whiteSpace=wrap;html=1;fontColor=#000000;" vertex="1" parent="1">
+          <mxGeometry x="1020" y="-490" width="120" height="19.5" as="geometry" />
+        </mxCell>
+        <mxCell id="3GUSIG28P1bqkNb9e1wR-76" value="" style="endArrow=classic;startArrow=classic;html=1;strokeColor=#CC00CC;fontColor=#000000;" edge="1" parent="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="560" y="-510" as="sourcePoint" />
+            <mxPoint x="610" y="-560" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="3GUSIG28P1bqkNb9e1wR-78" value="" style="endArrow=classic;startArrow=classic;html=1;strokeColor=#CC00CC;fontColor=#000000;entryX=0.5;entryY=1;entryDx=0;entryDy=0;" edge="1" parent="1" target="3GUSIG28P1bqkNb9e1wR-70">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="1075" y="-410" as="sourcePoint" />
+            <mxPoint x="610" y="-560" as="targetPoint" />
+            <Array as="points" />
           </mxGeometry>
         </mxCell>
       </root>
